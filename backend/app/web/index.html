@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Network Config Manager</title>
+<style>
+:root{
+  --bg:#f3f6fa;--surface:#fff;--surface2:#f8fafc;--line:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--blue:#2563eb;--blue-soft:#eff6ff;
+  --green:#16a34a;--green-soft:#f0fdf4;--red:#dc2626;--red-soft:#fff1f2;
+  --amber:#d97706;--nav:#0f172a;--nav2:#111827;
+  --shadow:0 8px 28px rgba(15,23,42,.06);--radius:14px
+}
+html[data-theme="dark"]{
+  --bg:#0b1120;--surface:#111827;--surface2:#172033;--line:#263247;
+  --text:#e5e7eb;--muted:#94a3b8;--blue:#60a5fa;--blue-soft:#172554;
+  --green:#4ade80;--green-soft:#052e16;--red:#fb7185;--red-soft:#3f0d18;
+  --amber:#fbbf24;--nav:#070b14;--nav2:#0b1220;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.btn{height:38px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:9px;padding:0 13px;font-size:12px;font-weight:650}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-success{background:var(--green-soft);border-color:#bbf7d0;color:var(--green)}
+.btn-danger{background:var(--red-soft);border-color:#fecdd3;color:var(--red)}
+.btn-sm{height:33px;padding:0 10px;font-size:11px}
+input,select{width:100%;height:42px;border:1px solid var(--line);border-radius:9px;padding:0 12px;background:var(--surface);color:var(--text);outline:none}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.message{font-size:12px;margin:10px 0}.message.error{color:var(--red)}.message.success{color:var(--green)}
+.login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}.login-left{display:grid;place-items:center;padding:30px}
+.login-box{width:min(430px,100%);background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:34px;box-shadow:var(--shadow)}
+.logo,.brand-mark{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;display:grid;place-items:center;font-weight:800}
+.logo{width:52px;height:52px;border-radius:15px;font-size:23px}.login-box h1{margin:20px 0 6px;font-size:27px}.login-box p{color:var(--muted);font-size:13px}
+.field{margin:15px 0}.field label,.field2 label,.modal-box label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.login-submit{width:100%;height:44px}.login-right{background:linear-gradient(145deg,#0f172a,#172554);color:#fff;display:flex;align-items:center;padding:70px}
+.login-right h2{font-size:38px;max-width:560px;line-height:1.1}.login-right p{color:#cbd5e1;max-width:560px;line-height:1.7}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:12px}.feature{border:1px solid #ffffff1c;background:#ffffff0b;padding:14px;border-radius:11px}.feature span{display:block;color:#94a3b8;font-size:11px;margin-top:4px}
+.app{min-height:100vh;display:grid;grid-template-columns:218px 1fr}.sidebar{background:linear-gradient(180deg,var(--nav),var(--nav2));color:#fff;display:flex;flex-direction:column;min-height:100vh}
+.side-brand{height:70px;padding:0 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ffffff12}.side-mark{width:36px;height:36px;border-radius:11px;background:#2563eb;display:grid;place-items:center;font-weight:800}.side-brand b{display:block}.side-brand span{display:block;color:#94a3b8;font-size:9px;margin-top:2px}
+.nav{padding:14px 10px}.nav-label{font-size:9px;text-transform:uppercase;color:#64748b;padding:8px}.nav button{display:block;width:100%;border:0;background:transparent;color:#cbd5e1;text-align:left;padding:11px 12px;border-radius:9px;margin:2px 0;font-size:12px}.nav button:hover,.nav button.active{background:#ffffff10;color:#fff}.nav button.active{box-shadow:inset 3px 0 #60a5fa}
+.side-bottom{margin-top:auto;padding:15px;border-top:1px solid #ffffff12}.user-mini{display:flex;gap:10px;align-items:center}.avatar{width:34px;height:34px;border-radius:10px;background:#2563eb;display:grid;place-items:center;font-weight:800;font-size:11px}.user-mini b{display:block;font-size:11px}.user-mini span{display:block;color:#94a3b8;font-size:9px;margin-top:2px}.logout-btn{width:100%;margin-top:12px;height:34px;border:1px solid #ffffff18;background:#ffffff08;color:#cbd5e1;border-radius:8px}
+.main{min-width:0}.topbar{height:70px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}.top-title h2{margin:0;font-size:18px}.top-title span{color:var(--muted);font-size:10px}.top-actions{display:flex;gap:8px;align-items:center}.status{font-size:11px;color:var(--muted)}.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:5px}
+.content{padding:28px;max-width:1500px}.page{display:none}.page.active{display:block}.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:20px}.page-head h1{margin:0 0 5px;font-size:27px}.page-head p{margin:0;color:var(--muted);font-size:12px}.toolbar,.actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.search{width:230px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}.kpi,.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.kpi{padding:17px;display:flex;gap:12px;align-items:center}.kpi-icon{width:40px;height:40px;border-radius:10px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-weight:800}.kpi label{font-size:10px;color:var(--muted)}.kpi strong{display:block;font-size:21px}.panel{margin-bottom:18px;overflow:hidden}.panel-head{padding:17px 20px;border-bottom:1px solid var(--line)}.panel-head h3{margin:0;font-size:14px}.panel-head p{margin:4px 0 0;font-size:10px;color:var(--muted)}.panel-body{padding:20px}
+.row{padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:15px;align-items:center}.row:last-child{border-bottom:0}.row-title{font-size:12px;font-weight:700}.meta{font-size:10px;color:var(--muted);margin-top:4px}.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:800;margin-left:5px}.ok{background:var(--green-soft);color:var(--green)}.warn{background:#fff7e8;color:#a16207}.bad{background:var(--red-soft);color:var(--red)}.vendor{width:38px;height:38px;border-radius:10px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-weight:800;flex:none}.device-main{display:flex;align-items:center;gap:11px;min-width:0}
+.vendor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.vendor-card{border:1px solid var(--line);border-radius:12px;padding:15px;display:flex;gap:10px;align-items:center;cursor:pointer}.vendor-card.selected{border:2px solid var(--blue);background:var(--blue-soft)}.vendor-card b{font-size:12px}.vendor-card span{display:block;font-size:9px;color:var(--muted);margin-top:3px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.empty{text-align:center;padding:28px;color:var(--muted);font-size:12px}.path{font:9px ui-monospace,monospace;color:var(--muted);margin-top:4px;word-break:break-all}.error-text{font-size:10px;color:var(--red);margin-top:4px}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:11px}.table th{text-align:left;color:var(--muted);font-size:9px;text-transform:uppercase;padding:11px;border-bottom:1px solid var(--line);white-space:nowrap}.table td{padding:12px 11px;border-bottom:1px solid var(--line);vertical-align:middle}.table tr:last-child td{border-bottom:0}
+.diff-controls{display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:9px}.diff-box{margin-top:13px;border:1px solid #202a45;border-radius:11px;background:#0b1220;color:#dbeafe;min-height:180px;max-height:560px;overflow:auto;font:12px/1.55 ui-monospace,monospace}.diff-line{padding:2px 12px;white-space:pre-wrap}.diff-line.add{background:#0b3b24;color:#bbf7d0}.diff-line.del{background:#4a1519;color:#fecaca}.diff-line.hunk{background:#12335c;color:#bfdbfe}
+.modal{position:fixed;inset:0;background:rgba(2,6,23,.68);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100}.modal.hidden{display:none}.modal-box{background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:22px;width:min(760px,96vw);max-height:90vh;overflow:auto;box-shadow:0 30px 90px rgba(0,0,0,.35)}.modal-box.wide{width:min(1200px,96vw)}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.modal-head h3{margin:0;font-size:18px}.close{width:34px;height:34px;border:0;border-radius:8px;background:var(--surface2);color:var(--text);font-size:20px}.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.check{display:flex!important;align-items:center;gap:8px;margin:13px 0}.check input{width:auto;height:auto}.viewer{background:#0b1220;color:#dbeafe;padding:17px;border-radius:11px;max-height:72vh;overflow:auto;white-space:pre-wrap;font:12px/1.55 monospace}
+.toast-wrap{position:fixed;right:20px;bottom:20px;z-index:200;display:flex;flex-direction:column;gap:8px}.toast{background:#0f172a;color:#fff;padding:12px 15px;border-radius:10px;font-size:12px;box-shadow:0 10px 30px #0004;max-width:380px}.toast.ok{border-left:4px solid #22c55e}.toast.err{border-left:4px solid #ef4444}
+@media(max-width:1000px){.login{grid-template-columns:1fr}.login-right{display:none}.app{grid-template-columns:72px 1fr}.side-brand b,.side-brand span,.nav-label,.nav button .txt,.side-bottom .user-mini div:last-child,.logout-btn{display:none}.side-brand{justify-content:center}.nav button{text-align:center}.content{padding:20px}.kpis{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.diff-controls{grid-template-columns:1fr}.table{min-width:760px}}
+@media(max-width:650px){.app{display:block}.sidebar{height:auto;min-height:0;position:static}.side-brand,.side-bottom{display:none}.nav{display:flex;overflow:auto;white-space:nowrap;padding:7px}.nav button{width:auto;padding:0 12px}.topbar{padding:0 14px}.content{padding:15px}.page-head{display:block}.toolbar{margin-top:10px}.kpis,.vendor-grid,.modal-grid{grid-template-columns:1fr}.row{align-items:flex-start;flex-direction:column}.actions{flex-wrap:wrap}.search{width:100%}}
+</style>
+</head>
+<body>
+
+<section id="loginScreen" class="login">
+  <div class="login-left"><div class="login-box">
+    <div class="logo">N</div>
+    <h1>Welcome back</h1><p>Sign in to Network Config Manager</p>
+    <form id="loginForm">
+      <div class="field"><label>Username</label><input id="loginUsername" autocomplete="username" required></div>
+      <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+      <button id="loginButton" class="btn btn-primary login-submit">Sign in</button>
+    </form>
+    <p id="loginMessage" class="message"></p>
+  </div></div>
+  <div class="login-right"><div><h2>Secure network configuration management.</h2>
+    <p>Centralize device inventory, automated configuration backups, schedules and configuration comparison.</p>
+    <div class="features"><div class="feature"><b>Multi-vendor</b><span>Huawei · Juniper · Arista</span></div>
+    <div class="feature"><b>Automated Backup</b><span>Scheduled snapshots</span></div>
+    <div class="feature"><b>Config Diff</b><span>Compare changes</span></div>
+    <div class="feature"><b>Secure Access</b><span>Encrypted credentials</span></div></div>
+  </div></div>
+</section>
+
+<section id="appShell" class="app hidden">
+<aside class="sidebar">
+  <div class="side-brand"><div class="side-mark">N</div><div><b>NCM</b><span>Network Config Manager</span></div></div>
+  <nav class="nav">
+    <div class="nav-label">Operations</div>
+    <button class="active" data-page="dashboard" onclick="showPage('dashboard')">▦ <span class="txt">Dashboard</span></button>
+    <button data-page="devices" onclick="showPage('devices')">▣ <span class="txt">Devices</span></button>
+    <button data-page="add" onclick="showPage('add')">＋ <span class="txt">Add Device</span></button>
+    <button data-page="backups" onclick="showPage('backups')">▤ <span class="txt">Backup History</span></button>
+    <button data-page="diff" onclick="showPage('diff')">⇄ <span class="txt">Config Diff</span></button>
+    <button data-page="schedules" onclick="showPage('schedules')">◷ <span class="txt">Schedules</span></button>
+    <button data-page="users" data-permission="users.view" onclick="showPage('users')">♙ <span class="txt">Users</span></button>
+    <button data-page="audit" data-permission="audit.view" onclick="showPage('audit')">▤ <span class="txt">Audit Logs</span></button>
+  </nav>
+  <div class="side-bottom"><div class="user-mini"><div class="avatar" id="avatar">AD</div><div><b id="sideUser">admin</b><span id="sideRole">Administrator</span></div></div><button class="logout-btn" onclick="logout()">Sign out</button></div>
+</aside>
+
+<div class="main">
+<header class="topbar"><div class="top-title"><h2 id="topTitle">Dashboard</h2><span>Network Operations</span></div>
+<div class="top-actions"><div class="status"><span class="dot"></span>Authenticated</div><button class="btn btn-sm" onclick="toggleTheme()" id="themeBtn">☾ Dark</button><button class="btn btn-sm" onclick="loadAll()">↻ Refresh</button></div></header>
+<main class="content">
+
+<section id="page-dashboard" class="page active">
+<div class="page-head"><div><h1>Dashboard</h1><p>Network configuration management overview.</p></div></div>
+<div class="kpis">
+<div class="kpi"><div class="kpi-icon">D</div><div><label>Total Devices</label><strong id="statDevices">—</strong></div></div>
+<div class="kpi"><div class="kpi-icon">✓</div><div><label>Successful Backups</label><strong id="statBackups">—</strong></div></div>
+<div class="kpi"><div class="kpi-icon">◷</div><div><label>Active Schedules</label><strong id="statSchedules">—</strong></div></div>
+<div class="kpi"><div class="kpi-icon">!</div><div><label>Failed Backups</label><strong id="statFailed">—</strong></div></div>
+</div>
+<div class="panel"><div class="panel-head"><h3>Recent Devices</h3><p>Quick access to registered network devices.</p></div><div class="panel-body" id="dashboardDevices"></div></div>
+<div class="panel"><div class="panel-head"><h3>Recent Backups</h3><p>Latest configuration backup activity.</p></div><div class="panel-body" id="dashboardBackups"></div></div>
+</section>
+
+<section id="page-devices" class="page">
+<div class="page-head"><div><h1>Devices</h1><p>Manage registered network devices and operations.</p></div>
+<div class="toolbar"><input class="search" id="deviceSearch" placeholder="Search hostname, IP, vendor, site..." oninput="renderDevices()"><button class="btn btn-primary" onclick="showPage('add')">＋ Add Device</button><button class="btn" onclick="exportCSV()">Export CSV</button><button class="btn" onclick="$('csvFile').click()">Import CSV</button><input id="csvFile" type="file" accept=".csv,text/csv" class="hidden" onchange="importCSV(event)"><button class="btn" onclick="downloadCSVTemplate()">Template</button></div></div>
+<div class="panel"><div class="panel-body" id="devices"></div></div>
+</section>
+
+<section id="page-add" class="page">
+<div class="page-head"><div><h1>Add Device</h1><p>Register a network device securely.</p></div></div>
+<div class="panel"><div class="panel-head"><h3>Device Information</h3><p>Credentials are encrypted by the backend before storage.</p></div><div class="panel-body">
+<div class="vendor-grid" style="margin-bottom:18px">
+<div class="vendor-card selected" data-v="huawei" onclick="selectVendor('huawei')"><div class="vendor">H</div><div><b>Huawei</b><span>VRP / network devices</span></div></div>
+<div class="vendor-card" data-v="juniper" onclick="selectVendor('juniper')"><div class="vendor">J</div><div><b>Juniper</b><span>Junos devices</span></div></div>
+<div class="vendor-card" data-v="arista" onclick="selectVendor('arista')"><div class="vendor">A</div><div><b>Arista</b><span>EOS devices</span></div></div>
+</div>
+<div class="form-grid">
+<div class="field2"><label>Hostname</label><input id="hostname" placeholder="e.g. TSR-CORE-R01"></div>
+<div class="field2"><label>Management IP</label><input id="ip" placeholder="e.g. 172.19.5.50"></div>
+<div class="field2"><label>Model</label><input id="model" placeholder="e.g. S6730"></div>
+<div class="field2"><label>SSH Username</label><input id="duser" placeholder="Username"></div>
+<div class="field2"><label>SSH Port</label><input id="sshport" type="number" min="1" max="65535" value="22"></div>
+<div class="field2"><label>SSH Password</label><input id="dpass" type="password" placeholder="Password"></div>
+<div class="field2"><label>Site / Location</label><input id="site" placeholder="TSR" value="TSR"></div>
+</div>
+<div class="form-actions"><button class="btn btn-primary" onclick="addDevice()">＋ Add Device</button></div><p id="addResult" class="message"></p>
+</div></div>
+</section>
+
+<section id="page-backups" class="page"><div class="page-head"><div><h1>Backup History</h1><p>Configuration snapshots and backup results.</p></div><button class="btn" onclick="loadBackups()">↻ Refresh</button></div><div class="panel"><div class="panel-body" id="backups"></div></div></section>
+
+<section id="page-diff" class="page"><div class="page-head"><div><h1>Config Diff</h1><p>Compare two successful configuration backups.</p></div></div>
+<div class="panel"><div class="panel-body"><div class="diff-controls"><select id="diffDevice" onchange="loadDiffOptions()"><option value="">Select device</option></select><select id="diffA"><option value="">Older backup</option></select><select id="diffB"><option value="">Newer backup</option></select><button class="btn btn-primary" onclick="runDiff()">Compare</button></div><div id="diffResult" class="diff-box"></div></div></div></section>
+
+<section id="page-schedules" class="page"><div class="page-head"><div><h1>Schedules</h1><p>Automatic configuration backup schedules.</p></div><button class="btn" onclick="loadSchedules()">↻ Refresh</button></div><div class="panel"><div class="panel-body" id="schedules"></div></div></section>
+
+<section id="page-users" class="page" data-page-permission="users.view">
+<div class="page-head"><div><h1>User Management</h1><p>Manage application users, roles and account status.</p></div><div class="toolbar"><button class="btn btn-primary" onclick="openUserCreate()">＋ Add User</button><button class="btn" onclick="loadUsers()">↻ Refresh</button></div></div>
+<div class="panel"><div class="table-wrap"><table class="table"><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Email</th><th style="text-align:right">Actions</th></tr></thead><tbody id="usersTable"><tr><td colspan="5" class="empty">Loading users...</td></tr></tbody></table></div></div>
+</section>
+
+<section id="page-audit" class="page" data-page-permission="audit.view">
+<div class="page-head"><div><h1>Audit Logs</h1><p>Security and operational activity recorded by the application.</p></div><div class="toolbar"><select id="auditAction" style="width:190px" onchange="loadAudit()"><option value="">All actions</option></select><button class="btn" onclick="loadAudit()">↻ Refresh</button></div></div>
+<div class="panel"><div class="table-wrap"><table class="table"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>Status</th><th>Details</th><th>Source</th></tr></thead><tbody id="auditTable"></tbody></table></div></div>
+</section>
+
+</main></div></section>
+
+<div id="userModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3 id="userModalTitle">Add User</h3><button class="close" onclick="closeUserModal()">×</button></div>
+<div class="modal-grid"><label>Username<input id="u_username" autocomplete="off"></label><label>Display Name<input id="u_display"></label><label>Email<input id="u_email" type="email"></label><label>Role<select id="u_role"><option value="viewer">Viewer</option><option value="operator">Operator</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></label><label>Password<input id="u_password" type="password" autocomplete="new-password"></label><label class="check"><input id="u_active" type="checkbox" checked> Account active</label></div>
+<p id="userResult" class="message"></p><div class="form-actions"><button class="btn" onclick="closeUserModal()">Cancel</button><button class="btn btn-primary" onclick="saveUser()">Save User</button></div></div></div>
+
+<div id="editModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3>Edit Device</h3><button class="close" onclick="closeEdit()">×</button></div>
+<div class="modal-grid"><label>Hostname<input id="e_hostname"></label><label>Management IP<input id="e_ip"></label><label>Vendor<select id="e_vendor"><option value="huawei">Huawei</option><option value="juniper">Juniper</option><option value="arista">Arista</option></select></label><label>Model<input id="e_model"></label><label>SSH Username<input id="e_user"></label><label>SSH Port<input id="e_port" type="number"></label><label>New SSH Password<input id="e_pass" type="password" placeholder="Leave blank to keep current"></label><label>Site<input id="e_site"></label></div>
+<label class="check"><input id="e_enabled" type="checkbox"> Device enabled</label><p id="editResult" class="message"></p><div class="form-actions"><button class="btn" onclick="closeEdit()">Cancel</button><button class="btn btn-primary" onclick="saveEdit()">Save Changes</button></div></div></div>
+
+<div id="viewerModal" class="modal hidden"><div class="modal-box wide"><div class="modal-head"><h3 id="viewerTitle">Backup</h3><button class="close" onclick="closeViewer()">×</button></div><div id="viewerContent" class="viewer"></div></div></div>
+
+<div id="scheduleModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3>Backup Schedule</h3><button class="close" onclick="closeSchedule()">×</button></div><p id="scheduleDeviceName" class="meta"></p>
+<div class="modal-grid"><label class="check"><input id="s_enabled" type="checkbox"> Schedule enabled</label><label>Interval<select id="s_interval"><option value="15">Every 15 min</option><option value="30">Every 30 min</option><option value="60">Hourly</option><option value="360">Every 6 hours</option><option value="720">Every 12 hours</option><option value="1440">Daily</option><option value="10080">Weekly</option></select></label><label>Custom interval (minutes)<input id="s_custom" type="number" min="15"></label><label>Retry count<input id="s_retry" type="number" min="0" value="2"></label><label>Retry delay (seconds)<input id="s_delay" type="number" min="0" value="30"></label><label>Keep backups<input id="s_retention" type="number" min="1" value="30"></label></div>
+<p id="scheduleResult" class="message"></p><div class="form-actions"><button class="btn btn-danger" onclick="deleteSchedule()">Remove</button><button class="btn btn-primary" onclick="saveSchedule()">Save</button></div></div></div>
+
+<div id="csvModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3>CSV Import Result</h3><button class="close" onclick="closeCSVModal()">×</button></div><div id="csvResult" class="empty"></div></div></div>
+<div id="toastWrap" class="toast-wrap"></div>
+
+<script>
+let token=localStorage.getItem("ncm_token")||"",currentUser=null,editingId=null,scheduleDeviceId=null,cachedDevices=[],cachedBackups=[],cachedSchedules=[];
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
+function jsq(v){return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+function fmt(v){return v?new Date(v).toLocaleString():"—"}
+function devName(id){return (cachedDevices.find(x=>x.id===id)||{}).hostname||`Device ${id}`}
+function vendorIcon(v){return v==="huawei"?"H":v==="juniper"?"J":v==="arista"?"A":"N"}
+function toast(m,type="ok"){const e=document.createElement("div");e.className="toast "+(type==="err"?"err":"ok");e.textContent=m;$("toastWrap").appendChild(e);setTimeout(()=>e.remove(),3500)}
+function msg(id,m,type=""){const e=$(id);if(!e)return;e.textContent=m;e.className="message "+type}
+function handle401(){localStorage.removeItem("ncm_token");token="";currentUser=null;showLogin();msg("loginMessage","Your session has expired. Please sign in again.","error")}
+async function api(url,opt={}){if(!token){handle401();throw Error("Not authenticated")}const h={...(opt.headers||{}),Authorization:"Bearer "+token};if(opt.body&&!h["Content-Type"])h["Content-Type"]="application/json";const r=await fetch(url,{...opt,headers:h});if(r.status===401){handle401();throw Error("Unauthorized")}return r}
+const ROLE_PERMS={super_admin:["users.view","audit.view"],admin:["users.view","audit.view"],operator:[],viewer:[]};
+function can(p){const r=currentUser?.role;if(r==="super_admin")return true;return r==="admin"&&["users.view","audit.view"].includes(p)}
+function showLogin(){$("appShell").classList.add("hidden");$("loginScreen").classList.remove("hidden")}
+function showApp(){$("loginScreen").classList.add("hidden");$("appShell").classList.remove("hidden");const u=currentUser?.username||"admin";$("sideUser").textContent=u;$("sideRole").textContent=(currentUser?.role||"viewer").replace("_"," ");$("avatar").textContent=u.slice(0,2).toUpperCase();document.querySelectorAll("[data-permission]").forEach(el=>el.classList.toggle("hidden",!can(el.dataset.permission)))}
+async function login(){const b=$("loginButton");b.disabled=true;b.textContent="Signing in...";msg("loginMessage","");try{const r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("loginUsername").value.trim(),password:$("loginPassword").value})}),d=await r.json();if(!r.ok){msg("loginMessage",d.detail||"Invalid username or password","error");return}token=d.access_token;localStorage.setItem("ncm_token",token);const me=await fetch("/api/auth/me",{headers:{Authorization:"Bearer "+token}});if(!me.ok)throw Error("Unable to read user session");currentUser=await me.json();showApp();await loadAll();showPage("dashboard");toast("Login successful")}catch(e){msg("loginMessage",e.message||"Unable to connect to server","error")}finally{b.disabled=false;b.textContent="Sign in"}}
+function logout(){localStorage.removeItem("ncm_token");token="";currentUser=null;cachedDevices=[];cachedBackups=[];cachedSchedules=[];showLogin();msg("loginMessage","You have been logged out.","success")}
+$("loginForm").onsubmit=e=>{e.preventDefault();login()}
+function showPage(n){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));const page=$("page-"+n);if(!page)return;page.classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===n));$("topTitle").textContent={dashboard:"Dashboard",devices:"Devices",add:"Add Device",backups:"Backup History",diff:"Config Diff",schedules:"Schedules",users:"Users",audit:"Audit Logs"}[n]||"Network Config Manager";if(n==="devices")renderDevices();if(n==="backups")loadBackups();if(n==="diff")loadDiffDevices();if(n==="schedules")loadSchedules();if(n==="users")loadUsers();if(n==="audit")loadAudit()}
+function selectVendor(v){document.querySelectorAll(".vendor-card").forEach(x=>x.classList.toggle("selected",x.dataset.v===v))}
+async function loadAll(){await Promise.all([loadDevices(),loadBackups(),loadSchedules()]);loadDiffDevices();renderDashboard()}
+function renderDashboard(){$("statDevices").textContent=cachedDevices.length;$("statBackups").textContent=cachedBackups.filter(x=>x.status==="SUCCESS").length;$("statFailed").textContent=cachedBackups.filter(x=>x.status==="FAILED").length;$("statSchedules").textContent=cachedSchedules.filter(x=>x.enabled).length;$("dashboardDevices").innerHTML=cachedDevices.slice(0,5).map(x=>`<div class="row"><div class="device-main"><div class="vendor">${vendorIcon(x.vendor)}</div><div><div class="row-title">${esc(x.hostname)} <span class="badge ${x.enabled?"ok":"warn"}">${x.enabled?"ENABLED":"DISABLED"}</span></div><div class="meta">${esc(x.vendor)} • ${esc(x.management_ip)}:${x.ssh_port} • ${esc(x.site||"No site")}</div></div></div><div class="actions"><button class="btn btn-sm btn-success" onclick="backupDevice(${x.id})">Backup</button><button class="btn btn-sm" onclick="showPage('devices')">Manage</button></div></div>`).join("")||'<div class="empty">No devices configured.</div>';$("dashboardBackups").innerHTML=cachedBackups.slice(0,5).map(x=>`<div class="row"><div><div class="row-title"><span class="badge ${x.status==="SUCCESS"?"ok":"bad"}">${esc(x.status)}</span> #${x.id} • ${esc(x.hostname)}</div><div class="meta">${esc(fmt(x.created_at))}</div></div>${x.status==="SUCCESS"?`<button class="btn btn-sm" onclick="viewBackup(${x.id},'${jsq(x.hostname)}')">View</button>`:""}</div>`).join("")||'<div class="empty">No backups yet.</div>'}
+async function loadDevices(){try{const r=await api("/api/devices/"),d=await r.json();if(!r.ok){toast(d.detail||"Failed to load devices","err");return}cachedDevices=d;renderDevices();renderDashboard()}catch(e){}}
+function renderDevices(){const q=($("deviceSearch")?.value||"").toLowerCase().trim();const d=cachedDevices.filter(x=>[x.hostname,x.management_ip,x.vendor,x.model,x.site].join(" ").toLowerCase().includes(q));$("devices").innerHTML=d.length?`<div class="table-wrap"><table class="table"><thead><tr><th>Device</th><th>Vendor / Model</th><th>Management</th><th>Site</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody>${d.map(x=>`<tr><td><div class="device-main"><div class="vendor">${vendorIcon(x.vendor)}</div><div><b>${esc(x.hostname)}</b><div class="meta">ID #${x.id}</div></div></div></td><td style="text-transform:capitalize">${esc(x.vendor)}<div class="meta">${esc(x.model||"—")}</div></td><td>${esc(x.management_ip)}:${x.ssh_port}<div class="meta">${esc(x.username)}</div></td><td>${esc(x.site||"—")}</td><td><span class="badge ${x.enabled?"ok":"warn"}">${x.enabled?"ENABLED":"DISABLED"}</span></td><td><div class="actions"><button class="btn btn-sm" onclick="editDevice(${x.id})">Edit</button><button class="btn btn-sm" onclick="testDevice(${x.id})">Test SSH</button><button class="btn btn-sm btn-success" onclick="backupDevice(${x.id})">Backup</button><button class="btn btn-sm" onclick="openSchedule(${x.id},'${jsq(x.hostname)}')">Schedule</button><button class="btn btn-sm btn-danger" onclick="deleteDevice(${x.id},'${jsq(x.hostname)}')">Delete</button></div></td></tr>`).join("")}</tbody></table></div>`:'<div class="empty">No matching devices.</div>'}
+async function addDevice(){const v=document.querySelector(".vendor-card.selected")?.dataset.v||"huawei";const p={hostname:$("hostname").value.trim(),management_ip:$("ip").value.trim(),vendor:v,model:$("model").value.trim()||null,username:$("duser").value.trim(),password:$("dpass").value,ssh_port:parseInt($("sshport").value||"22",10),site:$("site").value.trim()||"DEFAULT"};if(!p.hostname||!p.management_ip||!p.username||!p.password){msg("addResult","Hostname, IP, username and password are required.","error");return}try{const r=await api("/api/devices/",{method:"POST",body:JSON.stringify(p)}),d=await r.json();if(!r.ok){msg("addResult",d.detail||"Failed to add device","error");return}msg("addResult","Device added successfully.","success");["hostname","ip","model","duser","dpass"].forEach(id=>$(id).value="");await loadDevices();showPage("devices")}catch(e){}}
+async function editDevice(id){const x=cachedDevices.find(v=>v.id===id);if(!x)return;editingId=id;$("e_hostname").value=x.hostname;$("e_ip").value=x.management_ip;$("e_vendor").value=x.vendor;$("e_model").value=x.model||"";$("e_user").value=x.username;$("e_port").value=x.ssh_port;$("e_pass").value="";$("e_site").value=x.site||"";$("e_enabled").checked=!!x.enabled;msg("editResult","");$("editModal").classList.remove("hidden")}
+function closeEdit(){$("editModal").classList.add("hidden");editingId=null}
+async function saveEdit(){if(!editingId)return;const p={hostname:$("e_hostname").value.trim(),management_ip:$("e_ip").value.trim(),vendor:$("e_vendor").value,model:$("e_model").value.trim()||null,username:$("e_user").value.trim(),ssh_port:parseInt($("e_port").value||"22",10),site:$("e_site").value.trim()||"DEFAULT",enabled:$("e_enabled").checked};if($("e_pass").value)p.password=$("e_pass").value;try{const r=await api(`/api/devices/${editingId}`,{method:"PATCH",body:JSON.stringify(p)}),d=await r.json();if(!r.ok){msg("editResult",d.detail||"Update failed","error");return}closeEdit();toast("Device updated");await loadDevices()}catch(e){}}
+async function deleteDevice(id,name){if(!confirm(`Delete device ${name}?`))return;const r=await api(`/api/devices/${id}`,{method:"DELETE"}),d=await r.json();if(!r.ok){toast(d.detail||"Delete failed","err");return}toast("Device deleted");await loadDevices()}
+async function testDevice(id){try{const r=await api(`/api/devices/${id}/test`,{method:"POST"}),d=await r.json();toast(d.message||d.detail||(r.ok?"SSH test successful":"SSH test failed"),r.ok?"ok":"err")}catch(e){}}
+async function backupDevice(id){try{const r=await api(`/api/backups/${id}/run`,{method:"POST"}),d=await r.json();toast(d.success?"Backup completed":(d.error||"Backup failed"),d.success?"ok":"err");await loadBackups()}catch(e){}}
+async function loadBackups(){try{const r=await api("/api/backups/?limit=200"),d=await r.json();if(!r.ok)return;cachedBackups=d;$("backups").innerHTML=d.map(x=>`<div class="row"><div><div class="row-title"><span class="badge ${x.status==="SUCCESS"?"ok":"bad"}">${esc(x.status)}</span> #${x.id} • ${esc(x.hostname)}</div><div class="meta">${esc(fmt(x.created_at))}</div>${x.file_path?`<div class="path">${esc(x.file_path)}</div>`:""}${x.error?`<div class="error-text">${esc(x.error)}</div>`:""}</div><div class="actions">${x.status==="SUCCESS"?`<button class="btn btn-sm" onclick="viewBackup(${x.id},'${jsq(x.hostname)}')">View</button><button class="btn btn-sm btn-primary" onclick="downloadBackup(${x.id})">Download</button>`:""}</div></div>`).join("")||'<div class="empty">No backups yet.</div>';renderDashboard()}catch(e){}}
+async function viewBackup(id,n){const r=await api(`/api/backups/${id}/view`),t=await r.text();if(!r.ok)return toast("Unable to view backup","err");$("viewerTitle").textContent=`Backup #${id} — ${n}`;$("viewerContent").textContent=t;$("viewerModal").classList.remove("hidden")}
+function closeViewer(){$("viewerModal").classList.add("hidden")}
+async function downloadBackup(id){try{const r=await api(`/api/backups/${id}/download`);if(!r.ok)return toast("Download failed","err");const b=await r.blob(),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=`backup-${id}.conf`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u)}catch(e){}}
+function loadDiffDevices(){$("diffDevice").innerHTML='<option value="">Select device</option>'+cachedDevices.map(x=>`<option value="${x.id}">${esc(x.hostname)} (${esc(x.vendor)})</option>`).join("");$("diffA").innerHTML='<option value="">Older backup</option>';$("diffB").innerHTML='<option value="">Newer backup</option>'}
+async function loadDiffOptions(){const id=$("diffDevice").value;if(!id)return;const r=await api(`/api/backups/?device_id=${id}&limit=200`),d=await r.json(),o=d.filter(x=>x.status==="SUCCESS").map(x=>`<option value="${x.id}">#${x.id} — ${esc(fmt(x.created_at))}</option>`).join("");$("diffA").innerHTML='<option value="">Older backup</option>'+o;$("diffB").innerHTML='<option value="">Newer backup</option>'+o}
+async function runDiff(){if(!$("diffA").value||!$("diffB").value)return toast("Select two backups","err");try{const r=await api(`/api/backups/diff?backup_a=${$("diffA").value}&backup_b=${$("diffB").value}`),d=await r.json();if(!r.ok){$("diffResult").textContent=d.detail||"Diff failed";return}if(!d.changed){$("diffResult").textContent="No configuration changes detected.";return}$("diffResult").innerHTML=d.lines.map(line=>{const cls=line.startsWith("+")&&!line.startsWith("+++")?"add":line.startsWith("-")&&!line.startsWith("---")?"del":line.startsWith("@@")?"hunk":"";return `<div class="diff-line ${cls}">${esc(line)||" "}</div>`}).join("")}catch(e){}}
+async function loadSchedules(){try{const r=await api("/api/schedules/"),d=await r.json();if(!r.ok)return;cachedSchedules=d;$("schedules").innerHTML=d.length?d.map(x=>`<div class="row"><div><div class="row-title">${esc(devName(x.device_id))} <span class="badge ${x.enabled?"ok":"warn"}">${x.enabled?"ENABLED":"DISABLED"}</span></div><div class="meta">Every ${esc(intervalText(x.interval_minutes))} • Keep ${x.retention_count} • Retry ${x.retry_count}×${x.next_run?" • Next: "+esc(fmt(x.next_run)):""}</div></div><button class="btn btn-sm" onclick="openSchedule(${x.device_id},'${jsq(devName(x.device_id))}')">Edit</button></div>`).join(""):'<div class="empty">No automatic backup schedules configured.</div>';renderDashboard()}catch(e){}}
+async function openSchedule(id,n){scheduleDeviceId=id;$("scheduleDeviceName").textContent=`Device: ${n}`;try{const r=await api(`/api/schedules/${id}`),d=await r.json();if(!r.ok)return;$("s_enabled").checked=!!d.enabled;$("s_interval").value=String(d.interval_minutes);$("s_custom").value="";if(!["15","30","60","360","720","1440","10080"].includes(String(d.interval_minutes)))$("s_custom").value=d.interval_minutes;$("s_retry").value=d.retry_count??2;$("s_delay").value=d.retry_delay_seconds??30;$("s_retention").value=d.retention_count??30;$("scheduleModal").classList.remove("hidden")}catch(e){}}
+function closeSchedule(){$("scheduleModal").classList.add("hidden");scheduleDeviceId=null}
+async function saveSchedule(){const custom=parseInt($("s_custom").value||"0",10),interval=custom>0?custom:parseInt($("s_interval").value,10),p={enabled:$("s_enabled").checked,interval_minutes:interval,retry_count:parseInt($("s_retry").value||"0",10),retry_delay_seconds:parseInt($("s_delay").value||"0",10),retention_count:parseInt($("s_retention").value||"30",10)};try{const r=await api(`/api/schedules/${scheduleDeviceId}`,{method:"PUT",body:JSON.stringify(p)}),d=await r.json();if(!r.ok){msg("scheduleResult",d.detail||"Failed","error");return}msg("scheduleResult",d.enabled?`Saved. Next run: ${fmt(d.next_run)}`:"Schedule disabled.","success");toast("Schedule saved");await loadSchedules()}catch(e){}}
+async function deleteSchedule(){if(!scheduleDeviceId||!confirm("Remove automatic backup schedule?"))return;try{const r=await api(`/api/schedules/${scheduleDeviceId}`,{method:"DELETE"}),d=await r.json();if(!r.ok){toast(d.detail||"Failed","err");return}toast("Schedule removed");closeSchedule();await loadSchedules()}catch(e){}}
+function intervalText(m){if(m%10080===0)return `${m/10080} week(s)`;if(m%1440===0)return `${m/1440} day(s)`;if(m%60===0)return `${m/60} hour(s)`;return `${m} min`}
+async function loadUsers(){if(!can("users.view"))return;const table=$("usersTable");if(!table)return;table.innerHTML='<tr><td colspan="5" class="empty">Loading users...</td></tr>';try{const r=await api("/api/users/"),d=await r.json();if(!r.ok){table.innerHTML=`<tr><td colspan="5" class="empty">${esc(d.detail||"Unable to load users")}</td></tr>`;return}if(!Array.isArray(d)){table.innerHTML='<tr><td colspan="5" class="empty">Invalid users response.</td></tr>';return}table.innerHTML=d.map(u=>`<tr><td><b>${esc(u.username)}</b><div class="meta">${esc(u.display_name||"")}</div></td><td><span class="badge ${u.role==="super_admin"||u.role==="admin"?"ok":"warn"}">${esc(String(u.role||"").replaceAll("_"," ").toUpperCase())}</span></td><td><span class="badge ${u.is_active?"ok":"bad"}">${u.is_active?"ACTIVE":"DISABLED"}</span></td><td>${esc(u.email||"—")}</td><td><div class="actions" style="justify-content:flex-end"><button class="btn btn-sm" onclick="openUserEdit(${u.id})">Edit</button>${u.id!==currentUser?.id?`<button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id},'${jsq(u.username)}')">Delete</button>`:""}</div></td></tr>`).join("")||'<tr><td colspan="5" class="empty">No users.</td></tr>'}catch(e){console.error(e);table.innerHTML='<tr><td colspan="5" class="empty">Unable to load users. Check browser console.</td></tr>'}}
+let editingUserId=null;
+function openUserCreate(){editingUserId=null;$("userModalTitle").textContent="Add User";$("u_username").value="";$("u_username").disabled=false;$("u_display").value="";$("u_email").value="";$("u_password").value="";$("u_role").value="viewer";$("u_active").checked=true;msg("userResult","");$("userModal").classList.remove("hidden")}
+async function openUserEdit(id){try{const r=await api("/api/users/"),d=await r.json(),u=d.find(x=>x.id===id);if(!u)return;editingUserId=id;$("userModalTitle").textContent="Edit User";$("u_username").value=u.username;$("u_username").disabled=true;$("u_display").value=u.display_name||"";$("u_email").value=u.email||"";$("u_password").value="";$("u_role").value=u.role;$("u_active").checked=!!u.is_active;msg("userResult","");$("userModal").classList.remove("hidden")}catch(e){}}
+function closeUserModal(){$("userModal").classList.add("hidden");editingUserId=null}
+async function saveUser(){const p={display_name:$("u_display").value.trim()||null,email:$("u_email").value.trim()||null,role:$("u_role").value,is_active:$("u_active").checked};if(!editingUserId){p.username=$("u_username").value.trim();p.password=$("u_password").value;if(!p.username||p.password.length<8){msg("userResult","Username and password (minimum 8 characters) are required.","error");return}}else if($("u_password").value)p.password=$("u_password").value;try{const url=editingUserId?`/api/users/${editingUserId}`:"/api/users/";const r=await api(url,{method:editingUserId?"PATCH":"POST",body:JSON.stringify(p)}),d=await r.json();if(!r.ok){msg("userResult",d.detail||"Unable to save user","error");return}closeUserModal();toast(editingUserId?"User updated":"User created");await loadUsers()}catch(e){}}
+async function deleteUser(id,name){if(!confirm(`Delete user ${name}?`))return;const r=await api(`/api/users/${id}`,{method:"DELETE"});if(!r.ok){const d=await r.json();toast(d.detail||"Delete failed","err");return}toast("User deleted");await loadUsers()}
+async function loadAudit(){if(!can("audit.view"))return;try{const action=$("auditAction").value,r=await api(`/api/audit/?limit=300${action?"&action="+encodeURIComponent(action):""}`),d=await r.json();if(!r.ok){toast(d.detail||"Unable to load audit logs","err");return}const actions=[...new Set(d.map(x=>x.action))].sort(),sel=$("auditAction"),old=sel.value;sel.innerHTML='<option value="">All actions</option>'+actions.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join("");sel.value=old;$("auditTable").innerHTML=d.map(x=>`<tr><td>${esc(fmt(x.created_at))}</td><td><b>${esc(x.username||"system")}</b></td><td>${esc(x.action)}</td><td>${esc((x.resource||"")+" "+(x.resource_id||""))}</td><td><span class="badge ${x.status==="SUCCESS"?"ok":"bad"}">${esc(x.status)}</span></td><td>${esc(x.details||"—")}</td><td>${esc(x.source_ip||"—")}</td></tr>`).join("")||'<tr><td colspan="7" class="empty">No audit events.</td></tr>'}catch(e){}}
+function applyTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem("ncm_theme",t);$("themeBtn").textContent=t==="dark"?"☀ Light":"☾ Dark"}function toggleTheme(){applyTheme(document.documentElement.dataset.theme==="dark"?"light":"dark")}applyTheme(localStorage.getItem("ncm_theme")||"light");
+function csvEscape(v){const s=String(v??"");return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function exportCSV(){const headers=["hostname","management_ip","vendor","model","username","ssh_port","site","enabled"],lines=[headers.join(",")];cachedDevices.forEach(d=>lines.push(headers.map(h=>csvEscape(d[h])).join(",")));const blob=new Blob(["\ufeff"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=`network-devices-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast("Device CSV exported")}
+function downloadCSVTemplate(){const sample="hostname,management_ip,vendor,model,username,password,ssh_port,site,enabled\r\nTSR-CORE-R01,172.19.5.50,arista,7280R,justin,CHANGE_ME,22,TSR,true\r\n";const blob=new Blob(["\ufeff"+sample],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="ncm-device-import-template.csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast("CSV template downloaded")}
+function parseCSV(text){const rows=[];let row=[],cell="",quoted=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(quoted){if(c=='"'&&n=='"'){cell+='"';i++}else if(c=='"'){quoted=false}else cell+=c}else{if(c=='"')quoted=true;else if(c===","){row.push(cell);cell=""}else if(c==="\n"){row.push(cell.replace(/\r$/,""));rows.push(row);row=[];cell=""}else cell+=c}}if(cell.length||row.length){row.push(cell.replace(/\r$/,""));rows.push(row)}return rows.filter(r=>r.some(x=>String(x).trim()!==""))}
+async function importCSV(e){const file=e.target.files?.[0];e.target.value="";if(!file)return;try{const rows=parseCSV(await file.text());if(rows.length<2){toast("CSV is empty","err");return}const headers=rows[0].map(x=>String(x).trim().toLowerCase()),required=["hostname","management_ip","vendor","username","password"],missing=required.filter(x=>!headers.includes(x));if(missing.length){toast("Missing columns: "+missing.join(", "),"err");return}let success=0,failed=0,errors=[];for(let i=1;i<rows.length;i++){const obj={};headers.forEach((h,j)=>obj[h]=(rows[i][j]??"").trim());const p={hostname:obj.hostname,management_ip:obj.management_ip,vendor:(obj.vendor||"huawei").toLowerCase(),model:obj.model||null,username:obj.username,password:obj.password,ssh_port:parseInt(obj.ssh_port||"22",10),site:obj.site||"DEFAULT",enabled:obj.enabled===""?true:!["false","0","no","disabled"].includes(obj.enabled.toLowerCase())};if(!p.hostname||!p.management_ip||!p.username||!p.password){failed++;errors.push(`Row ${i+1}: required value missing`);continue}try{const r=await api("/api/devices/",{method:"POST",body:JSON.stringify(p)}),d=await r.json();if(r.ok)success++;else{failed++;errors.push(`Row ${i+1}: ${d.detail||"Import failed"}`)}}catch(err){failed++;errors.push(`Row ${i+1}: request failed`)}}await loadAll();$("csvResult").innerHTML=`<b>Import completed</b><p style="margin:8px 0">Successful: <b style="color:var(--green)">${success}</b><br>Failed: <b style="color:var(--red)">${failed}</b></p>${errors.length?`<div style="text-align:left;color:var(--red);font-size:11px">${errors.map(esc).join("<br>")}</div>`:"<div class='message success'>All rows imported successfully.</div>"}`;$("csvModal").classList.remove("hidden")}catch(err){toast("Unable to read CSV file","err")}}
+function closeCSVModal(){$("csvModal").classList.add("hidden")}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")["userModal","editModal","viewerModal","scheduleModal","csvModal"].forEach(id=>$(id).classList.add("hidden"))});
+async function validateSession(){if(!token){showLogin();return}try{const r=await api("/api/auth/me");if(!r.ok)throw Error();currentUser=await r.json();showApp();await loadAll()}catch(e){localStorage.removeItem("ncm_token");token="";showLogin()}}
+validateSession();
+</script>
+</body>
+</html>

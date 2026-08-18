@@ -1,0 +1,12 @@
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+sqlalchemy==2.0.43
+pydantic-settings==2.10.1
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.3.0
+python-multipart==0.0.20
+netmiko==4.6.0
+psycopg[binary]==3.2.9
+cryptography==45.0.6
+APScheduler==3.11.0
