@@ -22,6 +22,25 @@ html[data-theme="dark"]{
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.cloud-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.cloud-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden}.cloud-card.soon{opacity:.96}.cloud-icon{width:46px;height:46px;border-radius:12px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-size:22px;font-weight:800;margin-bottom:14px}.cloud-card h3{margin:0 0 6px;font-size:15px}.cloud-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}.cloud-list{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:11px;line-height:1.8}.coming-badge{position:absolute;top:16px;right:16px;border-radius:999px;padding:5px 9px;background:var(--amber-soft);color:var(--amber);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}.cloud-note{margin-top:16px;padding:14px 16px;border:1px dashed var(--line);border-radius:12px;background:var(--surface2);color:var(--muted);font-size:11px;line-height:1.6}.cloud-note b{color:var(--text)}
+
+
+.roadmap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.roadmap-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.roadmap-card:before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),#8b5cf6)}
+.roadmap-icon{width:44px;height:44px;border-radius:12px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-size:21px;font-weight:800;margin-bottom:12px}
+.roadmap-card h3{margin:0 0 5px;font-size:14px}
+.roadmap-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.55}
+.roadmap-card ul{margin:12px 0 0;padding-left:17px;color:var(--muted);font-size:10px;line-height:1.75}
+.roadmap-badge{position:absolute;top:15px;right:15px;border-radius:999px;padding:5px 8px;background:var(--amber-soft);color:var(--amber);font-size:8px;font-weight:800;letter-spacing:.4px}
+.roadmap-status{display:flex;gap:8px;align-items:center;margin-top:14px;color:var(--muted);font-size:10px}
+.roadmap-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 4px rgba(217,119,6,.10)}
+.future-panel{margin-top:16px;padding:16px;border:1px dashed var(--line);border-radius:14px;background:var(--surface2)}
+.future-panel h3{margin:0 0 6px;font-size:14px}
+.future-panel p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:1100px){.roadmap-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.roadmap-grid{grid-template-columns:1fr}}
+
 .btn{height:38px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:9px;padding:0 13px;font-size:12px;font-weight:650}
 .btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
 .btn-success{background:var(--green-soft);border-color:#bbf7d0;color:var(--green)}
@@ -91,6 +110,13 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,9
     <button data-page="schedules" onclick="showPage('schedules')">◷ <span class="txt">Schedules</span></button>
     <button data-page="users" data-permission="users.view" onclick="showPage('users')">♙ <span class="txt">Users</span></button>
     <button data-page="audit" data-permission="audit.view" onclick="showPage('audit')">▤ <span class="txt">Audit Logs</span></button>
+    <button data-page="cloud" onclick="showPage('cloud')">☁ <span class="txt">Cloud Storage</span></button>
+    <button data-page="automation" onclick="showPage('automation')">⚡ <span class="txt">Automation Lab</span></button>
+    <button data-page="monitoring" onclick="showPage('monitoring')">◉ <span class="txt">Monitoring & Health</span></button>
+    <button data-page="compliance" onclick="showPage('compliance')">✓ <span class="txt">Compliance</span></button>
+    <button data-page="reports" onclick="showPage('reports')">▥ <span class="txt">Reports & Analytics</span></button>
+    <button data-page="integrations" onclick="showPage('integrations')">⌘ <span class="txt">Integrations</span></button>
+
   </nav>
   <div class="side-bottom"><div class="user-mini"><div class="avatar" id="avatar">AD</div><div><b id="sideUser">admin</b><span id="sideRole">Administrator</span></div></div><button class="logout-btn" onclick="logout()">Sign out</button></div>
 </aside>
@@ -109,7 +135,19 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,9
 <div class="kpi"><div class="kpi-icon">!</div><div><label>Failed Backups</label><strong id="statFailed">—</strong></div></div>
 </div>
 <div class="panel"><div class="panel-head"><h3>Recent Devices</h3><p>Quick access to registered network devices.</p></div><div class="panel-body" id="dashboardDevices"></div></div>
-<div class="panel"><div class="panel-head"><h3>Recent Backups</h3><p>Latest configuration backup activity.</p></div><div class="panel-body" id="dashboardBackups"></div></div>
+<div class="panel"><div class="panel-head"><h3>Cloud Integrations</h3><p>Upcoming cloud storage and authentication features.</p></div><div class="panel-body"><div class="row"><div><div class="row-title">Google Drive Backup <span class="badge warn">COMING SOON</span></div><div class="meta">Cloud backup sync, OAuth 2.0 and future restore workflow.</div></div><button class="btn btn-sm" onclick="showPage('cloud')">View Roadmap</button></div></div></div>
+
+<div class="panel"><div class="panel-head"><h3>Advanced Roadmap</h3><p>Planned capabilities for future NCM releases.</p></div>
+<div class="panel-body">
+<div class="roadmap-grid">
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">⚡</div><h3>Network Automation</h3><p>Build repeatable operational workflows across multi-vendor infrastructure.</p><ul><li>Command automation</li><li>Bulk configuration</li><li>Approval workflows</li><li>Job history & rollback</li></ul><div class="roadmap-status"><span class="roadmap-dot"></span>Planned</div></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">◉</div><h3>Monitoring & Health</h3><p>Extend NCM from configuration management into infrastructure health visibility.</p><ul><li>Device reachability</li><li>CPU / memory / interface health</li><li>SNMP integration</li><li>Health dashboards</li></ul><div class="roadmap-status"><span class="roadmap-dot"></span>Planned</div></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">✓</div><h3>Compliance Engine</h3><p>Detect configuration drift and enforce network configuration standards.</p><ul><li>Policy templates</li><li>Compliance checks</li><li>Drift detection</li><li>Remediation workflows</li></ul><div class="roadmap-status"><span class="roadmap-dot"></span>Planned</div></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">▥</div><h3>Reports & Analytics</h3><p>Generate operational and management reports from backup and device data.</p><ul><li>Backup reports</li><li>Device inventory reports</li><li>Trend analytics</li><li>PDF / CSV export</li></ul><div class="roadmap-status"><span class="roadmap-dot"></span>Planned</div></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">⌘</div><h3>Integrations</h3><p>Connect NCM with the tools already used by NOC and DevOps teams.</p><ul><li>Google Drive</li><li>Slack / Teams</li><li>WhatsApp alerts</li><li>Webhook / REST integrations</li></ul><div class="roadmap-status"><span class="roadmap-dot"></span>Planned</div></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">✦</div><h3>AI Operations Assistant</h3><p>Future assisted troubleshooting and configuration intelligence.</p><ul><li>Config explanation</li><li>Risk detection</li><li>Change summaries</li><li>Natural-language operations</li></ul><div class="roadmap-status"><span class="roadmap-dot"></span>Planned</div></div>
+</div>
+</div></div>
 </section>
 
 <section id="page-devices" class="page">
@@ -156,6 +194,61 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,9
 <div class="panel"><div class="table-wrap"><table class="table"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>Status</th><th>Details</th><th>Source</th></tr></thead><tbody id="auditTable"></tbody></table></div></div>
 </section>
 
+
+<section id="page-automation" class="page">
+<div class="page-head"><div><h1>Automation Lab</h1><p>Future network automation, bulk operations and workflow orchestration.</p></div></div>
+<div class="roadmap-grid">
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">⚡</div><h3>Bulk Command Runner</h3><p>Execute approved commands across selected devices.</p><ul><li>Device groups</li><li>Parallel execution</li><li>Live job status</li><li>Execution logs</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">↻</div><h3>Configuration Rollback</h3><p>Safely restore a selected known-good configuration.</p><ul><li>Version selection</li><li>Pre-checks</li><li>Approval step</li><li>Rollback history</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">◇</div><h3>Workflow Builder</h3><p>Create reusable operational workflows without repeated manual steps.</p><ul><li>Triggers</li><li>Actions</li><li>Conditions</li><li>Approvals</li></ul></div>
+</div></section>
+
+<section id="page-monitoring" class="page">
+<div class="page-head"><div><h1>Monitoring & Health</h1><p>Future device health and infrastructure visibility.</p></div></div>
+<div class="roadmap-grid">
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">◉</div><h3>Device Health</h3><p>Monitor reachability, uptime and basic device health indicators.</p><ul><li>Ping / reachability</li><li>Uptime</li><li>Last response</li><li>Health state</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">▥</div><h3>Interface Monitoring</h3><p>Future visibility into interface utilization and errors.</p><ul><li>Traffic utilization</li><li>Errors / discards</li><li>Link state</li><li>Historical graphs</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">S</div><h3>SNMP Monitoring</h3><p>Native monitoring integration for network infrastructure.</p><ul><li>SNMPv2 / SNMPv3</li><li>Custom OIDs</li><li>Thresholds</li><li>Alerts</li></ul></div>
+</div></section>
+
+<section id="page-compliance" class="page">
+<div class="page-head"><div><h1>Compliance</h1><p>Future configuration standards, drift detection and policy enforcement.</p></div></div>
+<div class="roadmap-grid">
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">✓</div><h3>Policy Templates</h3><p>Define reusable configuration standards for device groups.</p><ul><li>Vendor policies</li><li>Required commands</li><li>Forbidden patterns</li><li>Versioned policies</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">Δ</div><h3>Drift Detection</h3><p>Compare current state against an approved baseline.</p><ul><li>Baseline configs</li><li>Change detection</li><li>Risk indicators</li><li>Audit trail</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">!</div><h3>Remediation</h3><p>Future guided or automated correction of policy violations.</p><ul><li>Suggested fixes</li><li>Approval workflow</li><li>Backup before change</li><li>Rollback support</li></ul></div>
+</div></section>
+
+<section id="page-reports" class="page">
+<div class="page-head"><div><h1>Reports & Analytics</h1><p>Future reporting for operations, compliance and management.</p></div></div>
+<div class="roadmap-grid">
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">▤</div><h3>Backup Reports</h3><p>Track backup success, failure and retention trends.</p><ul><li>Daily / weekly / monthly</li><li>Success rate</li><li>Failure analysis</li><li>Export</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">◔</div><h3>Capacity Analytics</h3><p>Future operational trend views for device and network data.</p><ul><li>Traffic trends</li><li>Interface capacity</li><li>Growth analysis</li><li>Historical comparison</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">PDF</div><h3>Scheduled Reports</h3><p>Automatically generate and deliver recurring reports.</p><ul><li>PDF / CSV</li><li>Email delivery</li><li>Report schedules</li><li>Custom filters</li></ul></div>
+</div></section>
+
+<section id="page-integrations" class="page">
+<div class="page-head"><div><h1>Integrations</h1><p>Future integrations with cloud, messaging, monitoring and automation platforms.</p></div></div>
+<div class="roadmap-grid">
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">G</div><h3>Google Authentication</h3><p>OAuth-based login for organizations that prefer identity federation.</p><ul><li>Google OAuth 2.0</li><li>Domain restrictions</li><li>Account linking</li><li>Secure sessions</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">☁</div><h3>Google Drive</h3><p>Cloud storage for configuration backups and retention.</p><ul><li>Device folders</li><li>Scheduled sync</li><li>Restore</li><li>Retention policy</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">↗</div><h3>Webhooks & APIs</h3><p>Connect NCM events to external systems.</p><ul><li>Webhook events</li><li>REST API expansion</li><li>Token management</li><li>Event subscriptions</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">W</div><h3>WhatsApp Alerts</h3><p>Future operational notifications for backup and security events.</p><ul><li>Backup failures</li><li>Login alerts</li><li>Schedule status</li><li>Critical events</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">L</div><h3>Logging Platforms</h3><p>Future integration with centralized logging and observability stacks.</p><ul><li>Syslog</li><li>Loki</li><li>OpenObserve</li><li>Event forwarding</li></ul></div>
+  <div class="roadmap-card"><span class="roadmap-badge">COMING SOON</span><div class="roadmap-icon">A</div><h3>Monitoring Integrations</h3><p>Future connectors for monitoring and alerting platforms.</p><ul><li>Prometheus</li><li>Zabbix</li><li>Grafana</li><li>Alert routing</li></ul></div>
+</div></section>
+
+<section id="page-cloud" class="page">
+<div class="page-head"><div><h1>Cloud Storage</h1><p>Cloud backup and identity integrations for future releases.</p></div></div>
+<div class="cloud-grid">
+  <div class="cloud-card soon"><span class="coming-badge">Coming Soon</span><div class="cloud-icon">G</div><h3>Google Drive Backup</h3><p>Securely sync network configuration backups to a Google Drive account.</p><ul class="cloud-list"><li>Google OAuth 2.0 connection</li><li>Device-wise backup folders</li><li>Automatic scheduled cloud sync</li><li>Backup download and restore</li></ul><button class="btn btn-sm" disabled>Connect Google Drive</button></div>
+  <div class="cloud-card soon"><span class="coming-badge">Coming Soon</span><div class="cloud-icon">🔐</div><h3>Google Authentication / OAuth</h3><p>Use Google identity for secure application authentication without changing the existing local login.</p><ul class="cloud-list"><li>OAuth 2.0 sign-in</li><li>Account linking</li><li>Secure session handling</li><li>Optional local authentication fallback</li></ul><button class="btn btn-sm" disabled>Sign in with Google</button></div>
+  <div class="cloud-card soon"><span class="coming-badge">Coming Soon</span><div class="cloud-icon">☁</div><h3>Cloud Restore</h3><p>Restore previously synchronized configuration backups from supported cloud storage.</p><ul class="cloud-list"><li>Browse cloud backups</li><li>View backup metadata</li><li>Download configuration files</li><li>Controlled restore workflow</li></ul><button class="btn btn-sm" disabled>Cloud Restore</button></div>
+  <div class="cloud-card soon"><span class="coming-badge">Coming Soon</span><div class="cloud-icon">↻</div><h3>Retention &amp; Sync Policies</h3><p>Control cloud synchronization, retention and cleanup policies independently from local backup schedules.</p><ul class="cloud-list"><li>Cloud retention rules</li><li>Automatic cleanup</li><li>Sync status and history</li><li>Future storage provider support</li></ul><button class="btn btn-sm" disabled>Configure Policies</button></div>
+</div>
+<div class="cloud-note"><b>Roadmap:</b> Google Drive integration is currently a UI placeholder only. No cloud credentials are stored and no external API is called in this phase. OAuth, Drive sync and restore will be implemented in a future backend release.</div>
+</section>
+
 </main></div></section>
 
 <div id="userModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3 id="userModalTitle">Add User</h3><button class="close" onclick="closeUserModal()">×</button></div>
@@ -194,7 +287,7 @@ function showApp(){$("loginScreen").classList.add("hidden");$("appShell").classL
 async function login(){const b=$("loginButton");b.disabled=true;b.textContent="Signing in...";msg("loginMessage","");try{const r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("loginUsername").value.trim(),password:$("loginPassword").value})}),d=await r.json();if(!r.ok){msg("loginMessage",d.detail||"Invalid username or password","error");return}token=d.access_token;localStorage.setItem("ncm_token",token);const me=await fetch("/api/auth/me",{headers:{Authorization:"Bearer "+token}});if(!me.ok)throw Error("Unable to read user session");currentUser=await me.json();showApp();await loadAll();showPage("dashboard");toast("Login successful")}catch(e){msg("loginMessage",e.message||"Unable to connect to server","error")}finally{b.disabled=false;b.textContent="Sign in"}}
 function logout(){localStorage.removeItem("ncm_token");token="";currentUser=null;cachedDevices=[];cachedBackups=[];cachedSchedules=[];showLogin();msg("loginMessage","You have been logged out.","success")}
 $("loginForm").onsubmit=e=>{e.preventDefault();login()}
-function showPage(n){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));const page=$("page-"+n);if(!page)return;page.classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===n));$("topTitle").textContent={dashboard:"Dashboard",devices:"Devices",add:"Add Device",backups:"Backup History",diff:"Config Diff",schedules:"Schedules",users:"Users",audit:"Audit Logs"}[n]||"Network Config Manager";if(n==="devices")renderDevices();if(n==="backups")loadBackups();if(n==="diff")loadDiffDevices();if(n==="schedules")loadSchedules();if(n==="users")loadUsers();if(n==="audit")loadAudit()}
+function showPage(n){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));const page=$("page-"+n);if(!page)return;page.classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===n));$("topTitle").textContent={dashboard:"Dashboard",devices:"Devices",add:"Add Device",backups:"Backup History",diff:"Config Diff",schedules:"Schedules",users:"Users",audit:"Audit Logs",cloud:"Cloud Storage",automation:"Automation Lab",monitoring:"Monitoring & Health",compliance:"Compliance",reports:"Reports & Analytics",integrations:"Integrations"}[n]||"Network Config Manager";if(n==="devices")renderDevices();if(n==="backups")loadBackups();if(n==="diff")loadDiffDevices();if(n==="schedules")loadSchedules();if(n==="users")loadUsers();if(n==="audit")loadAudit()}
 function selectVendor(v){document.querySelectorAll(".vendor-card").forEach(x=>x.classList.toggle("selected",x.dataset.v===v))}
 async function loadAll(){await Promise.all([loadDevices(),loadBackups(),loadSchedules()]);loadDiffDevices();renderDashboard()}
 function renderDashboard(){$("statDevices").textContent=cachedDevices.length;$("statBackups").textContent=cachedBackups.filter(x=>x.status==="SUCCESS").length;$("statFailed").textContent=cachedBackups.filter(x=>x.status==="FAILED").length;$("statSchedules").textContent=cachedSchedules.filter(x=>x.enabled).length;$("dashboardDevices").innerHTML=cachedDevices.slice(0,5).map(x=>`<div class="row"><div class="device-main"><div class="vendor">${vendorIcon(x.vendor)}</div><div><div class="row-title">${esc(x.hostname)} <span class="badge ${x.enabled?"ok":"warn"}">${x.enabled?"ENABLED":"DISABLED"}</span></div><div class="meta">${esc(x.vendor)} • ${esc(x.management_ip)}:${x.ssh_port} • ${esc(x.site||"No site")}</div></div></div><div class="actions"><button class="btn btn-sm btn-success" onclick="backupDevice(${x.id})">Backup</button><button class="btn btn-sm" onclick="showPage('devices')">Manage</button></div></div>`).join("")||'<div class="empty">No devices configured.</div>';$("dashboardBackups").innerHTML=cachedBackups.slice(0,5).map(x=>`<div class="row"><div><div class="row-title"><span class="badge ${x.status==="SUCCESS"?"ok":"bad"}">${esc(x.status)}</span> #${x.id} • ${esc(x.hostname)}</div><div class="meta">${esc(fmt(x.created_at))}</div></div>${x.status==="SUCCESS"?`<button class="btn btn-sm" onclick="viewBackup(${x.id},'${jsq(x.hostname)}')">View</button>`:""}</div>`).join("")||'<div class="empty">No backups yet.</div>'}
@@ -231,7 +324,7 @@ async function loadAudit(){if(!can("audit.view"))return;try{const action=$("audi
 function applyTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem("ncm_theme",t);$("themeBtn").textContent=t==="dark"?"☀ Light":"☾ Dark"}function toggleTheme(){applyTheme(document.documentElement.dataset.theme==="dark"?"light":"dark")}applyTheme(localStorage.getItem("ncm_theme")||"light");
 function csvEscape(v){const s=String(v??"");return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
 function exportCSV(){const headers=["hostname","management_ip","vendor","model","username","ssh_port","site","enabled"],lines=[headers.join(",")];cachedDevices.forEach(d=>lines.push(headers.map(h=>csvEscape(d[h])).join(",")));const blob=new Blob(["\ufeff"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=`network-devices-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast("Device CSV exported")}
-function downloadCSVTemplate(){const sample="hostname,management_ip,vendor,model,username,password,ssh_port,site,enabled\r\nTSR-CORE-R01,172.19.5.50,arista,7280R,justin,CHANGE_ME,22,TSR,true\r\n";const blob=new Blob(["\ufeff"+sample],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="ncm-device-import-template.csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast("CSV template downloaded")}
+function downloadCSVTemplate(){const sample="hostname,management_ip,vendor,model,username,password,ssh_port,site,enabled\r\nGENERIC-CORE-R01,192.0.2.10,arista,7280R,operator,CHANGE_ME,22,DEFAULT,true\r\n";const blob=new Blob(["\ufeff"+sample],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="ncm-device-import-template.csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast("CSV template downloaded")}
 function parseCSV(text){const rows=[];let row=[],cell="",quoted=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(quoted){if(c=='"'&&n=='"'){cell+='"';i++}else if(c=='"'){quoted=false}else cell+=c}else{if(c=='"')quoted=true;else if(c===","){row.push(cell);cell=""}else if(c==="\n"){row.push(cell.replace(/\r$/,""));rows.push(row);row=[];cell=""}else cell+=c}}if(cell.length||row.length){row.push(cell.replace(/\r$/,""));rows.push(row)}return rows.filter(r=>r.some(x=>String(x).trim()!==""))}
 async function importCSV(e){const file=e.target.files?.[0];e.target.value="";if(!file)return;try{const rows=parseCSV(await file.text());if(rows.length<2){toast("CSV is empty","err");return}const headers=rows[0].map(x=>String(x).trim().toLowerCase()),required=["hostname","management_ip","vendor","username","password"],missing=required.filter(x=>!headers.includes(x));if(missing.length){toast("Missing columns: "+missing.join(", "),"err");return}let success=0,failed=0,errors=[];for(let i=1;i<rows.length;i++){const obj={};headers.forEach((h,j)=>obj[h]=(rows[i][j]??"").trim());const p={hostname:obj.hostname,management_ip:obj.management_ip,vendor:(obj.vendor||"huawei").toLowerCase(),model:obj.model||null,username:obj.username,password:obj.password,ssh_port:parseInt(obj.ssh_port||"22",10),site:obj.site||"DEFAULT",enabled:obj.enabled===""?true:!["false","0","no","disabled"].includes(obj.enabled.toLowerCase())};if(!p.hostname||!p.management_ip||!p.username||!p.password){failed++;errors.push(`Row ${i+1}: required value missing`);continue}try{const r=await api("/api/devices/",{method:"POST",body:JSON.stringify(p)}),d=await r.json();if(r.ok)success++;else{failed++;errors.push(`Row ${i+1}: ${d.detail||"Import failed"}`)}}catch(err){failed++;errors.push(`Row ${i+1}: request failed`)}}await loadAll();$("csvResult").innerHTML=`<b>Import completed</b><p style="margin:8px 0">Successful: <b style="color:var(--green)">${success}</b><br>Failed: <b style="color:var(--red)">${failed}</b></p>${errors.length?`<div style="text-align:left;color:var(--red);font-size:11px">${errors.map(esc).join("<br>")}</div>`:"<div class='message success'>All rows imported successfully.</div>"}`;$("csvModal").classList.remove("hidden")}catch(err){toast("Unable to read CSV file","err")}}
 function closeCSVModal(){$("csvModal").classList.add("hidden")}
