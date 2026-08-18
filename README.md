@@ -3,9 +3,7 @@
 Open-source multi-vendor Network Configuration Manager for NOC and network operations teams.
 
 ## Screenshots
-<img width="1920" height="252" alt="image" src="https://github.com/user-attachments/assets/51ffe175-4d08-4ca1-806c-0278488fc858" />
 
-<img width="226" height="1049" alt="image" src="https://github.com/user-attachments/assets/15da8c6c-0440-475c-a9ed-5425958f08ef" />
 
 
 
