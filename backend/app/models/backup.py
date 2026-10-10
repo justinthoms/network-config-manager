@@ -10,3 +10,8 @@ class Backup(Base):
     file_path = Column(String(1000), nullable=True)
     error = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    # Added in v0.2
+    size_bytes = Column(Integer, nullable=True)
+    sha256 = Column(String(64), nullable=True)
+    gdrive_file_id = Column(String(200), nullable=True)
+    gdrive_synced_at = Column(DateTime, nullable=True)

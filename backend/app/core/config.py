@@ -19,6 +19,20 @@ class Settings(BaseSettings):
     default_admin_username: str = "admin"
     default_admin_password: str = "admin123"
 
+    # ── Google Drive backup (optional) ──
+    # Public URL that browsers use to reach NCM. Google redirects back to
+    # {PUBLIC_BASE_URL}/api/cloud/gdrive/callback after consent.
+    public_base_url: str = "http://localhost:8000"
+    # OAuth client from Google Cloud Console (type: Web application).
+    # These may also be saved from the Cloud page by a Super Admin.
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    gdrive_root_folder: str = "NCM-Backups"
+
+    # ── AI config review with Google Gemini (optional) ──
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-3-flash-preview"
+
     model_config = SettingsConfigDict(
         env_file=ENV_FILE,
         env_file_encoding="utf-8",

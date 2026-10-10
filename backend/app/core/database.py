@@ -14,9 +14,8 @@ def get_db():
     finally:
         db.close()
 
-def _sqlite_add_column_if_missing(table, column, definition):
-    if not settings.database_url.startswith("sqlite"):
-        return
+def _add_column_if_missing(table, column, definition):
+    """Lightweight forward-only migration (works for SQLite and PostgreSQL)."""
     inspector = inspect(engine)
     if table not in inspector.get_table_names():
         return
@@ -32,12 +31,19 @@ def init_db():
     from app.models.backup import Backup
     from app.models.schedule import BackupSchedule
     from app.models.audit import AuditLog
+    from app.models.setting import AppSetting  # noqa: F401
+    from app.models.ai_review import AIReview  # noqa: F401
+    from app.models.ai_provider import AIProvider  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
 
-    # Safe migration for existing P1-P7 SQLite databases.
-    _sqlite_add_column_if_missing("users", "display_name", "VARCHAR(150)")
-    _sqlite_add_column_if_missing("users", "email", "VARCHAR(255)")
+    # Safe migrations for existing databases.
+    _add_column_if_missing("users", "display_name", "VARCHAR(150)")
+    _add_column_if_missing("users", "email", "VARCHAR(255)")
+    _add_column_if_missing("backups", "size_bytes", "INTEGER")
+    _add_column_if_missing("backups", "sha256", "VARCHAR(64)")
+    _add_column_if_missing("backups", "gdrive_file_id", "VARCHAR(200)")
+    _add_column_if_missing("backups", "gdrive_synced_at", "TIMESTAMP")
 
     db = SessionLocal()
     try:
@@ -53,8 +59,6 @@ def init_db():
             ))
             db.commit()
         elif admin.role == "admin" and admin.username == settings.default_admin_username:
-            # Preserve the existing login while giving the initial administrator
-            # the full P8 permission set.
             admin.role = "super_admin"
             db.commit()
     finally:

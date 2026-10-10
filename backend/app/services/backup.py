@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+from app.services.diff import config_fingerprint
 import time
 from netmiko import ConnectHandler
 
@@ -141,10 +142,39 @@ def run_backup(device, db):
         path = directory / f"{now:%Y%m%d_%H%M%S}.conf"
         path.write_text(output + "\n", encoding="utf-8")
 
+        data = (output + "\n").encode("utf-8")
         record.status = "SUCCESS"
         record.file_path = str(path)
+        record.size_bytes = len(data)
+        record.sha256 = config_fingerprint(output)
         db.commit()
-        return {"success": True, "backup_id": record.id, "file_path": str(path), "bytes": len(output.encode("utf-8"))}
+
+        # Was anything different from the previous successful backup?
+        previous = (
+            db.query(Backup)
+            .filter(Backup.device_id == device.id, Backup.status == "SUCCESS", Backup.id != record.id)
+            .order_by(Backup.id.desc())
+            .first()
+        )
+        changed = previous is None or previous.sha256 != record.sha256
+
+        # Optional AI security review of the change (background thread).
+        if previous is not None and changed:
+            try:
+                from app.services.ai_review import auto_review_async
+                auto_review_async(previous.id, record.id)
+            except Exception:
+                pass
+
+        # Optional Google Drive copy (background thread, never blocks).
+        try:
+            from app.services.gdrive import auto_upload_async
+            auto_upload_async(record.id)
+        except Exception:
+            pass
+
+        return {"success": True, "backup_id": record.id, "file_path": str(path),
+                "bytes": len(data), "changed": changed}
     except Exception as exc:
         record.status = "FAILED"
         record.error = str(exc)

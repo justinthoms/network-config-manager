@@ -1,7 +1,11 @@
+import logging
 from datetime import datetime, timedelta, timezone
 from jose import jwt
 from passlib.context import CryptContext
 from app.core.config import settings
+
+# passlib 1.7 prints a harmless "error reading bcrypt version" traceback with bcrypt 4.x
+logging.getLogger("passlib").setLevel(logging.ERROR)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
