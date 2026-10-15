@@ -2016,7 +2016,7 @@ async function loadSecurity() {
       <tr><td><b>${esc(u.username)}</b></td><td style="text-transform:capitalize">${esc(u.role.replace('_',' '))}</td>
       <td><span class="pill ${u.is_active ? 'ok' : 'bad'}">${u.is_active ? 'Active' : 'Disabled'}</span>${u.must_change_password && u.is_active ? ' <span class="pill warn plain">Password to change</span>' : ''}</td>
       <td>${u.last_login_at ? esc(fmt(u.last_login_at)) : '<span class="muted">never</span>'}</td><td class="mono">${esc(u.last_login_ip || '—')}</td>
-      <td>${u.password_changed_at ? esc(ago(u.password_changed_at)) : '<span class="muted">not since v0.9</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+      <td>${u.password_changed_at ? esc(ago(u.password_changed_at)) : '<span class="muted">not recorded</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
 }
 
 // ───────────── automatic backup for all devices ─────────────
