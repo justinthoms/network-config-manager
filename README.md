@@ -4,6 +4,9 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-3776ab)](#quick-start)
 [![Vendors](https://img.shields.io/badge/vendors-Huawei%20%7C%20Juniper%20%7C%20Arista-555)](#features)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](#license)
+![Gemini](https://img.shields.io/badge/Google%20Gemini-supported-8E75B2?logo=googlegemini&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-supported-412991?logo=openai&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-local-000000?logo=ollama&logoColor=white)
 
 Open-source, self-hosted configuration manager for NOC and network operations teams. NCM backs up Huawei, Juniper and Arista devices over SSH, shows what changed, checks device health, keeps off-site copies in Google Drive and OneDrive, and uses AI to review risky changes.
 
