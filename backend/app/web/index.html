@@ -319,6 +319,70 @@ html[data-theme="dark"] .steps li::before{background:var(--signal)}
 .alert.bad{background:var(--fault-soft);border-color:color-mix(in srgb,var(--fault) 30%,transparent);color:var(--fault)}
 .alert.info{background:var(--signal-soft);border-color:color-mix(in srgb,var(--signal) 25%,transparent);color:var(--text-2)}
 .drive-dot{display:inline-block;width:18px;height:18px;vertical-align:middle}
+.cloud-seg button{display:inline-flex;align-items:center;gap:7px}
+.cloud-seg button .ico{width:16px;height:16px}
+.cloud-seg .dot{width:7px;height:7px;border-radius:50%;background:var(--idle)}
+.cloud-seg .dot.on{background:var(--link)}
+.cloud-cell{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.devcode{margin-top:18px;padding:18px 20px;border:1px solid var(--line);border-radius:var(--r);background:var(--raised);display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.devcode .code{font-family:var(--mono);font-size:1.7rem;font-weight:700;letter-spacing:.14em;padding:6px 14px;border:1px dashed var(--line-2);border-radius:var(--r-sm);background:var(--surface,transparent);user-select:all}
+.devcode p{color:var(--muted);font-size:.88rem;margin-top:4px}
+
+/* ── security & policy ── */
+.sec-list{display:flex;flex-direction:column}
+.sec-item{display:flex;gap:14px;align-items:flex-start;padding:14px 20px;border-bottom:1px solid var(--line)}
+.sec-item:last-child{border-bottom:0}
+.sec-item .ic{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:800;font-size:.85rem}
+.sec-item .ic.ok{background:var(--link-soft);color:var(--link)}
+.sec-item .ic.warning{background:var(--act-soft);color:var(--act)}
+.sec-item .ic.critical{background:var(--fault-soft);color:var(--fault)}
+.sec-item .ic.info{background:var(--signal-soft);color:var(--signal)}
+.sec-item b{display:block;margin-bottom:2px}
+.sec-item p{color:var(--text-2);font-size:.9rem}
+.policy{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap}
+.policy .f{width:170px}
+.pwrules{font-size:.82rem;color:var(--muted);margin-top:6px}
+
+/* ── health ── */
+.hl-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.hl-stat{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);text-align:left;cursor:pointer}
+.hl-stat b{font-size:1.5rem;font-weight:700;line-height:1.1}
+.hl-stat span{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.hl-stat.on{outline:2px solid var(--ink);outline-offset:-1px}
+html[data-theme="dark"] .hl-stat.on{outline-color:var(--signal)}
+.hl-stat.critical b{color:var(--fault)}.hl-stat.warning b{color:var(--act)}.hl-stat.ok b{color:var(--link)}.hl-stat.failed b{color:var(--text-2)}
+.meter{display:flex;align-items:center;gap:8px;min-width:110px}
+.meter .bar{display:block;flex:1;height:6px;border-radius:6px;background:var(--line);overflow:hidden;max-width:90px}
+.meter .bar i{display:block;height:100%;border-radius:6px}
+.meter .val{font-size:.82rem;font-variant-numeric:tabular-nums;width:36px}
+.kv span.meter{display:flex;margin-top:8px;color:var(--text)}
+.kv span.meter .bar{display:block;max-width:none}
+.kv span.meter .val{display:inline;font-size:.95rem;font-weight:650;color:var(--text);width:auto;min-width:36px}
+.kv span.lvls{display:flex;margin-top:8px}
+.kv span.lvls .sev{display:inline-flex;font-size:.7rem;color:inherit}
+.kv .lvls .sev.critical{color:#fff}.kv .lvls .sev.high{color:var(--fault)}.kv .lvls .sev.medium{color:var(--act)}
+.lvls{display:flex;gap:4px;flex-wrap:wrap}
+.lvls .sev{height:20px;font-size:.7rem;padding:0 7px}
+.hl-run{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-bottom:16px;border-radius:var(--r);background:var(--signal-soft);font-size:.9rem}
+.hl-run .bar{flex:1;max-width:320px;height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+.hl-run .bar i{display:block;height:100%;background:var(--signal);transition:width .4s}
+.hl-tabs{display:flex;gap:2px;padding:0 20px;border-bottom:1px solid var(--line);position:sticky;top:57px;background:var(--surface);z-index:1;overflow-x:auto}
+.hl-tabs button{height:42px;padding:0 14px;font-size:.88rem;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.hl-tabs button.on{color:var(--text);border-bottom-color:var(--signal)}
+.hl-issue{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.hl-issue:last-child{border-bottom:0}
+.hl-issue .area{font-size:.76rem;color:var(--muted);text-transform:capitalize;margin-left:auto;white-space:nowrap}
+.loglist td{vertical-align:top;font-size:.84rem}
+.loglist td.msg{font-family:var(--mono);font-size:.78rem;white-space:pre-wrap;word-break:break-word}
+.loglist .inf{color:var(--muted);font-size:.72rem;margin-left:4px}
+.lvlpick{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.lvlpick .sev{cursor:pointer;border:1px solid transparent;opacity:.45}
+.lvlpick .sev.picked{opacity:1;border-color:currentColor}
+details.rawout{border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+details.rawout summary{cursor:pointer;padding:10px 14px;display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.84rem;background:var(--raised)}
+details.rawout pre{font-family:var(--mono);font-size:.78rem;line-height:1.5;white-space:pre;overflow:auto;max-height:60vh;padding:12px 14px;margin:0}
+.cmdlist{font-family:var(--mono);font-size:.82rem;min-height:170px;width:100%;resize:vertical}
+@media (max-width:760px){.hl-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* ── AI review ── */
 .sev{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:6px;font-size:.74rem;font-weight:700;text-transform:capitalize;white-space:nowrap}
@@ -472,12 +536,15 @@ pre.code span.l.cm{color:var(--muted)}
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
   <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
   <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></symbol>
   <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>
   <symbol id="i-ai" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
   <symbol id="t-router" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M7.5 10.2h8l-2.2-2.2M16.5 13.8h-8l2.2 2.2"/></symbol>
   <symbol id="t-switch" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M6.5 10.5h9l-2-2M17.5 13.5h-9l2 2"/></symbol>
   <symbol id="t-fw" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="1.5"/><path d="M3 9.5h18M3 14.5h18M9 4.5v5M15 9.5v5M9 14.5v5"/></symbol>
+  <symbol id="i-onedrive" viewBox="0 0 48 48"><path fill="#0364b8" stroke="none" d="M15 31a9 9 0 0 1 1.6-17.8A12.5 12.5 0 0 1 39 18.5 7.5 7.5 0 0 1 39 31z"/><path fill="#28a8ea" stroke="none" d="M11 38a8 8 0 0 1-.6-16A11 11 0 0 1 31 19.5a8 8 0 0 1 8.3 7.2A5.7 5.7 0 0 1 39 38z"/></symbol>
   <symbol id="i-gdrive" viewBox="0 0 48 48"><path fill="#0f9d58" stroke="none" d="M16.5 6h15l13 22.5h-15z"/><path fill="#4285f4" stroke="none" d="M44.5 28.5 37 41.5H11l7.5-13z"/><path fill="#f4b400" stroke="none" d="M3.5 28.5 16.5 6l7.5 13-13 22.5z"/></symbol>
 </svg>
 
@@ -507,7 +574,7 @@ pre.code span.l.cm{color:var(--muted)}
         <div class="a">+ stp edged-port enable</div>
       </div>
     </div>
-    <div class="login-features"><span><b>Huawei, Juniper, Arista</b> over SSH</span><span><b>Side-by-side</b> config diff</span><span><b>Google Drive</b> off-site copies</span></div>
+    <div class="login-features"><span><b>Huawei, Juniper, Arista</b> over SSH</span><span><b>Side-by-side</b> config diff</span><span><b>Google Drive &amp; OneDrive</b> off-site copies</span></div>
   </div>
 </section>
 
@@ -518,11 +585,12 @@ pre.code span.l.cm{color:var(--muted)}
     <nav class="tabs" id="nav">
       <button data-page="dashboard">Overview</button>
       <button data-page="devices" data-permission="devices.view">Devices</button>
+      <button data-page="health" data-permission="health.view">Health<span class="count hidden" id="navHealth"></span></button>
       <button data-page="backups" data-permission="backups.view">Backups<span class="count hidden" id="navFailed"></span></button>
-      <button data-page="diff" data-permission="backups.diff">Config changes</button>
-      <button data-page="files" data-permission="files.view">File browser</button>
+      <button data-page="diff" data-permission="backups.diff" title="Config changes">Changes</button>
+      <button data-page="files" data-permission="files.view" title="File browser">Files</button>
       <button data-page="schedules" data-permission="schedules.view">Schedules</button>
-      <button data-page="cloud" data-permission="cloud.view">Google Drive</button>
+      <button data-page="cloud" data-permission="cloud.view">Cloud</button>
       <button data-page="ai" data-permission="ai.view">AI review</button>
     </nav>
     <div class="appbar-right">
@@ -535,6 +603,7 @@ pre.code span.l.cm{color:var(--muted)}
           <button data-page="profile"><svg class="ico"><use href="#i-users"/></svg>My profile</button>
           <button data-page="users" data-permission="users.view"><svg class="ico"><use href="#i-users"/></svg>Users</button>
           <button data-page="audit" data-permission="audit.view"><svg class="ico"><use href="#i-audit"/></svg>Audit log</button>
+          <button data-page="security" data-permission="security.view"><svg class="ico"><use href="#i-shield"/></svg>Security</button>
           <button data-page="roadmap"><svg class="ico"><use href="#i-map"/></svg>Roadmap</button>
           <hr>
           <button onclick="toggleTheme()" id="themeBtn"><svg class="ico"><use href="#i-moon"/></svg><span>Dark mode</span></button>
@@ -674,12 +743,14 @@ pre.code span.l.cm{color:var(--muted)}
       <!-- SCHEDULES -->
       <section id="page-schedules" class="page">
         <div class="page-head"><div><h1>Schedules</h1><p>Automatic backups per device, with retries and retention.</p></div></div>
-        <div class="panel"><div class="table-wrap" id="schedules"></div></div>
+        <div class="panel" id="policyPanel"></div>
+        <div class="panel"><div class="panel-head"><h3>Per device</h3></div><div class="table-wrap" id="schedules"></div></div>
       </section>
 
       <!-- CLOUD -->
       <section id="page-cloud" class="page">
-        <div class="page-head"><div><h1>Google Drive</h1><p>Keep an off-site copy of every configuration backup in your Google Drive.</p></div></div>
+        <div class="page-head"><div><h1>Cloud backup</h1><p>Keep an off-site copy of every configuration backup in Google Drive, OneDrive, or both.</p></div>
+          <div class="seg cloud-seg" id="cloudTab"><button class="on" data-v="gdrive"><svg class="ico"><use href="#i-gdrive"/></svg>Google Drive<i class="dot" id="gdDot"></i></button><button data-v="onedrive"><svg class="ico"><use href="#i-onedrive"/></svg>OneDrive<i class="dot" id="odDot"></i></button></div></div>
         <div id="cloudBody"><div class="panel"><div class="panel-body"><div class="skel" style="width:40%"></div></div></div></div>
       </section>
 
@@ -687,7 +758,7 @@ pre.code span.l.cm{color:var(--muted)}
       <section id="page-users" class="page">
         <div class="page-head"><div><h1>Users</h1><p>Who can sign in, and what each role is allowed to do.</p></div>
           <div class="toolbar"><button class="btn btn-primary" data-permission="users.create" onclick="openUserCreate()"><svg><use href="#i-plus"/></svg>Add user</button></div></div>
-        <div class="panel"><div class="table-wrap"><table class="t"><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Email</th><th class="right">Actions</th></tr></thead><tbody id="usersTable"></tbody></table></div></div>
+        <div class="panel"><div class="table-wrap"><table class="t"><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Last sign-in</th><th>Email</th><th class="right">Actions</th></tr></thead><tbody id="usersTable"></tbody></table></div></div>
       </section>
 
       <!-- AUDIT -->
@@ -695,6 +766,29 @@ pre.code span.l.cm{color:var(--muted)}
         <div class="page-head"><div><h1>Audit log</h1><p>Sign-ins, changes and operations recorded by NCM.</p></div>
           <div class="toolbar"><select class="input" id="auditAction" style="width:220px" onchange="loadAudit()"><option value="">All actions</option></select></div></div>
         <div class="panel"><div class="table-wrap"><table class="t"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>Status</th><th>Details</th><th>Source</th></tr></thead><tbody id="auditTable"></tbody></table></div></div>
+      </section>
+
+      <!-- SECURITY -->
+      <section id="page-security" class="page">
+        <div class="page-head"><div><h1>Security</h1><p>How well this NCM server is protected. Fix red and orange items first.</p></div>
+          <div class="toolbar"><button class="btn" onclick="loadSecurity()"><svg><use href="#i-refresh"/></svg>Check again</button></div></div>
+        <div id="secBody"><div class="panel"><div class="panel-body"><div class="skel"></div></div></div></div>
+      </section>
+
+      <!-- HEALTH -->
+      <section id="page-health" class="page">
+        <div class="page-head">
+          <div><h1>Device health</h1><p>Read-only <span class="mono">display</span> / <span class="mono">show</span> commands: CPU, memory, hardware, alarms, interfaces and logs by level. Nothing on the device is changed.</p></div>
+          <div class="toolbar">
+            <button class="btn" data-permission="health.manage" onclick="openHealthSettings()"><svg><use href="#i-clock"/></svg>Schedule &amp; settings</button>
+            <button class="btn btn-primary" data-permission="health.run" id="hlRunAll" onclick="runHealthAll(this)"><svg><use href="#i-play"/></svg>Check all devices</button>
+          </div>
+        </div>
+        <div id="hlRun"></div>
+        <div class="hl-strip" id="hlStrip"></div>
+        <div class="panel"><div class="panel-head"><div><h3>Devices</h3><p id="hlSched" class="muted"></p></div>
+          <input class="input" id="hlSearch" placeholder="Filter by hostname, IP or site" style="width:240px" oninput="renderHealthTable()"></div>
+          <div class="table-wrap" id="hlTable"><div class="panel-body"><div class="skel"></div></div></div></div>
       </section>
 
       <!-- AI REVIEW -->
@@ -724,10 +818,15 @@ pre.code span.l.cm{color:var(--muted)}
             <div class="panel"><div class="panel-head"><h3>Change password</h3></div><div class="panel-body">
               <div class="modal-grid">
                 <label class="f" style="grid-column:1/-1">Current password<input class="input" id="pf_cur" type="password" autocomplete="current-password"></label>
-                <label class="f">New password<input class="input" id="pf_new" type="password" autocomplete="new-password" placeholder="At least 8 characters"></label>
+                <label class="f">New password<input class="input" id="pf_new" type="password" autocomplete="new-password" placeholder="At least 10 characters"></label>
                 <label class="f">Repeat new password<input class="input" id="pf_new2" type="password" autocomplete="new-password"></label>
               </div>
+              <p class="pwrules">At least 10 characters, with three of: lower case, upper case, digits, symbols. Changing it signs out your other sessions.</p>
               <div class="form-actions"><button class="btn" onclick="changePassword()">Change password</button></div>
+            </div></div>
+            <div class="panel"><div class="panel-head"><div><h3>Sessions</h3><p id="pfSess"></p></div></div><div class="panel-body">
+              <p class="muted" style="font-size:.9rem">Lost a laptop, or signed in on a shared PC? Sign out every browser where you are signed in, including this one.</p>
+              <div class="form-actions"><button class="btn btn-danger" onclick="logoutAll()">Sign out everywhere</button></div>
             </div></div>
           </div>
           <div data-permission="ai.view">
@@ -802,7 +901,7 @@ pre.code span.l.cm{color:var(--muted)}
       <label class="f">Display name<input class="input" id="u_display"></label>
       <label class="f">Email<input class="input" id="u_email" type="email"></label>
       <label class="f">Role<select class="input" id="u_role"><option value="viewer">Viewer</option><option value="operator">Operator</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></label>
-      <label class="f">Password<input class="input" id="u_password" type="password" autocomplete="new-password" placeholder="At least 8 characters"></label>
+      <label class="f">Password<input class="input" id="u_password" type="password" autocomplete="new-password" placeholder="At least 10 characters"><span class="pwrules">The user must choose their own password at first sign-in.</span></label>
       <label class="check" style="align-self:end;height:38px"><input id="u_active" type="checkbox" checked>Account active</label>
     </div>
     <p id="userResult" class="msg"></p>
@@ -838,6 +937,27 @@ pre.code span.l.cm{color:var(--muted)}
     <div class="form-actions"><button class="btn" onclick="closeModal('provModal')">Cancel</button><button class="btn btn-primary" onclick="saveProvider()">Save</button></div>
   </div></div></div>
 
+<div id="pwModal" class="modal hidden"><div class="modal-box" style="width:min(480px,100%)">
+  <div class="modal-head"><h3>Set a new password</h3></div>
+  <div class="modal-body">
+    <p style="margin-bottom:14px" id="pwWhy">Your password is temporary or too weak. Choose a new one to continue.</p>
+    <label class="f">Current password<input class="input" id="fp_cur" type="password" autocomplete="current-password"></label>
+    <label class="f" style="margin-top:10px">New password<input class="input" id="fp_new" type="password" autocomplete="new-password"></label>
+    <label class="f" style="margin-top:10px">Repeat new password<input class="input" id="fp_new2" type="password" autocomplete="new-password" onkeydown="if(event.key==='Enter')forcedPassword()"></label>
+    <p class="pwrules">At least 10 characters, with three of: lower case, upper case, digits, symbols. It must not contain your username.</p>
+    <p class="msg" id="fpMsg"></p>
+    <div class="form-actions"><button class="btn btn-ghost" onclick="logout()">Sign out</button><button class="btn btn-primary" id="fpBtn" onclick="forcedPassword()">Save and continue</button></div>
+  </div></div></div>
+<div id="healthModal" class="modal hidden" onclick="if(event.target===this)closeHealthModal()"><div class="modal-box wide" style="width:min(1100px,100%)">
+  <div class="modal-head"><h3 id="hlTitle">Health</h3><div class="toolbar">
+    <select class="input" id="hlHistory" style="width:230px;height:32px" onchange="openHealth(+this.value)"></select>
+    <button class="btn btn-sm hidden" id="hlAgain" data-permission="health.run"><svg><use href="#i-refresh"/></svg>Run again</button>
+    <button class="btn btn-ghost btn-sm btn-icon" onclick="closeHealthModal()" aria-label="Close">✕</button></div></div>
+  <div class="hl-tabs" id="hlTabs"></div>
+  <div id="hlBody"></div></div></div>
+<div id="healthSettingsModal" class="modal hidden" onclick="if(event.target===this)closeModal('healthSettingsModal')"><div class="modal-box" style="width:min(820px,100%)">
+  <div class="modal-head"><h3>Health check settings</h3><button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('healthSettingsModal')" aria-label="Close">✕</button></div>
+  <div class="modal-body" id="hlSettingsBody"></div></div></div>
 <div id="aiModal" class="modal hidden" onclick="if(event.target===this)closeModal('aiModal')"><div class="modal-box wide" style="width:min(980px,100%)">
   <div class="modal-head"><h3 id="aiTitle">AI review</h3><button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('aiModal')" aria-label="Close">✕</button></div>
   <div id="aiBody"></div></div></div>
@@ -893,7 +1013,7 @@ const S = {
   editingDevice: null, scheduleDevice: null, editingUser: null,
   diff: { mode: 'split', last: null, timeline: [] },
   files: { path: '', selected: new Set(), entries: [] },
-  bkStatus: '', viewerText: '', cloud: null, logos: {},
+  bkStatus: '', viewerText: '', health: null, hlFilter: '', hl: null, hlLog: null, cloud: null, onedrive: null, cloudTab: 'gdrive', odFlow: null, logos: {},
 };
 
 function toast(text, type='ok') {
@@ -923,6 +1043,7 @@ async function api(url, opt = {}) {
 async function apiJSON(url, opt) {
   const r = await api(url, opt);
   let d = null; try { d = await r.json(); } catch (_) {}
+  if (r.status === 403 && d?.detail === 'password_change_required') { showForcedPassword(); throw Error('Set a new password first'); }
   if (!r.ok) throw Error((d && (typeof d.detail === 'string' ? d.detail : JSON.stringify(d.detail))) || `Request failed (${r.status})`);
   return d;
 }
@@ -965,7 +1086,9 @@ async function login() {
     if (!r.ok) { msg('loginMessage', d.detail || 'Wrong username or password.', 'error'); return; }
     S.token = d.access_token; localStorage.setItem('ncm_token', S.token);
     S.user = await apiJSON('/api/auth/me');
-    showApp(); await bootData(); showPage(location.hash.slice(1) || 'dashboard');
+    showApp(); startIdleWatch();
+    if (S.user.must_change_password) return showForcedPassword();
+    await bootData(); showPage(location.hash.slice(1) || 'dashboard');
   } catch (e) { msg('loginMessage', e.message || 'Cannot reach the server.', 'error'); }
   finally { b.disabled = false; b.textContent = 'Sign in'; }
 }
@@ -973,15 +1096,16 @@ function logout() {
   toggleChat(false); S.chat = []; try { sessionStorage.removeItem('ncm_chat'); } catch (_) {}
   $('chatFab').classList.add('hidden');
   localStorage.removeItem('ncm_token'); S.token = ''; S.user = null;
+  clearInterval(idleTimer); closeModal('pwModal');
   showLogin(); msg('loginMessage', 'You are signed out.', 'success');
 }
 $('loginForm').onsubmit = e => { e.preventDefault(); login(); };
 
 // ───────────── navigation ─────────────
 const TITLES = { dashboard:'Overview', devices:'Devices', backups:'Backups', diff:'Config changes', files:'File browser',
-  schedules:'Schedules', cloud:'Google Drive', ai:'AI review', profile:'My profile', users:'Users', audit:'Audit log', roadmap:'Roadmap' };
+  schedules:'Schedules', health:'Device health', cloud:'Cloud backup', ai:'AI review', profile:'My profile', users:'Users', audit:'Audit log', security:'Security', roadmap:'Roadmap' };
 const PAGE_PERM = { devices:'devices.view', backups:'backups.view', diff:'backups.diff', files:'files.view',
-  schedules:'schedules.view', cloud:'cloud.view', ai:'ai.view', users:'users.view', audit:'audit.view' };
+  schedules:'schedules.view', health:'health.view', cloud:'cloud.view', ai:'ai.view', users:'users.view', audit:'audit.view', security:'security.view' };
 document.querySelectorAll('#nav button[data-page], #userMenu button[data-page]').forEach(b => b.onclick = () => { $('userMenu').classList.add('hidden'); showPage(b.dataset.page); });
 function toggleUserMenu(e) { e.stopPropagation(); $('userMenu').classList.toggle('hidden'); }
 document.addEventListener('click', e => { if (!e.target.closest('.umenu')) $('userMenu').classList.add('hidden'); });
@@ -1009,8 +1133,10 @@ function refreshCurrent(fromNav) {
   if (n === 'files') browse(S.files.path);
   if (n === 'schedules') loadSchedules();
   if (n === 'cloud') loadCloud();
+  if (n === 'health') loadHealth();
   if (n === 'users') loadUsers();
   if (n === 'audit') loadAudit();
+  if (n === 'security') loadSecurity();
   if (n === 'roadmap') renderRoadmap();
   if (n === 'ai') loadAI();
   if (n === 'profile') loadProfile();
@@ -1019,7 +1145,9 @@ async function bootData() {
   try { S.logos = await (await fetch('/api/meta/vendor-logos')).json(); } catch (_) { S.logos = {}; }
   await Promise.all([loadDevices(true), loadSchedules(true),
     can('cloud.view') ? apiJSON('/api/cloud/gdrive/status').then(c => S.cloud = c).catch(() => {}) : null,
-    can('ai.view') ? apiJSON('/api/ai/status').then(a => S.ai = a).catch(() => {}) : null]);
+    can('cloud.view') ? apiJSON('/api/cloud/onedrive/status').then(c => S.onedrive = c).catch(() => {}) : null,
+    can('ai.view') ? apiJSON('/api/ai/status').then(a => S.ai = a).catch(() => {}) : null,
+    can('health.view') ? apiJSON('/api/health/status').then(h => { S.health = h; healthBadge(); }).catch(() => {}) : null]);
   updateChatFab();
   fillDeviceSelects();
 }
@@ -1078,7 +1206,7 @@ function renderDonut(d) {
       ${tot ? `<circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--link)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${(C * pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 70 70)"/>` : ''}
       <text x="70" y="68" text-anchor="middle" font-size="23" font-weight="700" fill="var(--text)" font-family="var(--sans)">${tot ? (pct * 100).toFixed(1) + '%' : '—'}</text>
       <text x="70" y="88" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="var(--sans)">successful</text></svg>
-    <ul class="legend-list"><li><i style="background:var(--link)"></i>${ok} successful</li><li><i style="background:var(--fault)"></i>${f} failed</li><li><i style="background:var(--signal)"></i>${d.in_drive} in Google Drive</li><li><i style="background:var(--idle)"></i>${d.schedules_active} active schedules</li></ul>`;
+    <ul class="legend-list"><li><i style="background:var(--link)"></i>${ok} successful</li><li><i style="background:var(--fault)"></i>${f} failed</li><li><i style="background:var(--signal)"></i>${d.in_drive} in Google Drive</li><li><i style="background:#0078d4"></i>${d.in_onedrive ?? 0} in OneDrive</li><li><i style="background:var(--idle)"></i>${d.schedules_active} active schedules</li></ul>`;
 }
 function renderOvChanges(list) {
   if (!list.length) { $('ovChanges').innerHTML = '<div class="empty">No configuration changes in this period.</div>'; return; }
@@ -1155,6 +1283,7 @@ function renderDevices() {
       <td><div class="row-actions">
         ${can('backups.run') && d.enabled ? `<button class="btn btn-sm btn-go" onclick="backupDevice(${d.id}, this)">${ico('play')}Back up</button>` : ''}
         ${can('devices.test') ? `<button class="btn btn-sm" onclick="testDevice(${d.id}, this)">Test SSH</button>` : ''}
+        ${can('health.run') && d.enabled ? `<button class="btn btn-sm btn-icon" title="Health check" onclick="runHealth(${d.id}, this)">${ico('pulse')}</button>` : ''}
         ${can('backups.diff') ? `<button class="btn btn-sm btn-icon" title="Config changes" onclick="openDeviceChanges(${d.id})">${ico('diff')}</button>` : ''}
         ${can('schedules.edit') ? `<button class="btn btn-sm btn-icon" title="Schedule" onclick="openSchedule(${d.id})">${ico('clock')}</button>` : ''}
         ${can('devices.edit') ? `<button class="btn btn-sm btn-icon" title="Edit" onclick="openEditDevice(${d.id})">${ico('edit')}</button>` : ''}
@@ -1286,12 +1415,12 @@ async function loadBackups() {
     if (!d.length) { $('backups').innerHTML = '<div class="empty"><b>No backups here</b>Run a backup from the Devices page, or set up a schedule.</div>'; return; }
     const prevOk = {}; // id -> previous successful backup id of the same device
     [...d].reverse().reduce((last, b) => { if (b.status === 'SUCCESS') { prevOk[b.id] = last[b.device_id]; last[b.device_id] = b.id; } return last; }, {});
-    $('backups').innerHTML = `<table class="t"><thead><tr><th>Backup</th><th>Device</th><th>Taken</th><th>Size</th><th>Google Drive</th><th>Status</th>${can('ai.view') ? '<th>AI</th>' : ''}<th class="right">Actions</th></tr></thead><tbody>${d.map(b => `
+    $('backups').innerHTML = `<table class="t"><thead><tr><th>Backup</th><th>Device</th><th>Taken</th><th>Size</th><th>Cloud</th><th>Status</th>${can('ai.view') ? '<th>AI</th>' : ''}<th class="right">Actions</th></tr></thead><tbody>${d.map(b => `
       <tr><td><b class="mono">#${b.id}</b><div class="sub mono" title="${esc(b.file_path||'')}">${esc(b.file_name || '')}</div></td>
       <td>${esc(b.hostname)}</td>
       <td>${esc(fmt(b.created_at))}<div class="sub">${esc(ago(b.created_at))}</div></td>
       <td>${bytes(b.size_bytes)}</td>
-      <td>${b.gdrive_file_id ? `<span class="pill ok plain" title="Uploaded ${esc(fmt(b.gdrive_synced_at))}">${ico('gdrive','drive-dot')} Copied</span>` : b.status === 'SUCCESS' && can('cloud.sync') && S.cloud?.connected ? `<button class="btn btn-sm btn-ghost" onclick="uploadToDrive(${b.id}, this)">${ico('up')}Upload</button>` : '<span class="muted">—</span>'}</td>
+      <td>${cloudCell(b)}</td>
       <td>${b.status === 'SUCCESS' ? '<span class="pill ok">Successful</span>' : b.status === 'FAILED' ? `<span class="pill bad" title="${esc(b.error||'')}">Failed</span><div class="sub wrap" style="max-width:280px">${esc(b.error||'')}</div>` : `<span class="pill info">${esc(b.status)}</span>`}</td>
       ${can('ai.view') ? `<td id="ai-${b.id}"><span class="muted">—</span></td>` : ''}
       <td><div class="row-actions">${b.status === 'SUCCESS' ? `
@@ -1315,7 +1444,7 @@ async function fillAIBadges(ids) {
   } catch (_) {}
 }
 async function deleteBackup(id) {
-  if (!confirm(`Delete backup #${id} and its file on disk? A copy in Google Drive is not removed.`)) return;
+  if (!confirm(`Delete backup #${id} and its file on disk? Copies in Google Drive or OneDrive are not removed.`)) return;
   try { await apiJSON(`/api/backups/${id}`, { method:'DELETE' }); toast('Backup deleted'); loadBackups(); } catch (e) { toast(e.message, 'err'); }
 }
 function showViewer(title, text, dl) {
@@ -1526,6 +1655,7 @@ async function compareSelectedFiles() {
 const intervalText = m => m % 10080 === 0 ? (m/10080 === 1 ? 'Weekly' : `Every ${m/10080} weeks`) : m % 1440 === 0 ? (m/1440 === 1 ? 'Daily' : `Every ${m/1440} days`)
   : m % 60 === 0 ? (m === 60 ? 'Hourly' : `Every ${m/60} hours`) : `Every ${m} minutes`;
 async function loadSchedules(silent) {
+  loadPolicy();
   try {
     S.schedules = await apiJSON('/api/schedules/');
     const byDev = Object.fromEntries(S.schedules.map(s => [s.device_id, s]));
@@ -1566,10 +1696,32 @@ async function deleteSchedule() {
   catch (e) { toast(e.message, 'err'); }
 }
 
-// ───────────── google drive ─────────────
+// ───────────── cloud backup ─────────────
+function cloudCell(b) {
+  const out = [];
+  if (b.gdrive_file_id) out.push(`<span class="pill ok plain" title="Google Drive, uploaded ${esc(fmt(b.gdrive_synced_at))}">${ico('gdrive','drive-dot')} Copied</span>`);
+  else if (b.status === 'SUCCESS' && can('cloud.sync') && S.cloud?.connected) out.push(`<button class="btn btn-sm btn-ghost" title="Upload to Google Drive" onclick="uploadToDrive(${b.id}, this)">${ico('gdrive','drive-dot')}Upload</button>`);
+  if (b.onedrive_item_id) out.push(`<span class="pill ok plain" title="OneDrive, uploaded ${esc(fmt(b.onedrive_synced_at))}">${ico('onedrive','drive-dot')} Copied</span>`);
+  else if (b.status === 'SUCCESS' && can('cloud.sync') && S.onedrive?.connected) out.push(`<button class="btn btn-sm btn-ghost" title="Upload to OneDrive" onclick="uploadToOneDrive(${b.id}, this)">${ico('onedrive','drive-dot')}Upload</button>`);
+  return out.length ? `<div class="cloud-cell">${out.join('')}</div>` : '<span class="muted">—</span>';
+}
+function cloudDots() {
+  $('gdDot')?.classList.toggle('on', !!S.cloud?.connected);
+  $('odDot')?.classList.toggle('on', !!S.onedrive?.connected);
+}
+$('cloudTab').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  $('cloudTab').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  S.cloudTab = b.dataset.v; loadCloud();
+});
 async function loadCloud() {
-  try { S.cloud = await apiJSON('/api/cloud/gdrive/status'); renderCloud(); }
-  catch (e) { $('cloudBody').innerHTML = `<div class="alert bad">${esc(e.message)}</div>`; }
+  if (S.cloudTab !== 'onedrive') S.odFlow = null;   // stop any sign-in polling
+  const url = S.cloudTab === 'onedrive' ? '/api/cloud/onedrive/status' : '/api/cloud/gdrive/status';
+  try {
+    const c = await apiJSON(url);
+    if (S.cloudTab === 'onedrive') { S.onedrive = c; renderOneDrive(); } else { S.cloud = c; renderCloud(); }
+    cloudDots();
+  } catch (e) { $('cloudBody').innerHTML = `<div class="alert bad">${esc(e.message)}</div>`; }
 }
 function errText(e) { const m = String(e || '').match(/^(\d{4}-\d\d-\d\dT\S+)\s+([\s\S]*)$/); return m ? `${esc(m[2])} <span class="muted">(${esc(ago(m[1]))})</span>` : esc(e); }
 function copyText(t) { navigator.clipboard?.writeText(t).then(() => toast('Copied')); }
@@ -1665,6 +1817,489 @@ async function uploadToDrive(id, btn) {
     catch (e) { toast(e.message, 'err'); } });
 }
 
+// ───────────── onedrive ─────────────
+function renderOneDrive() {
+  const c = S.onedrive, manage = can('cloud.manage'), superA = S.user?.role === 'super_admin';
+  const logo = `<div class="drive-logo">${ico('onedrive','')}</div>`.replace('class=""', 'style="width:30px;height:30px"');
+  if (!c.connected) {
+    $('cloudBody').innerHTML = `
+      <div class="panel"><div class="panel-body">
+        <div class="drive-hero">${logo}<div style="flex:1;min-width:240px"><h2>OneDrive is not connected</h2>
+          <p>${c.configured ? 'Sign in with the Microsoft account whose OneDrive should hold the backups. You get a short code to enter on any device.' : 'First register an app in Microsoft Entra ID, then connect.'}</p></div>
+          ${manage ? `<button class="btn btn-primary" id="odConnect" ${c.configured ? '' : 'disabled'} onclick="connectOneDrive(this)">${ico('plug')}Connect OneDrive</button>` : '<span class="muted">Ask an admin to connect OneDrive.</span>'}
+        </div>
+        <div id="odFlow"></div>
+        ${c.last_error ? `<div class="alert bad" style="margin-top:16px">${errText(c.last_error)}</div>` : ''}
+      </div></div>
+      ${manage ? `<div class="panel"><div class="panel-head"><div><h3>One-time setup in Microsoft Entra ID</h3><p>Sign-in uses a device code, so no redirect URI or HTTPS is needed.</p></div>${c.configured ? `<span class="pill ok">App ${c.credentials_source === 'env' ? 'set in .env' : 'saved'}</span>` : '<span class="pill warn">Not set up</span>'}</div>
+      <div class="panel-body"><ol class="steps">
+        <li><div>In the <a href="https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" rel="noopener">Entra admin center</a> (or Azure portal) open <b>App registrations</b> and create a new registration. For a personal OneDrive, choose an account type that includes <b>personal Microsoft accounts</b>.</div></li>
+        <li><div>Under <b>Authentication</b>, set <b>Allow public client flows</b> to <b>Yes</b>. No redirect URI and no client secret are needed.</div></li>
+        <li><div>Under <b>API permissions</b>, add Microsoft Graph delegated permissions <span class="mono">Files.ReadWrite</span> and <span class="mono">offline_access</span>.</div></li>
+        <li><div>${c.credentials_source === 'env' ? 'The application ID is already set in <span class="mono">.env</span>.' :
+          superA ? `Paste the IDs from the app's <b>Overview</b> page, or put them in <span class="mono">.env</span> as <span class="mono">ONEDRIVE_CLIENT_ID</span> and <span class="mono">ONEDRIVE_TENANT_ID</span>.
+          <div class="modal-grid" style="margin-top:12px"><label class="f">Application (client) ID<input class="input mono" id="o_cid" value="${esc(c.credentials_source==='ui' ? (c.client_id||'') : '')}" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label>
+          <label class="f">Directory (tenant) ID<input class="input mono" id="o_tenant" value="${esc(c.credentials_source==='ui' && c.tenant_id !== 'common' ? c.tenant_id : '')}" placeholder="common"></label></div>
+          <div class="muted" style="font-size:.82rem;margin-top:4px">Leave tenant empty for <span class="mono">common</span>. Use <span class="mono">consumers</span> for personal accounts only, or your tenant ID for one organisation.</div>
+          <div style="margin-top:10px"><button class="btn" onclick="saveOneDriveConfig()">Save app registration</button></div>` : 'A Super Admin must enter the application ID.'}</div></li>
+        <li><div>Click <b>Connect OneDrive</b> above, open the Microsoft link, enter the code and sign in.</div></li>
+      </ol></div></div>` : ''}`;
+    return;
+  }
+  const where = c.layout === 'date' ? `${esc(c.root_folder)}/YYYY/MM/DD/` : `${esc(c.root_folder)}/&lt;hostname&gt;/`;
+  $('cloudBody').innerHTML = `
+    <div class="panel"><div class="panel-body">
+      <div class="drive-hero">${logo}<div style="flex:1;min-width:240px"><h2>${esc(c.account_email || c.account_name || 'OneDrive connected')}</h2>
+        <p>${c.drive_type ? esc(c.drive_type === 'personal' ? 'Personal OneDrive' : 'OneDrive for Business') + '. ' : ''}Connected ${esc(ago(c.connected_at))}. Backups go to <span class="mono">${where}</span></p></div>
+        <div class="toolbar">${can('cloud.sync') ? `<button class="btn btn-primary" onclick="syncOneDrive(this)" ${c.pending_backups ? '' : 'disabled'}>${ico('up')}Upload ${c.pending_backups} pending</button>` : ''}
+        <a class="btn" href="${esc(c.root_folder_url || 'https://onedrive.live.com/')}" target="_blank" rel="noopener">${ico('ext')}Open OneDrive</a></div>
+      </div>
+      <div class="kv">
+        <div><span>Backups in OneDrive</span><b>${c.synced_backups}</b></div>
+        <div><span>Waiting to upload</span><b>${c.pending_backups}</b></div>
+        <div><span>Last upload</span><b>${esc(c.last_sync_at ? ago(c.last_sync_at) : 'never')}</b></div>
+        <div><span>Permission</span><b style="font-size:.88rem">Files.ReadWrite (delegated)</b></div>
+      </div>
+      ${c.last_error ? `<div class="alert bad" style="margin-top:16px"><b>Last error.</b> ${errText(c.last_error)}</div>` : ''}
+    </div></div>
+    ${manage ? `<div class="panel"><div class="panel-head"><div><h3>Upload settings</h3></div></div><div class="panel-body">
+      <label class="switch"><input type="checkbox" ${c.auto_sync ? 'checked' : ''} onchange="saveOneDriveSettings({auto_sync:this.checked})"><span class="track"></span>Upload every new backup automatically</label>
+      <p class="muted" style="font-size:.85rem;margin:6px 0 16px 48px">Runs in the background right after each successful backup, independently of Google Drive. Retention cleanup on disk never deletes OneDrive copies.</p>
+      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+        <label class="f" style="width:240px">OneDrive folder name<input class="input" id="o_root" value="${esc(c.root_folder)}"></label>
+        <label class="f" style="width:290px">Folder layout<select class="input" id="o_layout">
+          <option value="hostname" ${c.layout === 'hostname' ? 'selected' : ''}>By device (folder/hostname/)</option>
+          <option value="date" ${c.layout === 'date' ? 'selected' : ''}>By date (folder/YYYY/MM/DD/)</option></select></label>
+        <button class="btn" onclick="saveOneDriveSettings({root_folder:$('o_root').value.trim(), layout:$('o_layout').value})">Save</button>
+        <button class="btn" onclick="testOneDrive(this)">${ico('up')}Test upload</button>
+        <span style="flex:1"></span><button class="btn btn-danger" onclick="disconnectOneDrive()">Disconnect</button></div>
+    </div></div>` : ''}
+    <div class="panel"><div class="panel-head"><div><h3>Backups in OneDrive</h3><p>Most recent uploads by NCM</p></div><button class="btn btn-sm" onclick="loadOneDriveFiles()">${ico('refresh')}Refresh</button></div>
+      <div class="table-wrap" id="odFiles"><div class="panel-body"><div class="skel"></div></div></div></div>`;
+  loadOneDriveFiles();
+}
+async function loadOneDriveFiles() {
+  try { const f = await apiJSON('/api/cloud/onedrive/files?limit=100');
+    $('odFiles').innerHTML = f.length ? `<table class="t"><thead><tr><th>File</th><th>Device</th><th>Uploaded</th><th>Size</th><th class="right"></th></tr></thead><tbody>${f.map(x => `
+      <tr><td class="mono">${esc(x.name)}<div class="sub">Backup #${x.backup_id}</div></td><td>${esc(x.hostname)}</td><td>${esc(fmt(x.uploaded_at))}</td><td>${bytes(x.size)}</td>
+      <td><div class="row-actions"><button class="btn btn-sm btn-icon" title="Open in OneDrive" onclick="openOneDriveItem('${jsq(x.id)}', this)">${ico('ext')}</button>
+      ${can('backups.download') ? `<button class="btn btn-sm btn-icon" title="Download from OneDrive" onclick="downloadAuth('/api/cloud/onedrive/files/${encodeURIComponent(x.id)}/download','${jsq(x.name)}')">${ico('down')}</button>` : ''}</div></td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty"><b>No files yet</b>Upload pending backups or turn on automatic upload.</div>';
+  } catch (e) { $('odFiles').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+async function openOneDriveItem(id, btn) {
+  const w = window.open('', '_blank');   // open now so pop-up blockers allow it
+  await busy(btn, async () => {
+    try { const d = await apiJSON(`/api/cloud/onedrive/files/${encodeURIComponent(id)}/link`);
+      if (d.url && w) w.location = d.url; else { w?.close(); toast('No link for this file', 'info'); } }
+    catch (e) { w?.close(); toast(e.message, 'err'); }
+  });
+}
+async function saveOneDriveConfig() {
+  const cid = $('o_cid').value.trim(), tenant = $('o_tenant').value.trim();
+  try { await apiJSON('/api/cloud/onedrive/config', { method:'PUT', body:JSON.stringify({ client_id: cid, tenant_id: tenant || null }) });
+    toast('App registration saved'); loadCloud(); } catch (e) { toast(e.message, 'err'); }
+}
+async function connectOneDrive(btn) {
+  let d;
+  try { btn.disabled = true; d = await apiJSON('/api/cloud/onedrive/device/start', { method:'POST' }); }
+  catch (e) { btn.disabled = false; return toast(e.message, 'err'); }
+  const token = {}; S.odFlow = token;
+  $('odFlow').innerHTML = `<div class="devcode">
+    <div><div class="code" id="odCode">${esc(d.user_code)}</div>
+      <div style="margin-top:8px;display:flex;gap:6px"><button class="btn btn-sm" onclick="copyText('${jsq(d.user_code)}')">Copy code</button>
+      <a class="btn btn-sm btn-primary" href="${esc(d.verification_uri)}" target="_blank" rel="noopener">${ico('ext')}Open Microsoft sign-in</a></div></div>
+    <div style="flex:1;min-width:220px"><b><span class="spin" style="vertical-align:-3px;margin-right:8px"></span>Waiting for sign-in…</b>
+      <p>Open <span class="mono">${esc(d.verification_uri)}</span> on any device, enter the code, and sign in with the account that owns the OneDrive. The code expires in ${Math.round(d.expires_in / 60)} minutes.</p></div>
+    <button class="btn btn-ghost btn-sm" onclick="cancelOneDrive()">Cancel</button></div>`;
+  let wait = (d.interval || 5) * 1000;
+  const tick = async () => {
+    if (S.odFlow !== token) return;              // cancelled or page changed
+    try {
+      const r = await apiJSON('/api/cloud/onedrive/device/poll', { method:'POST' });
+      if (S.odFlow !== token) return;
+      if (r.state === 'pending') { wait = (r.interval || 5) * 1000; return setTimeout(tick, wait); }
+      S.odFlow = null;
+      if (r.state === 'connected') { toast('OneDrive connected'); S.onedrive = r.status; }
+      else toast(r.message || 'OneDrive sign-in failed', 'err');
+      loadCloud();
+    } catch (e) { if (S.odFlow === token) setTimeout(tick, wait * 2); }
+  };
+  setTimeout(tick, wait);
+}
+async function cancelOneDrive() {
+  S.odFlow = null;
+  try { await apiJSON('/api/cloud/onedrive/device/cancel', { method:'POST' }); } catch (_) {}
+  loadCloud();
+}
+async function saveOneDriveSettings(p) {
+  try { await apiJSON('/api/cloud/onedrive/settings', { method:'PUT', body:JSON.stringify(p) }); toast('OneDrive settings saved'); loadCloud(); }
+  catch (e) { toast(e.message, 'err'); }
+}
+async function testOneDrive(btn) {
+  await busy(btn, async () => {
+    try { const d = await apiJSON('/api/cloud/onedrive/test', { method:'POST' }); toast(`Test file written: ${d.name}`); }
+    catch (e) { toast(e.message, 'err'); loadCloud(); }
+  });
+}
+async function disconnectOneDrive() {
+  if (!confirm('Disconnect OneDrive? Files already in OneDrive stay there.')) return;
+  try { await apiJSON('/api/cloud/onedrive/disconnect', { method:'POST' }); toast('OneDrive disconnected'); loadCloud(); } catch (e) { toast(e.message, 'err'); }
+}
+async function syncOneDrive(btn) {
+  await busy(btn, async () => {
+    try { const d = await apiJSON('/api/cloud/onedrive/sync?limit=200', { method:'POST' });
+      toast(`Uploaded ${d.uploaded}${d.failed ? `, ${d.failed} failed` : ''}${d.remaining ? `, ${d.remaining} still waiting` : ''}`, d.failed ? 'err' : 'ok'); loadCloud(); }
+    catch (e) { toast(e.message, 'err'); }
+  });
+}
+async function uploadToOneDrive(id, btn) {
+  await busy(btn, async () => { try { await apiJSON(`/api/cloud/onedrive/upload/${id}`, { method:'POST' }); toast(`Backup #${id} copied to OneDrive`); loadBackups(); }
+    catch (e) { toast(e.message, 'err'); } });
+}
+
+// ───────────── security ─────────────
+function showForcedPassword() {
+  if (!$('pwModal').classList.contains('hidden')) return;
+  ['fp_cur','fp_new','fp_new2'].forEach(id => $(id).value = ''); msg('fpMsg', '');
+  openModal('pwModal'); setTimeout(() => $('fp_cur').focus(), 50);
+}
+async function forcedPassword() {
+  const cur = $('fp_cur').value, a = $('fp_new').value, b = $('fp_new2').value;
+  if (a.length < 10) return msg('fpMsg', 'The new password must be at least 10 characters.', 'error');
+  if (a !== b) return msg('fpMsg', 'The new passwords do not match.', 'error');
+  const btn = $('fpBtn'); btn.disabled = true;
+  try {
+    const d = await apiJSON('/api/auth/me', { method:'PATCH', body: JSON.stringify({ current_password: cur, new_password: a }) });
+    if (d.access_token) { S.token = d.access_token; localStorage.setItem('ncm_token', S.token); }
+    S.user = { ...S.user, ...d }; delete S.user.access_token;
+    closeModal('pwModal'); toast('Password changed');
+    await bootData(); showPage(location.hash.slice(1) || 'dashboard');
+  } catch (e) { msg('fpMsg', e.message, 'error'); }
+  finally { btn.disabled = false; }
+}
+async function logoutAll() {
+  if (!confirm('Sign out of NCM in every browser, including this one?')) return;
+  try { await apiJSON('/api/auth/logout-all', { method:'POST' }); } catch (_) {}
+  logout(); msg('loginMessage', 'You were signed out everywhere.', 'success');
+}
+// Idle sign-out: any click, key or scroll in this tab (or another NCM tab) counts as activity.
+let idleTimer = null;
+function touchActivity() { try { localStorage.setItem('ncm_activity', String(Date.now())); } catch (_) {} }
+function startIdleWatch() {
+  clearInterval(idleTimer);
+  const mins = S.user?.session_idle_minutes || 0; if (!mins) return;
+  touchActivity();
+  if (!window._idleBound) {
+    ['click','keydown','scroll','mousemove','touchstart'].forEach(ev => document.addEventListener(ev, () => {
+      const last = +(localStorage.getItem('ncm_activity') || 0); if (Date.now() - last > 15000) touchActivity();
+    }, { passive: true }));
+    window._idleBound = true;
+  }
+  idleTimer = setInterval(() => {
+    if (!S.token) return clearInterval(idleTimer);
+    const last = +(localStorage.getItem('ncm_activity') || Date.now());
+    if (Date.now() - last > mins * 60000) { clearInterval(idleTimer); logout(); msg('loginMessage', `Signed out after ${mins} minutes without activity.`, 'success'); }
+  }, 20000);
+}
+const SEC_ICON = { ok:'✓', warning:'!', critical:'!', info:'i' };
+async function loadSecurity() {
+  let d; try { d = await apiJSON('/api/security/status'); } catch (e) { $('secBody').innerHTML = `<div class="alert bad">${esc(e.message)}</div>`; return; }
+  const c = d.counts;
+  $('secBody').innerHTML = `
+    <div class="hl-strip" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div class="hl-stat critical"><b>${c.critical}</b><span>Critical</span></div><div class="hl-stat warning"><b>${c.warning}</b><span>Warnings</span></div>
+      <div class="hl-stat ok"><b>${c.ok}</b><span>Passed</span></div><div class="hl-stat"><b>${c.info}</b><span>For information</span></div></div>
+    <div class="panel"><div class="panel-head"><h3>Checks</h3></div><div class="sec-list">${d.checks.map(i => `
+      <div class="sec-item"><span class="ic ${esc(i.status)}">${SEC_ICON[i.status] || '?'}</span><div><b>${esc(i.title)}</b><p>${esc(i.detail)}</p></div></div>`).join('')}</div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Accounts</h3><p>Last sign-in and password age</p></div></div><div class="table-wrap"><table class="t"><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Last sign-in</th><th>From</th><th>Password changed</th></tr></thead><tbody>${d.users.map(u => `
+      <tr><td><b>${esc(u.username)}</b></td><td style="text-transform:capitalize">${esc(u.role.replace('_',' '))}</td>
+      <td><span class="pill ${u.is_active ? 'ok' : 'bad'}">${u.is_active ? 'Active' : 'Disabled'}</span>${u.must_change_password && u.is_active ? ' <span class="pill warn plain">Password to change</span>' : ''}</td>
+      <td>${u.last_login_at ? esc(fmt(u.last_login_at)) : '<span class="muted">never</span>'}</td><td class="mono">${esc(u.last_login_ip || '—')}</td>
+      <td>${u.password_changed_at ? esc(ago(u.password_changed_at)) : '<span class="muted">not since v0.9</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+// ───────────── automatic backup for all devices ─────────────
+async function loadPolicy() {
+  let p; try { p = await apiJSON('/api/schedules/policy'); } catch (e) { $('policyPanel').innerHTML = ''; return; }
+  S.policy = p;
+  const edit = can('schedules.edit'), opts = [360, 720, 1440, 2880, 10080];
+  if (!opts.includes(p.interval_minutes)) opts.push(p.interval_minutes);
+  $('policyPanel').innerHTML = `<div class="panel-head"><div><h3>Automatic backup for all devices</h3>
+      <p>${p.enabled ? `On: every device is backed up ${esc(intervalText(p.interval_minutes).toLowerCase())}${p.interval_minutes % 1440 === 0 ? ` from ${esc(p.start_time)} server time` : ''}. New devices are added automatically.` : 'Off: new devices get no schedule until you set one.'}
+      ${p.devices ? ` ${p.scheduled} of ${p.devices} devices are scheduled.` : ''}</p></div>
+      <span class="pill ${p.enabled ? 'ok' : 'plain'}">${p.enabled ? 'On' : 'Off'}</span></div>
+    ${edit ? `<div class="panel-body"><div class="policy">
+      <label class="switch" style="margin-bottom:8px"><input type="checkbox" id="pol_on" ${p.enabled ? 'checked' : ''}><span class="track"></span>On</label>
+      <label class="f">Every<select class="input" id="pol_int">${opts.sort((a, b) => a - b).map(m => `<option value="${m}" ${m === p.interval_minutes ? 'selected' : ''}>${esc(intervalText(m))}</option>`).join('')}</select></label>
+      <label class="f">Start at (daily)<input class="input" id="pol_start" type="time" value="${esc(p.start_time)}"></label>
+      <label class="f">Keep on disk<input class="input" id="pol_ret" type="number" min="1" max="10000" value="${p.retention_count}"></label>
+      <button class="btn btn-primary" onclick="savePolicy(false, this)">Save</button>
+      ${p.custom ? `<button class="btn" onclick="savePolicy(true, this)" title="Also change the ${p.custom} device(s) that have their own frequency">Apply to all ${p.devices} devices</button>` : ''}
+    </div><p class="muted" style="font-size:.82rem;margin-top:10px">Server time now ${esc(p.server_time)}. Devices start up to 15 minutes apart so they do not all connect at once.
+      ${p.custom ? ` ${p.custom} device(s) keep their own frequency; "Apply to all" changes them too.` : ''} Turning this off keeps existing schedules.</p></div>` : ''}`;
+}
+async function savePolicy(overwrite, btn) {
+  const body = { enabled: $('pol_on').checked, interval_minutes: +$('pol_int').value, start_time: $('pol_start').value || '01:00',
+    retention_count: +$('pol_ret').value || 30, overwrite };
+  if (overwrite && !confirm(`Set every device to ${intervalText(body.interval_minutes)}, including devices with their own schedule?`)) return;
+  await busy(btn, async () => {
+    try { const r = await apiJSON('/api/schedules/policy', { method:'PUT', body: JSON.stringify(body) });
+      const a = r.applied || {}, n = (a.created || 0) + (a.enabled || 0) + (a.updated || 0);
+      toast(body.enabled ? (n ? `Automatic backup saved, ${n} device schedule(s) added or changed` : 'Automatic backup saved') : 'Automatic backup switched off');
+      loadSchedules(); }
+    catch (e) { toast(e.message, 'err'); }
+  });
+}
+
+// ───────────── device health ─────────────
+const HL_PILL = { ok:['OK','ok'], warning:['Warning','warn'], critical:['Critical','bad'], failed:['Failed','plain'] };
+const LV = ['emergency','alert','critical','error','warning','notice','info','debug'];
+const LV_CLASS = { emergency:'critical', alert:'critical', critical:'critical', error:'high', warning:'medium', notice:'low', info:'info', debug:'info' };
+const hlPill = st => st ? `<span class="pill ${HL_PILL[st]?.[1] || 'plain'}">${HL_PILL[st]?.[0] || esc(st)}</span>` : '<span class="pill plain">Not checked</span>';
+function meter(v, warn, crit) {
+  if (v == null) return '<span class="muted">—</span>';
+  const col = v >= crit ? 'var(--fault)' : v >= warn ? 'var(--act)' : 'var(--link)';
+  return `<span class="meter"><span class="bar"><i style="width:${Math.min(100, v)}%;background:${col}"></i></span><span class="val">${v}%</span></span>`;
+}
+function lvlChips(counts, onlySevere) {
+  const keys = onlySevere ? ['emergency','alert','critical','error','warning'] : LV;
+  const merged = {};
+  keys.forEach(k => { if (counts?.[k]) { const lbl = ['emergency','alert'].includes(k) ? 'critical' : k; merged[lbl] = (merged[lbl] || 0) + counts[k]; } });
+  const out = Object.entries(merged).map(([k, n]) => `<span class="sev ${LV_CLASS[k]}" title="${n} ${k}">${n} ${k}</span>`);
+  return out.length ? `<span class="lvls">${out.join('')}</span>` : '<span class="muted">none</span>';
+}
+function healthBadge() {
+  const n = (S.health?.counts?.critical || 0) + (S.health?.counts?.failed || 0);
+  const b = $('navHealth'); if (!b) return;
+  b.textContent = n; b.classList.toggle('hidden', !n);
+}
+async function loadHealth() {
+  try { S.health = await apiJSON('/api/health/status'); } catch (e) { $('hlTable').innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  healthBadge(); renderHealth();
+  if (S.health.run?.running) pollHealthRun();
+}
+function renderHealth() {
+  const h = S.health, c = h.counts, st = h.settings;
+  const tiles = [['critical','Critical'],['warning','Warning'],['ok','OK'],['failed','Failed (SSH)'],['never','Not checked']];
+  $('hlStrip').innerHTML = tiles.map(([k, l]) => `<button class="hl-stat ${k} ${S.hlFilter === k ? 'on' : ''}" onclick="S.hlFilter = S.hlFilter === '${k}' ? '' : '${k}'; renderHealth()"><b>${c[k] || 0}</b><span>${l}</span></button>`).join('');
+  const lr = h.last_run;
+  $('hlSched').innerHTML = (st.schedule_enabled ? `Scheduled every ${fmtMinutes(st.interval_minutes)}${h.next_run_at ? `, next ${esc(fmt(h.next_run_at))}` : ''}.` : 'Not scheduled.')
+    + (lr ? ` Last full check ${esc(ago(lr.finished_at))} (${lr.devices} devices).` : '')
+    + (st.ai_mode !== 'off' && h.ai_configured ? ` AI summary ${st.ai_mode === 'all' ? 'for every check' : 'when there are issues'}, in ${esc(st.ai_language)}.` : '');
+  renderHealthRun(); renderHealthTable();
+}
+function fmtMinutes(m) { return m % 1440 === 0 ? `${m / 1440} day${m > 1440 ? 's' : ''}` : m % 60 === 0 ? `${m / 60} h` : `${m} min`; }
+function renderHealthRun() {
+  const r = S.health?.run;
+  $('hlRun').innerHTML = r?.running ? `<div class="hl-run"><span class="spin"></span><b>Checking devices…</b><span>${r.done} of ${r.total}</span><div class="bar"><i style="width:${r.total ? r.done * 100 / r.total : 0}%"></i></div><span class="muted">${r.trigger === 'scheduled' ? 'Scheduled run' : 'Started manually'}</span></div>` : '';
+  const b = $('hlRunAll'); if (b) b.disabled = !!r?.running;
+}
+function renderHealthTable() {
+  if (!S.health) return;
+  const q = ($('hlSearch')?.value || '').toLowerCase(), t = S.health.settings.thresholds;
+  const order = { failed:0, critical:1, warning:2, never:3, ok:4 };
+  const rows = S.health.devices.filter(d => {
+    const st = d.check?.status || 'never';
+    return (!S.hlFilter || st === S.hlFilter) && (!q || `${d.hostname} ${d.ip} ${d.site || ''}`.toLowerCase().includes(q));
+  }).sort((a, b) => order[a.check?.status || 'never'] - order[b.check?.status || 'never'] || a.hostname.localeCompare(b.hostname));
+  if (!rows.length) { $('hlTable').innerHTML = `<div class="empty"><b>No devices here</b>${S.hlFilter ? 'Clear the filter above to see all devices.' : 'Add devices on the Devices page.'}</div>`; return; }
+  $('hlTable').innerHTML = `<table class="t"><thead><tr><th>Device</th><th>Status</th><th>CPU</th><th>Memory</th><th>Interfaces</th><th>Logs (last ${S.health.settings.log_window_hours} h)</th><th>Checked</th><th class="right"></th></tr></thead><tbody>${rows.map(d => {
+    const c = d.check, ic = c?.interfaces?.counts || {}, top = c?.issues?.[0];
+    return `<tr><td><div class="dev">${vendorBadge(d)}<div><b>${esc(d.hostname)}</b><div class="sub">${esc(d.ip)}${d.site ? ', ' + esc(d.site) : ''}</div></div></div></td>
+      <td>${hlPill(c?.status)}${top ? `<div class="sub wrap" style="max-width:260px" title="${esc(top.text)}">${esc(top.text.length > 70 ? top.text.slice(0, 70) + '…' : top.text)}</div>` : ''}${c?.has_ai ? `<div class="sub">AI summary ready</div>` : ''}</td>
+      <td>${meter(c?.cpu, t.cpu_warn, t.cpu_crit)}</td><td>${meter(c?.memory, t.mem_warn, t.mem_crit)}</td>
+      <td>${c && c.status !== 'failed' && Object.keys(ic).length ? `<span title="up / down / admin down">${ic.up || 0} up, <b style="color:${ic.down ? 'var(--act)' : 'inherit'}">${ic.down || 0} down</b></span>${ic.err_disabled ? `<div class="sub" style="color:var(--fault)">${ic.err_disabled} err-disabled</div>` : ''}${c.interfaces.errors?.length ? `<div class="sub">${c.interfaces.errors.length} with errors</div>` : ''}` : '<span class="muted">—</span>'}</td>
+      <td>${c && c.status !== 'failed' ? lvlChips(c.recent_log_counts, true) : '<span class="muted">—</span>'}</td>
+      <td>${c ? `${esc(ago(c.created_at))}<div class="sub">${c.trigger === 'scheduled' ? 'Scheduled' : esc(c.created_by || 'Manual')}</div>` : '<span class="muted">never</span>'}</td>
+      <td><div class="row-actions">${c ? `<button class="btn btn-sm" onclick="openHealth(${c.id})">${ico('eye')}View</button>` : ''}
+        ${can('health.run') && d.enabled ? `<button class="btn btn-sm btn-icon" title="Check now" onclick="runHealth(${d.device_id}, this)">${ico('play')}</button>` : ''}</div></td></tr>`; }).join('')}</tbody></table>`;
+}
+async function runHealthAll(btn) {
+  try { S.health.run = await apiJSON('/api/health/run-all', { method:'POST' }); toast('Health check of all devices started'); renderHealthRun(); pollHealthRun(); }
+  catch (e) { toast(e.message, 'err'); }
+}
+let hlPollTimer = null;
+function pollHealthRun() {
+  clearTimeout(hlPollTimer);
+  hlPollTimer = setTimeout(async () => {
+    try {
+      const r = await apiJSON('/api/health/run-state');
+      if (S.health) S.health.run = r;
+      if (S.page === 'health') renderHealthRun();
+      if (r.running) return pollHealthRun();
+      toast('Health check of all devices finished');
+      if (S.page === 'health') loadHealth(); else apiJSON('/api/health/status').then(h => { S.health = h; healthBadge(); }).catch(() => {});
+    } catch (_) { pollHealthRun(); }
+  }, 2500);
+}
+async function runHealth(deviceId, btn) {
+  await busy(btn, async () => {
+    try {
+      const c = await apiJSON(`/api/health/run/${deviceId}`, { method:'POST' });
+      toast(`${c.hostname}: ${HL_PILL[c.status][0]}`, c.status === 'ok' ? 'ok' : c.status === 'warning' ? 'info' : 'err');
+      showHealth(c, c.ai_suggested ? 'ai' : 'overview');
+      if (c.ai_suggested) healthAI(c.id, false);
+      if (S.page === 'health') loadHealth(); else apiJSON('/api/health/status').then(h => { S.health = h; healthBadge(); }).catch(() => {});
+    } catch (e) { toast(e.message, 'err'); }
+  });
+}
+async function openHealth(id) {
+  try { showHealth(await apiJSON(`/api/health/checks/${id}`), S.hl?.tab || 'overview'); } catch (e) { toast(e.message, 'err'); }
+}
+function closeHealthModal() { closeModal('healthModal'); S.hl = null; }
+function showHealth(c, tab) {
+  const keepTab = S.hl && S.hl.device_id === c.device_id;
+  S.hl = { ...c, tab: keepTab ? S.hl.tab : (tab || 'overview') };
+  if (tab === 'ai') S.hl.tab = 'ai';
+  S.hlLog = { levels: new Set(LV), recentOnly: false, q: '' };
+  $('hlTitle').innerHTML = `${esc(c.hostname || 'Device')} ${hlPill(c.status)}`;
+  const again = $('hlAgain'); again.classList.toggle('hidden', !can('health.run'));
+  again.onclick = () => runHealth(c.device_id, again);
+  apiJSON(`/api/health/checks?device_id=${c.device_id}&limit=30`).then(list => {
+    $('hlHistory').innerHTML = list.map(x => `<option value="${x.id}" ${x.id === c.id ? 'selected' : ''}>${esc(fmt(x.created_at))}, ${HL_PILL[x.status][0]}</option>`).join('');
+  }).catch(() => {});
+  const nLogs = (c.logs || []).length;
+  const tabs = [['overview','Overview'], ['logs', `Logs${nLogs ? ` (${nLogs})` : ''}`], ['interfaces','Interfaces'], ['raw','Raw output'], ['ai','AI summary']];
+  $('hlTabs').innerHTML = tabs.map(([k, l]) => `<button data-t="${k}" onclick="hlTab('${k}')">${l}</button>`).join('');
+  openModal('healthModal'); hlTab(S.hl.tab);
+}
+function hlTab(t) {
+  S.hl.tab = t;
+  document.querySelectorAll('#hlTabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  const c = S.hl;
+  if (c.status === 'failed' && t !== 'raw') {
+    $('hlBody').innerHTML = `<div class="modal-body"><div class="alert bad"><b>The check could not run.</b> ${esc(c.error || '')}</div>
+      <p class="muted" style="margin-top:12px">Check SSH from the Devices page (Test SSH). If only some commands fail, edit the command list in Health settings.</p></div>`; return;
+  }
+  ({ overview: hlOverview, logs: hlLogs, interfaces: hlInterfaces, raw: hlRaw, ai: hlAI })[t]();
+}
+function hlOverview() {
+  const c = S.hl, f = c.facts || {}, ic = c.interfaces?.counts || {}, t = S.health?.settings?.thresholds || { cpu_warn:75, cpu_crit:90, mem_warn:80, mem_crit:90 };
+  $('hlBody').innerHTML = `<div class="modal-body">
+    <div class="kv" style="margin-top:0">
+      <div><span>CPU</span><b>${meter(c.cpu, t.cpu_warn, t.cpu_crit)}</b></div>
+      <div><span>Memory</span><b>${meter(c.memory, t.mem_warn, t.mem_crit)}</b></div>
+      <div><span>Uptime</span><b style="font-size:.9rem">${esc(f.uptime || '—')}</b></div>
+      <div><span>Model / software</span><b style="font-size:.9rem">${esc(f.model || '—')}<br><span class="mono" style="font-weight:500">${esc(f.version || '')}</span></b></div>
+      <div><span>Interfaces</span><b style="font-size:.9rem">${ic.up || 0} up, ${ic.down || 0} down, ${ic.admin_down || 0} admin down${ic.err_disabled ? `, <span style="color:var(--fault)">${ic.err_disabled} err-disabled</span>` : ''}</b></div>
+      <div><span>Logs, last ${c.log_window_hours || 24} h</span><b>${lvlChips(c.recent_log_counts, true)}</b></div>
+    </div>
+    <div class="ai-sec" style="margin-top:20px"><h4>What needs attention <span class="muted" style="font-weight:500">${(c.issues || []).length}</span></h4>
+      ${(c.issues || []).length ? c.issues.map(i => `<div class="hl-issue"><span class="sev ${i.severity === 'critical' ? 'critical' : 'medium'}">${i.severity}</span><span>${esc(i.text)}</span><span class="area">${esc(i.area)}</span></div>`).join('') : '<p class="muted">Nothing found. CPU, memory, hardware, alarms, interfaces and recent logs look normal.</p>'}</div>
+    ${(c.commands_failed || []).length ? `<div class="alert info" style="margin-top:16px"><b>Not supported on this device:</b> ${c.commands_failed.map(x => `<span class="mono">${esc(x.command)}</span>`).join(', ')}. Results from these commands are missing. You can change the command list in Health settings.</div>` : ''}
+    <p class="muted" style="font-size:.82rem;margin-top:14px">Checked ${esc(fmt(c.created_at))} in ${((c.duration_ms || 0) / 1000).toFixed(1)} s, ${c.trigger === 'scheduled' ? 'by the schedule' : 'by ' + esc(c.created_by || 'a user')}.</p></div>`;
+}
+function hlLogs() {
+  const c = S.hl, logs = c.logs || [];
+  if (!logs.length) { $('hlBody').innerHTML = '<div class="modal-body"><p class="muted">No log lines were read. Check that the log command works on this device (Raw output tab).</p></div>'; return; }
+  const counts = {}; logs.forEach(e => counts[e.level_name] = (counts[e.level_name] || 0) + 1);
+  const inferred = logs.some(e => e.inferred);
+  $('hlBody').innerHTML = `<div class="modal-body">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+      <div class="lvlpick" id="hlLvls">${LV.map(l => `<button class="sev ${LV_CLASS[l]} ${S.hlLog.levels.has(l) ? 'picked' : ''}" data-l="${l}" onclick="hlToggleLevel('${l}')">${l} ${counts[l] || 0}</button>`).join('')}</div>
+      <span style="flex:1"></span>
+      <div class="seg"><button onclick="hlLevelsFrom(3)">Error and above</button><button onclick="hlLevelsFrom(4)">Warning and above</button><button onclick="hlLevelsFrom(7)">All</button></div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+      <input class="input" id="hlLogQ" placeholder="Search messages, e.g. GigabitEthernet0/0/2" style="flex:1;min-width:220px" value="${esc(S.hlLog.q)}" oninput="S.hlLog.q=this.value;hlRenderLogRows()">
+      <label class="switch"><input type="checkbox" ${S.hlLog.recentOnly ? 'checked' : ''} onchange="S.hlLog.recentOnly=this.checked;hlRenderLogRows()"><span class="track"></span>Last ${c.log_window_hours || 24} h only</label>
+    </div>
+    ${inferred ? `<p class="muted" style="font-size:.82rem;margin-bottom:10px">Levels marked <span class="inf">~</span> were guessed from the message text, because this device does not write a level in its logs (Junos default). Add <span class="mono">explicit-priority</span> to the syslog file config for exact levels.</p>` : ''}
+    <div class="table-wrap" style="border:1px solid var(--line);border-radius:var(--r)"><table class="t loglist"><thead><tr><th style="width:150px">Time</th><th style="width:110px">Level</th><th style="width:190px">Source</th><th>Message</th></tr></thead><tbody id="hlLogRows"></tbody></table></div>
+    <p class="muted" id="hlLogCount" style="font-size:.82rem;margin-top:8px"></p></div>`;
+  hlRenderLogRows();
+}
+function hlToggleLevel(l) { const s = S.hlLog.levels; s.has(l) ? s.delete(l) : s.add(l); hlLogs(); }
+function hlLevelsFrom(n) { S.hlLog.levels = new Set(LV.slice(0, n + 1)); hlLogs(); }
+function hlRenderLogRows() {
+  const c = S.hl, q = S.hlLog.q.toLowerCase();
+  const rows = (c.logs || []).filter(e => S.hlLog.levels.has(e.level_name) && (!S.hlLog.recentOnly || e.recent)
+    && (!q || `${e.module} ${e.tag} ${e.msg}`.toLowerCase().includes(q)));
+  const shown = rows.slice(0, 400);
+  $('hlLogRows').innerHTML = shown.map(e => `<tr><td class="mono" style="font-size:.76rem;white-space:nowrap">${esc(e.time || '—')}</td>
+    <td><span class="sev ${LV_CLASS[e.level_name]}">${e.level} ${e.level_name}</span>${e.inferred ? '<span class="inf" title="Level guessed from the message text">~</span>' : ''}</td>
+    <td class="mono" style="font-size:.76rem">${esc(e.module)}${e.tag ? '/' + esc(e.tag) : ''}</td><td class="msg">${esc(e.msg)}</td></tr>`).join('')
+    || '<tr><td colspan="4" class="muted" style="padding:20px">No log lines match.</td></tr>';
+  $('hlLogCount').textContent = `${rows.length} of ${(c.logs || []).length} lines${rows.length > 400 ? ', first 400 shown' : ''}. Order as the device returned them.`;
+}
+function hlInterfaces() {
+  const i = S.hl.interfaces || {}, ic = i.counts || {};
+  const list = (title, items, cls) => `<div class="ai-sec"><h4>${title} <span class="muted" style="font-weight:500">${items.length}</span></h4>${items.length ? `<div class="chips">${items.map(n => `<span class="pill ${cls} plain mono" style="font-weight:500">${esc(n)}</span>`).join('')}</div>` : '<p class="muted">None.</p>'}</div>`;
+  $('hlBody').innerHTML = `<div class="modal-body">
+    <div class="kv" style="margin-top:0">${[['Up','up'],['Down','down'],['Admin down','admin_down'],['Err-disabled','err_disabled'],['Standby','standby']].filter(([, k]) => k !== 'standby' || ic[k]).map(([l, k]) => `<div><span>${l}</span><b>${ic[k] || 0}</b></div>`).join('')}</div>
+    <div style="margin-top:20px">${list('Err-disabled ports', i.err_disabled || [], 'bad')}${list('Ports down (not admin down)', i.down || [], 'warn')}
+    <div class="ai-sec"><h4>Ports with error counters <span class="muted" style="font-weight:500">${(i.errors || []).length}</span></h4>
+      ${(i.errors || []).length ? `<table class="t"><thead><tr><th>Interface</th><th>Input errors</th><th>Output errors</th></tr></thead><tbody>${[...i.errors].sort((a, b) => (b.in + b.out) - (a.in + a.out)).map(e => `<tr><td class="mono">${esc(e.name)}</td><td>${e.in}</td><td>${e.out}</td></tr>`).join('')}</tbody></table>
+      <p class="muted" style="font-size:.82rem;margin-top:6px">Counters are totals since they were last cleared, not new errors. Compare two checks to see if they grow.</p>` : '<p class="muted">None, or this device\'s command does not show error counters.</p>'}</div></div>
+    <p class="muted" style="font-size:.82rem">Loopback, VLAN and sub-interfaces are not counted. "Down" ports may simply be unused; err-disabled ports need attention.</p></div>`;
+}
+function hlRaw() {
+  const outs = S.hl.outputs || [];
+  $('hlBody').innerHTML = `<div class="modal-body">${outs.length ? outs.map(o => `<details class="rawout"><summary>${o.ok ? '<span class="pill ok plain">ok</span>' : '<span class="pill warn plain">not run</span>'}${esc(o.command)}</summary>
+    ${o.error ? `<div class="alert info" style="margin:10px 14px">${esc(o.error)}</div>` : ''}<pre>${esc(o.output || '')}</pre></details>`).join('')
+    : `<div class="alert bad">${esc(S.hl.error || 'No output')}</div>`}</div>`;
+}
+function hlAI() {
+  const c = S.hl, a = c.ai, canRun = can('ai.run') && (c.ai_configured ?? S.health?.ai_configured ?? true);
+  if (c.aiLoading) { $('hlBody').innerHTML = `<div class="modal-body" style="display:flex;gap:12px;align-items:center"><span class="spin"></span>The AI is reading the health check. This can take up to a minute.</div>`; return; }
+  if (!a) {
+    $('hlBody').innerHTML = `<div class="modal-body"><div class="empty" style="padding:30px 10px"><b>No AI summary yet</b>
+      ${canRun ? `The AI reads the parsed results, important log lines and command output, and explains what needs attention. Secrets are masked first.
+      <div style="margin-top:14px"><button class="btn btn-primary" onclick="healthAI(${c.id}, false, this)">${ico('ai')}Create AI summary</button></div>` : 'Set up an AI provider on the AI review page, or ask an operator to run it.'}</div></div>`; return;
+  }
+  $('hlBody').innerHTML = `<div class="ai-head"><div style="flex:1;min-width:260px"><h2>${hlPill(a.status)} AI summary</h2><p>${esc(a.summary || '')}</p></div>
+      ${canRun ? `<button class="btn btn-sm" onclick="healthAI(${c.id}, true, this)">${ico('refresh')}Run again</button>` : ''}</div>
+    <div class="modal-body">
+      ${(a.issues || []).length ? a.issues.map(f => `<div class="finding"><div class="fh"><span class="sev ${esc(f.severity)}">${esc(f.severity)}</span><b>${esc(f.title)}</b></div>
+        <p>${esc(f.detail || '')}</p>
+        ${f.recommendation ? `<span class="lbl">Recommendation</span><p style="margin-top:2px">${esc(f.recommendation)}</p>` : ''}
+        ${f.commands ? `<span class="lbl">Commands to check further</span>${codeBox(f.commands)}` : ''}</div>`).join('') : '<p class="muted">The AI found no issues.</p>'}
+      ${(a.next_checks || []).length ? `<div class="ai-sec"><h4>Next checks</h4><ul style="margin-left:18px">${a.next_checks.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
+      <p class="muted" style="font-size:.8rem;margin-top:14px">${[[a._provider, a._model, a.created_at ? fmt(a.created_at) : ''].filter(Boolean).map(esc).join(', '),
+        a.truncated ? 'Input was shortened' : '', a.masked_ips ? 'IP addresses were hidden' : '', 'AI can be wrong; check before acting'].filter(Boolean).join('. ')}.</p></div>`;
+}
+async function healthAI(id, refresh, btn) {
+  if (!S.hl || S.hl.id !== id) return;
+  S.hl.aiLoading = true; if (S.hl.tab === 'ai') hlAI();
+  try { const a = await apiJSON(`/api/health/checks/${id}/ai${refresh ? '?refresh=true' : ''}`, { method:'POST' });
+    if (S.hl?.id === id) { S.hl.ai = a; } }
+  catch (e) { toast(e.message, 'err'); }
+  finally { if (S.hl?.id === id) { S.hl.aiLoading = false; if (S.hl.tab === 'ai') hlAI(); } }
+}
+async function openHealthSettings() {
+  let h; try { h = await apiJSON('/api/health/status'); S.health = h; } catch (e) { return toast(e.message, 'err'); }
+  const st = h.settings, opts = [15,30,60,120,240,360,720,1440];
+  if (!opts.includes(st.interval_minutes)) opts.push(st.interval_minutes);
+  $('hlSettingsBody').innerHTML = `
+    <label class="switch"><input type="checkbox" id="hs_on" ${st.schedule_enabled ? 'checked' : ''}><span class="track"></span>Check all enabled devices on a schedule</label>
+    <div class="modal-grid" style="margin-top:14px">
+      <label class="f">Every<select class="input" id="hs_int">${opts.sort((a, b) => a - b).map(m => `<option value="${m}" ${m === st.interval_minutes ? 'selected' : ''}>${fmtMinutes(m)}</option>`).join('')}</select></label>
+      <label class="f">Keep checks per device<input class="input" id="hs_ret" type="number" min="1" max="1000" value="${st.retention}"></label>
+      <label class="f">Logs count as recent for<select class="input" id="hs_win">${[1,6,12,24,48,72,168].map(x => `<option value="${x}" ${x === st.log_window_hours ? 'selected' : ''}>${x} h</option>`).join('')}</select></label>
+      <label class="f">AI summary<select class="input" id="hs_ai"><option value="off" ${st.ai_mode === 'off' ? 'selected' : ''}>Only when I click</option><option value="issues" ${st.ai_mode === 'issues' ? 'selected' : ''}>Automatically for Warning and Critical</option><option value="all" ${st.ai_mode === 'all' ? 'selected' : ''}>Automatically for every check</option></select></label>
+      <label class="f">AI language<select class="input" id="hs_lang">${['English','Malayalam'].map(x => `<option ${x === st.ai_language ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+    </div>
+    <p class="muted" style="font-size:.82rem;margin-top:6px">${h.ai_configured ? 'Scheduled checks are run 4 devices at a time. Automatic AI summaries run one by one afterwards, to stay inside free-tier limits.' : 'No AI provider is set up yet, so AI summaries are skipped. Add one on the AI review page.'}</p>
+    <h4 style="margin:22px 0 4px">Commands per vendor</h4>
+    <p class="muted" style="font-size:.85rem;margin-bottom:12px">One command per line. Only read-only <span class="mono">display</span> (Huawei) or <span class="mono">show</span> (Juniper, Arista) commands are accepted. Commands a device does not know are skipped and listed in the result.</p>
+    ${['huawei','juniper','arista'].map(v => `<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b>${VENDOR_NAMES[v]}</b>${st.custom_commands[v] ? '<span class="pill info plain">Custom</span>' : '<span class="pill plain">Default</span>'}<span style="flex:1"></span><button class="btn btn-sm btn-ghost" onclick="$('hs_cmd_${v}').value=S.health.settings.default_commands['${v}'].join('\\n')">Restore defaults</button></div>
+      <textarea class="input cmdlist" id="hs_cmd_${v}" spellcheck="false">${esc(st.commands[v].join('\n'))}</textarea></div>`).join('')}
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn" onclick="closeModal('healthSettingsModal')">Cancel</button><button class="btn btn-primary" onclick="saveHealthSettings(this)">Save</button></div>`;
+  openModal('healthSettingsModal');
+}
+async function saveHealthSettings(btn) {
+  const commands = {};
+  ['huawei','juniper','arista'].forEach(v => { commands[v] = $('hs_cmd_' + v).value.split('\n').map(x => x.trim()).filter(Boolean); });
+  const body = { schedule_enabled: $('hs_on').checked, interval_minutes: +$('hs_int').value, retention: +$('hs_ret').value,
+    log_window_hours: +$('hs_win').value, ai_mode: $('hs_ai').value, ai_language: $('hs_lang').value, commands };
+  await busy(btn, async () => {
+    try { await apiJSON('/api/health/settings', { method:'PUT', body: JSON.stringify(body) });
+      toast('Health settings saved'); closeModal('healthSettingsModal'); if (S.page === 'health') loadHealth(); }
+    catch (e) { toast(e.message, 'err'); }
+  });
+}
+
 // ───────────── users & audit ─────────────
 let usersCache = [];
 async function loadUsers() {
@@ -1672,7 +2307,8 @@ async function loadUsers() {
     $('usersTable').innerHTML = usersCache.map(u => `<tr>
       <td><div class="dev"><span class="avatar" style="width:30px;height:30px;font-size:.75rem">${esc((u.display_name||u.username).slice(0,2).toUpperCase())}</span><div><b>${esc(u.username)}</b><div class="sub">${esc(u.display_name||'')}</div></div></div></td>
       <td><span class="pill ${['super_admin','admin'].includes(u.role)?'info':'plain'}" style="text-transform:capitalize">${esc(u.role.replace('_',' '))}</span></td>
-      <td><span class="pill ${u.is_active?'ok':'bad'}">${u.is_active?'Active':'Disabled'}</span></td>
+      <td><span class="pill ${u.is_active?'ok':'bad'}">${u.is_active?'Active':'Disabled'}</span>${u.must_change_password && u.is_active ? '<div class="sub">Must set a new password</div>' : ''}</td>
+      <td>${u.last_login_at ? esc(ago(u.last_login_at)) : '<span class="muted">never</span>'}</td>
       <td>${esc(u.email||'—')}</td>
       <td><div class="row-actions">${can('users.edit') ? `<button class="btn btn-sm" onclick="openUserEdit(${u.id})">Edit</button>` : ''}
       ${can('users.delete') && u.id !== S.user.id ? `<button class="btn btn-sm btn-icon btn-danger" title="Delete" onclick="deleteUser(${u.id},'${jsq(u.username)}')">${ico('trash')}</button>` : ''}</div></td></tr>`).join('');
@@ -1693,7 +2329,7 @@ function openUserEdit(id) {
 async function saveUser() {
   const p = { display_name: $('u_display').value.trim() || null, email: $('u_email').value.trim() || null, role: $('u_role').value, is_active: $('u_active').checked };
   if (!S.editingUser) { p.username = $('u_username').value.trim(); p.password = $('u_password').value;
-    if (!p.username || p.password.length < 8) return msg('userResult', 'Enter a username and a password of at least 8 characters.', 'error'); }
+    if (!p.username || p.password.length < 10) return msg('userResult', 'Enter a username and a temporary password of at least 10 characters.', 'error'); }
   else if ($('u_password').value) p.password = $('u_password').value;
   try { await apiJSON(S.editingUser ? `/api/users/${S.editingUser}` : '/api/users/', { method: S.editingUser ? 'PATCH' : 'POST', body: JSON.stringify(p) });
     closeModal('userModal'); toast(S.editingUser ? 'User saved' : 'User added'); loadUsers(); }
@@ -1849,6 +2485,8 @@ async function loadProfile() {
   const u = S.user; $('pf_user').value = u.username; $('pf_name').value = u.display_name || ''; $('pf_email').value = u.email || '';
   $('pfRole').textContent = (u.role || '').replace('_', ' ');
   ['pf_cur', 'pf_new', 'pf_new2'].forEach(id => $(id).value = '');
+  $('pfSess').textContent = [u.last_login_at ? `Signed in ${fmt(u.last_login_at)}` : '', u.password_changed_at ? `password changed ${ago(u.password_changed_at)}` : '',
+    u.session_idle_minutes ? `idle sign-out after ${u.session_idle_minutes} min` : ''].filter(Boolean).join(', ');
   if (!can('ai.view')) return;
   try {
     const [providers, pref] = await Promise.all([apiJSON('/api/ai/providers'), apiJSON('/api/ai/preferences')]);
@@ -1899,10 +2537,11 @@ async function saveProfile() {
 }
 async function changePassword() {
   const a = $('pf_new').value, b = $('pf_new2').value;
-  if (a.length < 8) return toast('New password must be at least 8 characters', 'err');
+  if (a.length < 10) return toast('New password must be at least 10 characters', 'err');
   if (a !== b) return toast('The new passwords do not match', 'err');
-  try { await apiJSON('/api/auth/me', { method:'PATCH', body: JSON.stringify({ current_password: $('pf_cur').value, new_password: a }) });
-    ['pf_cur', 'pf_new', 'pf_new2'].forEach(id => $(id).value = ''); toast('Password changed'); }
+  try { const d = await apiJSON('/api/auth/me', { method:'PATCH', body: JSON.stringify({ current_password: $('pf_cur').value, new_password: a }) });
+    if (d.access_token) { S.token = d.access_token; localStorage.setItem('ncm_token', S.token); }
+    ['pf_cur', 'pf_new', 'pf_new2'].forEach(id => $(id).value = ''); toast('Password changed. Other sessions were signed out.'); }
   catch (e) { toast(e.message, 'err'); }
 }
 async function saveAISettings(p) {
@@ -2130,7 +2769,9 @@ window.addEventListener('hashchange', () => { const n = location.hash.slice(1); 
   if (gd) history.replaceState(null, '', location.pathname + location.hash);
   if (!S.token) return showLogin();
   try {
-    S.user = await apiJSON('/api/auth/me'); showApp(); await bootData();
+    S.user = await apiJSON('/api/auth/me'); showApp(); startIdleWatch();
+    if (S.user.must_change_password) return showForcedPassword();
+    await bootData();
     showPage(location.hash.slice(1) || 'dashboard');
     if (gd === 'connected') toast('Google Drive connected');
     if (gd === 'error') toast('Google Drive connection did not finish. See the error on this page.', 'err');

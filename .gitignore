@@ -32,3 +32,7 @@ ncm-old-backups/
 
 .DS_Store
 Thumbs.db
+
+# Generated signing key (never commit)
+backend/.secret_key
+.secret_key

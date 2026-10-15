@@ -51,6 +51,8 @@ def _serialize(b: Backup, hostname: str):
         "error": b.error,
         "gdrive_file_id": b.gdrive_file_id,
         "gdrive_synced_at": b.gdrive_synced_at.isoformat() if b.gdrive_synced_at else None,
+        "onedrive_item_id": b.onedrive_item_id,
+        "onedrive_synced_at": b.onedrive_synced_at.isoformat() if b.onedrive_synced_at else None,
         "created_at": b.created_at.isoformat() if b.created_at else None,
     }
 

@@ -6,8 +6,9 @@ PERMISSIONS = {
     "files.view",
     "cloud.view", "cloud.sync", "cloud.manage",
     "ai.view", "ai.run", "ai.manage",
+    "health.view", "health.run", "health.manage",
     "users.view", "users.create", "users.edit", "users.delete",
-    "audit.view",
+    "audit.view", "security.view",
 }
 
 ROLE_PERMISSIONS = {
@@ -20,8 +21,9 @@ ROLE_PERMISSIONS = {
         "files.view",
         "cloud.view", "cloud.sync", "cloud.manage",
         "ai.view", "ai.run", "ai.manage",
+        "health.view", "health.run", "health.manage",
         "users.view", "users.create", "users.edit",
-        "audit.view",
+        "audit.view", "security.view",
     },
     "operator": {
         "dashboard.view",
@@ -31,10 +33,11 @@ ROLE_PERMISSIONS = {
         "files.view",
         "cloud.view", "cloud.sync",
         "ai.view", "ai.run",
+        "health.view", "health.run",
     },
     "viewer": {
         "dashboard.view", "devices.view", "backups.view", "backups.diff", "schedules.view",
-        "files.view", "cloud.view", "ai.view",
+        "files.view", "cloud.view", "ai.view", "health.view",
     },
 }
 ROLES = ROLE_PERMISSIONS

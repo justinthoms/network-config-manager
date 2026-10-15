@@ -2,7 +2,71 @@
 
 Open-source multi-vendor Network Configuration Manager for NOC and network operations teams.
 
-## What's new in v0.6: choose your AI provider from the web
+## What's new in v0.9: Automatic backup for all devices, and security hardening
+
+### Automatic backup for all devices
+- **On by default after upgrading:** every device gets a backup schedule **every 24 hours, starting 01:00 server time**. Devices added later, by hand or by CSV import, are scheduled automatically.
+- Devices start up to 15 minutes apart, so many devices do not connect at the same second.
+- Devices that already had their own schedule keep it. Paused schedules are switched on. **Apply to all devices** on the Schedules page sets every device to the same frequency.
+- Change the frequency, start time and how many backups to keep on the Schedules page. Turning it off keeps existing schedules but stops scheduling new devices.
+
+### Security
+- **Signing key:** if `SECRET_KEY` in `.env` is a placeholder or shorter than 32 characters, NCM generates a random key in `backend/.secret_key` (mode 600) and uses that. Before this, a known key let anyone forge an admin login.
+- **Password policy:** at least 10 characters, three of lower/upper/digits/symbols, not a common password, not containing the username.
+- **Forced password change:** anyone signing in with a weak password, the default admin password, a new account, or a password reset by an admin must set a new password before doing anything else.
+- **Sign-in lockout:** 5 failed sign-ins lock that username for 15 minutes (also for usernames that do not exist, so the lock does not reveal valid names); 20 from one address lock that address. A wrong username takes as long as a wrong password.
+- **Sessions end** when the password changes, the role changes or the account is disabled. **Sign out everywhere** is in My profile. Browsers sign out after **30 minutes idle**.
+- **Security headers:** Content-Security-Policy, X-Frame-Options DENY, nosniff, no-referrer, HSTS over HTTPS, no-store on API responses.
+- **API docs** (`/docs`, `/redoc`, `/openapi.json`) are off unless `ENABLE_API_DOCS=true`.
+- **File permissions:** `.env`, the database, `.secret_key` and the backup folder are made readable by the NCM user only; new files are created private.
+- **Security page** (user menu, Admin and Super Admin): checks the items above, HTTPS, number of Super Admins, users who must change their password, and last sign-in time and address per account.
+- All of this is in the audit log (`LOGIN` FAILED/BLOCKED, `PASSWORD_CHANGE`, `LOGOUT_ALL`, `BACKUP_POLICY`).
+
+After upgrading, existing users with weak passwords are asked to change them at their next sign-in. Keep `backend/.secret_key` with your server backups; if it is lost, everyone just signs in again.
+
+### Recommended: HTTPS
+NCM itself serves plain HTTP. On the server, put it behind nginx or Caddy with a certificate, and allow port 8000 only from localhost. Example Caddyfile:
+
+```
+ncm.example.local {
+    reverse_proxy 127.0.0.1:8000
+}
+```
+Then start NCM with `uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips 127.0.0.1`.
+
+## What's new in v0.8: Device health checks
+
+New **Health** page. NCM logs in over SSH and runs only read-only commands (`display` on Huawei, `show` on Juniper and Arista), then shows:
+
+- **CPU and memory** with warning (75% / 80%) and critical (90%) levels, plus model, software version and uptime.
+- **Hardware and alarms:** failed fans, power supplies, temperature problems and active Major/Minor alarms.
+- **Interfaces:** up / down / admin-down counts, err-disabled ports and ports with error counters.
+- **Logs by level:** every log line is sorted by syslog level (0 emergency ... 7 debug). Filter by level, search text, or show only the last N hours. Junos logs have no level by default, so NCM guesses it from the text and marks it `~` (add `explicit-priority` to the syslog file for exact levels).
+- **Status per device:** OK, Warning, Critical, or Failed (SSH did not work). Critical and failed devices show as a count on the Health tab.
+- **AI summary** (optional, uses the AI provider from the AI review page): explains what needs attention and which commands to run next. Choose English or Malayalam. Run on click, or automatically for Warning/Critical or for every check. Secrets are masked first.
+- **Check now** from the Health page or the new pulse button on the Devices page, **Check all devices** (4 at a time), and an optional **schedule** (every 15 minutes to 7 days).
+- **Command lists per vendor** can be changed in *Schedule & settings*. Only read-only commands are accepted (`reboot`, `reset`, `configure`, `write`, `| save` and similar are refused). Commands a device does not know are skipped and listed in the result.
+- History: the last 50 checks per device are kept (configurable). Every check is in the audit log.
+
+Default commands:
+
+| Huawei | Juniper | Arista |
+|---|---|---|
+| display version, cpu-usage, memory-usage, device, fan, power, temperature all, alarm active, interface brief, logbuffer | show version, chassis routing-engine, chassis alarms, system alarms, chassis environment, interfaces terse, log messages \| last 500 | show version, processes top once, system environment all, interfaces status, interfaces counters errors, logging 500 |
+
+Permissions: `health.view` (all roles), `health.run` (operator and above), `health.manage` settings and schedule (admin and super admin). The AI summary also needs `ai.run`.
+
+Navigation labels "Config changes" and "File browser" are now "Changes" and "Files" to make room.
+
+## What's new in v0.7: OneDrive backup
+
+- **Microsoft OneDrive as a second off-site target.** The Google Drive page is now **Cloud**, with a Google Drive / OneDrive switch. Each provider has its own connection, automatic upload switch, folder name and pending count, so you can use one, the other, or both.
+- **Device-code sign-in.** Click **Connect OneDrive**, open `microsoft.com/devicelogin` on any device and enter the code shown. No redirect URI or HTTPS is needed, so it works when NCM is opened by IP address. The refresh token is stored encrypted and rotated, so uploads keep working after restarts.
+- **Folder layout.** `NCM-Backups/<hostname>/` (default) or `NCM-Backups/YYYY/MM/DD/`. Folders are created automatically. Files larger than 4 MB use an upload session.
+- **Test upload** writes `_ncm-test.txt` to the OneDrive folder to check the connection.
+- The Backups table now has a **Cloud** column showing Google Drive and OneDrive copies, with an upload button for each connected provider.
+
+: choose your AI provider from the web
 
 - **Multiple AI providers.** Add Google Gemini, OpenRouter, OpenAI, Groq, Mistral, Anthropic Claude, a local Ollama server, or any OpenAI-compatible endpoint, with API keys entered in the browser (stored encrypted).
 - **Model picker.** "Load models" lists the models your key can use. Free models (for example OpenRouter `:free` models) are shown first and marked, and models without tool support are flagged, because the chat assistant needs tool calling. "Test" sends a tiny request before you save.
@@ -75,7 +139,8 @@ Permissions: `ai.view` (all roles), `ai.run` (operator and above), `ai.manage` s
 - 💾 Manual and scheduled configuration backups with retries and retention
 - 🔄 Config diff and change timeline
 - 📁 Web file browser for the backup directory
-- ☁️ Google Drive off-site copies
+- ☁️ Google Drive and OneDrive off-site copies
+- 🩺 Device health checks with logs by level and AI summary
 - 🧾 Audit logs
 - 📥 CSV import and export
 - 🌙 Dark and light mode
@@ -105,15 +170,29 @@ Upgrading from v0.1: just restart. New tables and columns are added automaticall
 
 Notes: Google only accepts `http://` redirect URIs for `localhost`. For access by IP or hostname, serve NCM over HTTPS (for example behind nginx or Caddy). Disk retention never deletes Drive copies; deleting a backup in NCM does not delete it from Drive.
 
+## OneDrive setup
+
+1. In the [Microsoft Entra admin center](https://entra.microsoft.com) (or Azure portal), open **App registrations** and create a new registration. For a personal OneDrive, choose an account type that includes personal Microsoft accounts.
+2. Under **Authentication**, set **Allow public client flows** to **Yes**. No redirect URI and no client secret are needed.
+3. Under **API permissions**, add the Microsoft Graph delegated permissions `Files.ReadWrite` and `offline_access`.
+4. Put the **Application (client) ID** and **Directory (tenant) ID** in `backend/.env` as `ONEDRIVE_CLIENT_ID` and `ONEDRIVE_TENANT_ID`, or paste them on the Cloud page (OneDrive tab) as Super Admin. Tenant can also be `common`, `organizations` or `consumers`; empty means `common`.
+5. Restart, open **Cloud → OneDrive**, click **Connect OneDrive**, and enter the code at `microsoft.com/devicelogin`.
+
+Notes: the same app registration as a working `msal` device-flow script can be reused. Disconnecting removes the stored token from NCM; to also revoke consent, remove the app at myapps.microsoft.com (work) or account.live.com/consent/Manage (personal). Disk retention never deletes OneDrive copies.
+
 ## Permissions
 
 | Permission | super_admin | admin | operator | viewer |
 |---|:-:|:-:|:-:|:-:|
 | files.view (file browser) | ✓ | ✓ | ✓ | ✓ |
 | cloud.view | ✓ | ✓ | ✓ | ✓ |
-| cloud.sync (upload to Drive) | ✓ | ✓ | ✓ | |
+| cloud.sync (upload to Drive / OneDrive) | ✓ | ✓ | ✓ | |
 | cloud.manage (connect, settings) | ✓ | ✓ | | |
 | backups.delete | ✓ | ✓ | | |
+| health.view | ✓ | ✓ | ✓ | ✓ |
+| health.run (run checks) | ✓ | ✓ | ✓ | |
+| health.manage (schedule, commands) | ✓ | ✓ | | |
+| security.view (Security page) | ✓ | ✓ | | |
 
 OAuth client credentials can only be changed by a Super Admin.
 
@@ -124,6 +203,9 @@ OAuth client credentials can only be changed by a Super Admin.
 - `DELETE /api/backups/{id}`
 - `GET /api/files/browse|search|view|download|diff|stats`
 - `GET /api/cloud/gdrive/status|auth-url|files`, `PUT /api/cloud/gdrive/credentials|settings`, `POST /api/cloud/gdrive/sync|upload/{id}|disconnect`
+- `GET|PUT /api/schedules/policy`, `GET /api/security/status`, `POST /api/auth/logout-all`
+- `GET /api/health/status|run-state|checks|checks/{id}`, `POST /api/health/run/{device_id}|run-all|checks/{id}/ai`, `PUT /api/health/settings`
+- `GET /api/cloud/onedrive/status|files|files/{id}/download|files/{id}/link`, `PUT /api/cloud/onedrive/config|settings`, `POST /api/cloud/onedrive/device/start|device/poll|device/cancel|test|sync|upload/{id}|disconnect`
 
 ## License
 

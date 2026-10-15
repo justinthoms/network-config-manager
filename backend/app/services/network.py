@@ -134,3 +134,66 @@ def run_show_command(device, command: str, max_chars: int = 20000) -> str:
                 conn.disconnect()
             except Exception:
                 pass
+
+
+_UNSUPPORTED_RE = _re.compile(
+    r"(Error:\s*(Unrecognized|Wrong parameter|Incomplete|Too many)|syntax error|unknown command|"
+    r"% ?Invalid input|% ?Incomplete command|% ?Ambiguous command|error: command is not valid)",
+    _re.IGNORECASE)
+
+
+def run_show_commands(device, commands: list[str], max_chars: int = 60000) -> dict:
+    """Run several read-only commands in ONE SSH session.
+
+    Returns {"prompt": str, "results": [{"command", "output", "ok", "error"}]}.
+    A command the device does not know is reported as ok=False instead of
+    failing the whole run. Connection errors raise.
+    """
+    vendor = (device.vendor or "").lower()
+    checked = []
+    for c in commands:
+        try:
+            checked.append((c, validate_show_command(vendor, c), None))
+        except LiveCommandError as exc:
+            checked.append((c, None, str(exc)))
+    conn = None
+    try:
+        conn = ConnectHandler(
+            device_type=SUPPORTED[vendor], host=device.management_ip, username=device.username,
+            password=decrypt_secret(device.password_encrypted), port=device.ssh_port,
+            timeout=30, conn_timeout=30, auth_timeout=30, banner_timeout=30, fast_cli=False,
+        )
+        if vendor == "huawei":
+            conn.send_command("screen-length 0 temporary", read_timeout=10)
+        elif vendor == "arista":
+            try:
+                if not conn.check_enable_mode():
+                    conn.enable()
+            except Exception:
+                pass
+            conn.send_command_timing("terminal length 0", read_timeout=10)
+        prompt = conn.find_prompt()
+        results = []
+        for original, cmd, err in checked:
+            if err:
+                results.append({"command": original, "output": "", "ok": False, "error": err})
+                continue
+            run = cmd + " | no-more" if vendor == "juniper" and "no-more" not in cmd else cmd
+            try:
+                out = conn.send_command(run, read_timeout=90)
+            except Exception as exc:
+                results.append({"command": cmd, "output": "", "ok": False,
+                                "error": f"{type(exc).__name__}: {exc}"})
+                continue
+            if len(out) > max_chars:
+                out = out[:max_chars] + "\n<OUTPUT TRUNCATED>"
+            bad = _UNSUPPORTED_RE.search(out[:400])
+            results.append({"command": cmd, "output": out, "ok": not bad,
+                            "error": "Command not supported on this device" if bad else None})
+        return {"prompt": prompt, "results": results}
+    finally:
+        if conn is not None:
+            try:
+                conn.disconnect()
+            except Exception:
+                pass

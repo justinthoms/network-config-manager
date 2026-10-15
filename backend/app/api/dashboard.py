@@ -160,6 +160,7 @@ def summary(days: int = 14, db: Session = Depends(get_db), user=Depends(require_
         "changes_today": by_day.get(today, {}).get("changes", 0),
         "failed_open": sum(1 for p in ports if p["state"] == "failed"),
         "in_drive": db.query(Backup).filter(Backup.gdrive_file_id.isnot(None)).count(),
+        "in_onedrive": db.query(Backup).filter(Backup.onedrive_item_id.isnot(None)).count(),
         "activity": [{"date": k, **v} for k, v in by_day.items()],
         "ports": ports,
         "recent_changes": recent_changes,

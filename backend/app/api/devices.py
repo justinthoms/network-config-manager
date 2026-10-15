@@ -26,7 +26,13 @@ def create_device(data: DeviceCreate, db: Session = Depends(get_db),
         model=data.model, username=data.username, password_encrypted=encrypt_secret(data.password),
         ssh_port=data.ssh_port, site=data.site)
     db.add(device); db.commit(); db.refresh(device)
-    record_audit(db, user, "DEVICE_CREATE", "device", device.id, details=f"hostname={device.hostname}")
+    try:
+        from app.services.backup_policy import on_device_created
+        scheduled = on_device_created(db, device)
+    except Exception:
+        scheduled = False
+    record_audit(db, user, "DEVICE_CREATE", "device", device.id,
+                 details=f"hostname={device.hostname}" + (";auto_schedule=on" if scheduled else ""))
     return device
 
 @router.patch("/{device_id}", response_model=DeviceOut)
@@ -59,6 +65,8 @@ def delete_device(device_id: int, db: Session = Depends(get_db),
     remove_device_schedule(device_id)
     db.query(BackupSchedule).filter(BackupSchedule.device_id == device_id).delete(synchronize_session=False)
     db.query(Backup).filter(Backup.device_id == device_id).delete(synchronize_session=False)
+    from app.models.health import HealthCheck
+    db.query(HealthCheck).filter(HealthCheck.device_id == device_id).delete(synchronize_session=False)
     db.delete(device); db.commit()
     record_audit(db, user, "DEVICE_DELETE", "device", device_id, details=f"hostname={name};backup_files=retained")
     return {"success": True, "message": "Device deleted; backup files were retained"}

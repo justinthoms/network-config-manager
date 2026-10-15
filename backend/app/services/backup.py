@@ -173,6 +173,13 @@ def run_backup(device, db):
         except Exception:
             pass
 
+        # Optional OneDrive copy (background thread, never blocks).
+        try:
+            from app.services.onedrive import auto_upload_async as onedrive_auto_upload
+            onedrive_auto_upload(record.id)
+        except Exception:
+            pass
+
         return {"success": True, "backup_id": record.id, "file_path": str(path),
                 "bytes": len(data), "changed": changed}
     except Exception as exc:

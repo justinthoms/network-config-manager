@@ -15,3 +15,6 @@ class Backup(Base):
     sha256 = Column(String(64), nullable=True)
     gdrive_file_id = Column(String(200), nullable=True)
     gdrive_synced_at = Column(DateTime, nullable=True)
+    # Added in v0.7
+    onedrive_item_id = Column(String(200), nullable=True)
+    onedrive_synced_at = Column(DateTime, nullable=True)

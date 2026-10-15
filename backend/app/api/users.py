@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 
 from app.api.deps import current_user, require_permission
 from app.core.database import get_db
@@ -10,7 +9,13 @@ from app.schemas.user import UserCreate, UserOut, UserUpdate
 from app.services.audit import record_audit
 
 router = APIRouter()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from app.core.security import hash_password, password_problem, login_limiter
+
+
+def _check_password(password: str, username: str):
+    problem = password_problem(password, username)
+    if problem:
+        raise HTTPException(400, problem)
 
 @router.get("/", response_model=list[UserOut])
 def list_users(db: Session = Depends(get_db), user: User = Depends(require_permission("users.view"))):
@@ -29,10 +34,12 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db),
         raise HTTPException(409, "Username already exists")
     if payload.role == "super_admin" and current.role != "super_admin":
         raise HTTPException(403, "Only Super Admin can create Super Admin users")
+    _check_password(payload.password, payload.username)
     user = User(
         username=payload.username, display_name=payload.display_name, email=payload.email,
-        password_hash=pwd_context.hash(payload.password), role=payload.role,
+        password_hash=hash_password(payload.password), role=payload.role,
         is_active=payload.is_active,
+        must_change_password=True,          # the user sets their own password at first sign-in
     )
     db.add(user); db.commit(); db.refresh(user)
     record_audit(db, current, "USER_CREATE", "user", user.id, details=f"username={user.username};role={user.role}")
@@ -49,13 +56,22 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
             raise HTTPException(403, "Only Super Admin can assign Super Admin")
         if user.id == current.id and payload.role != "super_admin":
             raise HTTPException(400, "You cannot remove your own Super Admin role")
+        if user.role != payload.role:
+            user.token_version = (user.token_version or 0) + 1   # new permissions apply at next sign-in
         user.role = payload.role
     if payload.display_name is not None: user.display_name = payload.display_name
     if payload.email is not None: user.email = payload.email
-    if payload.password: user.password_hash = pwd_context.hash(payload.password)
+    if payload.password:
+        _check_password(payload.password, user.username)
+        user.password_hash = hash_password(payload.password)
+        user.token_version = (user.token_version or 0) + 1
+        user.must_change_password = user.id != current.id   # a reset password is temporary
+        login_limiter.success(user.username)                # also unlocks the account
     if payload.is_active is not None:
         if user.id == current.id and not payload.is_active:
             raise HTTPException(400, "You cannot disable your own account")
+        if user.is_active and not payload.is_active:
+            user.token_version = (user.token_version or 0) + 1
         user.is_active = payload.is_active
     db.commit(); db.refresh(user)
     record_audit(db, current, "USER_UPDATE", "user", user.id, details=f"username={user.username};role={user.role}")

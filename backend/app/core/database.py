@@ -34,6 +34,7 @@ def init_db():
     from app.models.setting import AppSetting  # noqa: F401
     from app.models.ai_review import AIReview  # noqa: F401
     from app.models.ai_provider import AIProvider  # noqa: F401
+    from app.models.health import HealthCheck  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
 
@@ -44,6 +45,13 @@ def init_db():
     _add_column_if_missing("backups", "sha256", "VARCHAR(64)")
     _add_column_if_missing("backups", "gdrive_file_id", "VARCHAR(200)")
     _add_column_if_missing("backups", "gdrive_synced_at", "TIMESTAMP")
+    _add_column_if_missing("backups", "onedrive_item_id", "VARCHAR(200)")
+    _add_column_if_missing("backups", "onedrive_synced_at", "TIMESTAMP")
+    _add_column_if_missing("users", "token_version", "INTEGER NOT NULL DEFAULT 0")
+    _add_column_if_missing("users", "must_change_password", "BOOLEAN NOT NULL DEFAULT FALSE")
+    _add_column_if_missing("users", "password_changed_at", "TIMESTAMP")
+    _add_column_if_missing("users", "last_login_at", "TIMESTAMP")
+    _add_column_if_missing("users", "last_login_ip", "VARCHAR(64)")
 
     db = SessionLocal()
     try:

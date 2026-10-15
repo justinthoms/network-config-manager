@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from app.core.database import Base
 
 class User(Base):
@@ -10,3 +10,9 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     role = Column(String(50), default="viewer", nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+    # Added in v0.9 (security)
+    token_version = Column(Integer, default=0, nullable=False)      # +1 signs out every session
+    must_change_password = Column(Boolean, default=False, nullable=False)
+    password_changed_at = Column(DateTime, nullable=True)
+    last_login_at = Column(DateTime, nullable=True)
+    last_login_ip = Column(String(64), nullable=True)
