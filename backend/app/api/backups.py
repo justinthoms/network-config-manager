@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import FileResponse, PlainTextResponse
 from sqlalchemy.orm import Session
 
@@ -77,6 +77,24 @@ def list_backups(device_id: int | None = None, status: str | None = None, limit:
         for x in db.query(Device).filter(Device.id.in_(device_ids)).all()
     } if device_ids else {}
     return [_serialize(b, devices.get(b.device_id, f"Device {b.device_id}")) for b in rows]
+
+
+@router.post("/run-all", status_code=202)
+def backup_all(response: Response, db: Session = Depends(get_db), user=Depends(require_permission("backups.run"))):
+    """Back up every enabled device in the background; poll GET /run-all for progress."""
+    from app.services import bulk_backup
+    started, state = bulk_backup.start(user)
+    if not started:
+        response.status_code = 409
+        return {**state, "detail": "A backup of all devices is already running"}
+    record_audit(db, user, "BACKUP_RUN_ALL", "backup", "all", details=f"devices={state['total']};workers={state['workers']}")
+    return state
+
+
+@router.get("/run-all")
+def backup_all_state(db: Session = Depends(get_db), user=Depends(require_permission("backups.view"))):
+    from app.services import bulk_backup
+    return bulk_backup.state(db)
 
 
 @router.get("/diff")

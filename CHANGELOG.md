@@ -11,6 +11,10 @@
 - A device hostname can no longer place backup files outside `BACKUP_ROOT`.
 - Only a Super Admin can change the health check command lists.
 
+**Faster backups for large networks**
+- *Back up all devices* now runs on the server, `BACKUP_WORKERS` devices at a time (default 10), instead of 3 at a time from the browser. It keeps going if the page is closed, and the button shows live progress again after a reload.
+- Scheduled backups also run up to `BACKUP_WORKERS` devices at the same time.
+
 **Reliability**
 - Running with several worker processes (`--workers N`) is safe: only one process runs scheduled jobs, the others follow schedule changes within a minute, and first-start setup no longer races.
 - Automatic Google Drive and OneDrive uploads go through one queue each instead of one thread and database connection per backup.

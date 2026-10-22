@@ -6,10 +6,11 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from app.core.config import BASE_DIR
+from app.core.config import BASE_DIR, settings
 from app.core.database import SessionLocal
 from app.models.device import Device
 from app.models.backup import Backup
@@ -18,8 +19,11 @@ from app.services.backup import run_backup
 
 logger = logging.getLogger("ncm.scheduler")
 
+# BACKUP_WORKERS scheduled backups may run at once, plus room for the health,
+# sync and cleanup jobs so they never wait behind backups.
 scheduler = BackgroundScheduler(
-    job_defaults={"coalesce": True, "max_instances": 1, "misfire_grace_time": 300}
+    executors={"default": ThreadPoolExecutor(max_workers=max(1, min(int(settings.backup_workers or 10), 50)) + 3)},
+    job_defaults={"coalesce": True, "max_instances": 1, "misfire_grace_time": 300},
 )
 
 # ───────────────────────── one runner per server ─────────────────────────

@@ -1129,7 +1129,7 @@ function showPage(n) {
 }
 function refreshCurrent(fromNav) {
   const n = S.page;
-  if (n === 'dashboard') loadSummary();
+  if (n === 'dashboard') { loadSummary(); if (can('backups.view') && !backupAllTimer) apiJSON('/api/backups/run-all').then(watchBackupAll).catch(() => {}); }
   if (n === 'devices') loadDevices();
   if (n === 'backups') loadBackups();
   if (n === 'diff') { fillDeviceSelects(); if (!fromNav && $('diffDevice').value) loadTimeline(); }
@@ -1237,25 +1237,42 @@ function renderActivity(rows) {
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = g;
 }
 async function backupAll(btn) {
-  const list = S.devices.filter(d => d.enabled);
-  if (!list.length) return toast('No enabled devices', 'info');
-  if (!confirm(`Back up all ${list.length} enabled devices now?`)) return;
-  const html = btn.innerHTML; btn.disabled = true;
-  let done = 0, ok = 0, failed = 0, changed = 0; const queue = [...list];
-  const update = () => btn.innerHTML = `<span class="spin"></span> ${done} / ${list.length}`;
-  update();
-  async function worker() {
-    while (queue.length) {
-      const d = queue.shift();
-      try { const r = await apiJSON(`/api/backups/${d.id}/run`, { method:'POST' }); r.success ? (ok++, r.changed && changed++) : failed++; }
-      catch (_) { failed++; }
-      done++; update();
+  const n = S.devices.filter(d => d.enabled).length;
+  if (!n) return toast('No enabled devices', 'info');
+  if (!confirm(`Back up all ${n} enabled devices now? This runs on the server, so you can leave this page.`)) return;
+  try {
+    const r = await api('/api/backups/run-all', { method:'POST' });
+    const st = await r.json();
+    if (r.status === 409) toast('A backup of all devices is already running', 'info');
+    else if (!r.ok) throw Error(st.detail || 'Could not start the backup');
+    watchBackupAll(st);
+  } catch (e) { toast(e.message, 'err'); }
+}
+// Progress of a server-side "back up all" run; also resumes after a page reload.
+let backupAllTimer = null;
+function watchBackupAll(st) {
+  const btn = $('backupAllBtn'); if (!btn) return;
+  if (!btn.dataset.html) btn.dataset.html = btn.innerHTML;
+  const show = s => {
+    if (s.running) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spin"></span> ${s.done} / ${s.total}${s.failed ? ` · ${s.failed} failed` : ''}`;
+      return true;
     }
-  }
-  await Promise.all([worker(), worker(), worker()]);
-  btn.disabled = false; btn.innerHTML = html;
-  toast(`${ok} backed up, ${changed} changed${failed ? `, ${failed} failed` : ''}`, failed ? 'err' : 'ok');
-  loadSummary();
+    btn.disabled = false; btn.innerHTML = btn.dataset.html;
+    return false;
+  };
+  clearTimeout(backupAllTimer);
+  if (!show(st)) return;
+  const poll = async () => {
+    try {
+      const s = await apiJSON('/api/backups/run-all');
+      if (show(s)) { backupAllTimer = setTimeout(poll, 2000); return; }
+      toast(`${s.ok} backed up, ${s.changed} changed${s.failed ? `, ${s.failed} failed: ${s.failed_hosts.slice(0, 5).map(x => x.host).join(', ')}${s.failed > 5 ? '…' : ''}` : ''}`, s.failed ? 'err' : 'ok');
+      loadSummary();
+    } catch (_) { backupAllTimer = setTimeout(poll, 5000); }
+  };
+  backupAllTimer = setTimeout(poll, 1500);
 }
 function jumpDevice(h) { showPage('devices'); $('deviceSearch').value = h; S.site = ''; renderDevices(); }
 

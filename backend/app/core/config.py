@@ -19,6 +19,10 @@ class Settings(BaseSettings):
 
     access_token_expire_minutes: int = 480
 
+    # Devices backed up at the same time (SSH sessions in parallel), for
+    # "Back up all devices" and for scheduled backups. 1-50.
+    backup_workers: int = 10
+
     # ── Security ──
     # Sign a user out after this many minutes without activity in the browser (0 = never).
     session_idle_minutes: int = 30

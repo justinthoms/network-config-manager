@@ -7,8 +7,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
-connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
-engine = create_engine(settings.database_url, connect_args=connect_args)
+_sqlite = settings.database_url.startswith("sqlite")
+# timeout: with many backups in parallel, SQLite writers wait for each other instead of failing
+connect_args = {"check_same_thread": False, "timeout": 30} if _sqlite else {}
+# Room for parallel backups, health checks and web requests at the same time
+_workers = max(1, min(int(settings.backup_workers or 10), 50))
+engine = create_engine(settings.database_url, connect_args=connect_args,
+                       pool_size=max(5, _workers), max_overflow=_workers + 10)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 

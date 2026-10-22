@@ -188,6 +188,8 @@ For an internal name without a public certificate, add `tls internal` inside the
 
 **3. Check the Security page** (user menu → Security) and fix anything red or orange.
 
+**Many devices.** `BACKUP_WORKERS` in `.env` (default 10) sets how many devices are backed up at the same time, for *Back up all devices* and for scheduled backups. For several hundred devices, 20 to 30 works well if the server has the CPU and the devices answer quickly; restart NCM after changing it.
+
 **Several worker processes.** `uvicorn ... --workers N` is supported. Every process serves the web UI and API, but only one runs scheduled backups and health checks (it holds `backend/.scheduler.lock`); if it stops, another takes over within a minute. All workers must run on the same server and share the same `backend` folder.
 
 ## Setup guides

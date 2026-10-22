@@ -43,3 +43,5 @@ backend/.scheduler.lock
 .scheduler.lock
 backend/.startup.lock
 .startup.lock
+backend/.backup-all.lock
+.backup-all.lock
