@@ -18,7 +18,8 @@ def current_user(request: Request, token: str = Depends(oauth2_scheme), db: Sess
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
         username = payload.get("sub")
-        if not username or payload.get("typ", "access") != "access":
+        # typ is required: other JWTs signed with the same key (e.g. OAuth state) are not sign-in tokens
+        if not username or payload.get("typ") != "access":
             raise HTTPException(401, "Invalid token")
     except JWTError:
         raise HTTPException(401, "Invalid or expired token")

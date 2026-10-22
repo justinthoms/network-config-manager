@@ -315,7 +315,8 @@ def _probe_conn(db, data: ProbeIn, user) -> llm.Conn:
     key = (data.api_key or "").strip()
     if not key and data.provider_id:
         saved = _provider_or_404(db, data.provider_id, user)
-        key = ai_providers.conn(saved).api_key
+        # A saved key only ever goes to the provider's own saved endpoint, never a URL from the request.
+        return ai_providers.conn(saved)
     return llm.Conn(data.kind, _clean_url(data.base_url) or llm.PRESETS[data.kind]["base_url"], key,
                     name=llm.PRESETS[data.kind]["label"])
 

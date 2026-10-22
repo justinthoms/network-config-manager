@@ -979,7 +979,8 @@ pre.code span.l.cm{color:var(--muted)}
 // ───────────── helpers ─────────────
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-const jsq = v => String(v ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+// For a JS string inside an HTML attribute (onclick="f('${jsq(x)}')"): JS-escape, then HTML-escape.
+const jsq = v => esc(String(v ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'"));
 const parseDate = v => v ? new Date(/[zZ]|[+-]\d\d:\d\d$/.test(v) ? v : v + 'Z') : null;
 const fmt = v => { const d = parseDate(v); return d ? d.toLocaleString([], {dateStyle:'medium', timeStyle:'short'}) : '—'; };
 const ago = v => {

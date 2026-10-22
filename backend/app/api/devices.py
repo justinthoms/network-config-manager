@@ -66,7 +66,9 @@ def delete_device(device_id: int, db: Session = Depends(get_db),
     db.query(BackupSchedule).filter(BackupSchedule.device_id == device_id).delete(synchronize_session=False)
     db.query(Backup).filter(Backup.device_id == device_id).delete(synchronize_session=False)
     from app.models.health import HealthCheck
+    from app.models.ai_review import AIReview
     db.query(HealthCheck).filter(HealthCheck.device_id == device_id).delete(synchronize_session=False)
+    db.query(AIReview).filter(AIReview.device_id == device_id).delete(synchronize_session=False)
     db.delete(device); db.commit()
     record_audit(db, user, "DEVICE_DELETE", "device", device_id, details=f"hostname={name};backup_files=retained")
     return {"success": True, "message": "Device deleted; backup files were retained"}
