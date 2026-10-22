@@ -26,6 +26,7 @@ from jose import jwt, JWTError
 from app.core.config import settings
 from app.core.security import ALGORITHM
 from app.services import settings_store as store
+from app.core.timeutil import utcnow
 
 logger = logging.getLogger("ncm.gdrive")
 
@@ -159,7 +160,7 @@ def exchange_code(db, code: str) -> dict:
         raise DriveError("Google did not return a refresh token. Remove NCM from your Google "
                          "account's third-party access and connect again.")
     store.set_secret(db, K_REFRESH, refresh, commit=False)
-    store.set(db, K_CONNECTED_AT, datetime.utcnow().isoformat(), commit=False)
+    store.set(db, K_CONNECTED_AT, utcnow().isoformat(), commit=False)
     store.set(db, K_FOLDERS, None, commit=False)
     store.set(db, K_LAST_ERROR, None, commit=False)
     db.commit()
@@ -295,11 +296,11 @@ def upload_backup(db, backup, hostname: str) -> dict:
     path = Path(backup.file_path)
     if not path.is_file():
         raise DriveError("Backup file is missing on disk")
-    stamp = (backup.created_at or datetime.utcnow()).strftime("%Y%m%d_%H%M%S")
+    stamp = (backup.created_at or utcnow()).strftime("%Y%m%d_%H%M%S")
     result = upload_file(db, path, hostname, f"{hostname}_{stamp}.conf")
     backup.gdrive_file_id = result["id"]
-    backup.gdrive_synced_at = datetime.utcnow()
-    store.set(db, K_LAST_SYNC, datetime.utcnow().isoformat(), commit=False)
+    backup.gdrive_synced_at = utcnow()
+    store.set(db, K_LAST_SYNC, utcnow().isoformat(), commit=False)
     store.set(db, K_LAST_ERROR, None, commit=False)
     db.commit()
     return result
@@ -335,13 +336,17 @@ def download(db, file_id: str) -> tuple[bytes, str]:
 
 
 def record_error(db, message: str):
-    store.set(db, K_LAST_ERROR, f"{datetime.utcnow().isoformat()} {message}")
+    store.set(db, K_LAST_ERROR, f"{utcnow().isoformat()} {message}")
 
 
 # ───────────────────────── auto-sync hook ─────────────────────────
 
+from app.services.workqueue import SerialWorker  # noqa: E402
+
+_uploads = SerialWorker("gdrive-sync")     # one upload at a time, in backup order
+
 def auto_upload_async(backup_id: int):
-    """Called after every successful backup. Runs in a thread so SSH backups never wait on Drive."""
+    """Called after every successful backup. Queued for one worker thread so SSH backups never wait on Drive."""
     def _job():
         from app.core.database import SessionLocal
         from app.models.backup import Backup
@@ -364,4 +369,4 @@ def auto_upload_async(backup_id: int):
         finally:
             db.close()
 
-    threading.Thread(target=_job, name=f"gdrive-sync-{backup_id}", daemon=True).start()
+    _uploads.submit(_job)

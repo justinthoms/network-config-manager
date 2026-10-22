@@ -1,36 +1,43 @@
-import logging
 import re
 import threading
 import time
 from collections import deque
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 from jose import jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
-# passlib 1.7 prints a harmless "error reading bcrypt version" traceback with bcrypt 4.x
-logging.getLogger("passlib").setLevel(logging.ERROR)
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
+BCRYPT_ROUNDS = 12
 # Used when the username does not exist, so a wrong username takes as long as a wrong password.
-_DUMMY_HASH = pwd_context.hash("ncm-dummy-password-for-timing")
+_DUMMY_HASH = bcrypt.hashpw(b"ncm-dummy-password-for-timing", bcrypt.gensalt(BCRYPT_ROUNDS))
+
+
+def _pw_bytes(password: str) -> bytes:
+    # bcrypt only uses the first 72 bytes (as passlib did); newer bcrypt releases refuse longer input
+    return (password or "").encode("utf-8")[:72]
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(_pw_bytes(password), bcrypt.gensalt(BCRYPT_ROUNDS)).decode("ascii")
 
 
 def verify_password(password: str, password_hash: str | None) -> bool:
     if not password_hash:
-        pwd_context.verify(password, _DUMMY_HASH)
+        bcrypt.checkpw(_pw_bytes(password), _DUMMY_HASH)
         return False
     try:
-        return pwd_context.verify(password, password_hash)
-    except (ValueError, TypeError):
+        return bcrypt.checkpw(_pw_bytes(password), password_hash.encode("ascii"))
+    except (ValueError, TypeError, UnicodeEncodeError):
         return False
+
+
+def needs_rehash(password_hash: str) -> bool:
+    """True for hashes made with an older bcrypt variant or a different cost."""
+    parts = (password_hash or "").split("$")
+    return len(parts) < 4 or parts[1] != "2b" or parts[2] != f"{BCRYPT_ROUNDS:02d}"
 
 
 def create_access_token(subject: str, version: int = 0):
@@ -82,6 +89,8 @@ class LoginLimiter:
     One source address is locked after 4x that many failures across usernames.
     """
 
+    SWEEP_AT = 1000
+
     def __init__(self):
         self._fails: dict[str, deque] = {}
         self._lock = threading.Lock()
@@ -90,10 +99,20 @@ class LoginLimiter:
         return max(1, settings.login_lockout_minutes) * 60
 
     def _recent(self, key: str, now: float) -> deque:
-        q = self._fails.setdefault(key, deque())
+        """Failures for key inside the window (read only: unknown keys are not stored)."""
+        q = self._fails.get(key)
+        if q is None:
+            return deque()
         while q and now - q[0] > self._window():
             q.popleft()
+        if not q:
+            del self._fails[key]
         return q
+
+    def _sweep(self, now: float):
+        """Forget keys with no recent failure, so random usernames cannot grow memory forever."""
+        for key in [k for k, q in self._fails.items() if not q or now - q[-1] > self._window()]:
+            del self._fails[key]
 
     def locked_for(self, username: str, ip: str | None) -> int:
         """Seconds until sign-in is allowed again (0 = allowed)."""
@@ -113,8 +132,11 @@ class LoginLimiter:
         """Record a failure. Returns True if this failure caused a lock."""
         now = time.monotonic()
         with self._lock:
+            if len(self._fails) > self.SWEEP_AT:
+                self._sweep(now)
             for key in (f"u:{username.lower()}", f"ip:{ip}"):
-                self._recent(key, now).append(now)
+                self._recent(key, now)
+                self._fails.setdefault(key, deque()).append(now)
             return len(self._fails[f"u:{username.lower()}"]) == max(1, settings.login_max_attempts)
 
     def success(self, username: str):

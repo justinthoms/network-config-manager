@@ -14,6 +14,7 @@ from app.models.device import Device
 from app.services import ai_review as ai
 from app.services import settings_store as store
 from app.services.audit import record_audit
+from app.core.timeutil import utcnow
 
 router = APIRouter()
 
@@ -341,8 +342,7 @@ def probe_test(data: ProbeIn, db: Session = Depends(get_db), user=Depends(requir
     if data.provider_id:
         p = db.get(AIProvider, data.provider_id)
         if p and (ai_providers.can_edit(p, user) or p.owner_id is None):
-            from datetime import datetime
-            p.last_test_ok, p.last_test_at = res["ok"], datetime.utcnow()
+            p.last_test_ok, p.last_test_at = res["ok"], utcnow()
             p.last_error = None if res["ok"] else res.get("error")
             db.commit()
     return res

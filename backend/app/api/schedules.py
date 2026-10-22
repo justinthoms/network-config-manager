@@ -10,6 +10,7 @@ from app.models.device import Device
 from app.models.schedule import BackupSchedule
 from app.services.scheduler import scheduler, schedule_device, remove_device_schedule
 from app.services.audit import record_audit
+from app.core.timeutil import utcnow
 
 router = APIRouter()
 
@@ -131,7 +132,7 @@ def upsert_schedule(device_id: int, data: ScheduleIn,
     item.retry_count = data.retry_count
     item.retry_delay_seconds = data.retry_delay_seconds
     item.retention_count = data.retention_count
-    item.updated_at = datetime.utcnow()
+    item.updated_at = utcnow()
 
     db.commit()
     db.refresh(item)

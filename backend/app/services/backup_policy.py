@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime
 
 from app.services import settings_store as store
+from app.core.timeutil import utcnow
 
 logger = logging.getLogger("ncm.policy")
 
@@ -82,11 +82,11 @@ def apply(db, overwrite: bool = False) -> dict:
         elif overwrite and (not s.enabled or s.interval_minutes != p["interval_minutes"]
                             or s.retention_count != p["retention_count"]):
             s.enabled, s.interval_minutes, s.retention_count = True, p["interval_minutes"], p["retention_count"]
-            s.updated_at = datetime.utcnow()
+            s.updated_at = utcnow()
             counts["updated"] += 1
         elif not s.enabled:
             s.enabled = True
-            s.updated_at = datetime.utcnow()
+            s.updated_at = utcnow()
             counts["enabled"] += 1
         else:
             counts["unchanged"] += 1

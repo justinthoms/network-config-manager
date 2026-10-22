@@ -49,5 +49,38 @@ def backfill_fingerprints(batch: int = 500):
         db.close()
 
 
+FAILED_KEEP_DAYS = 30        # failed backup records older than this are removed
+RUNNING_STALE_HOURS = 6      # a backup still "RUNNING" after this was cut off (restart, crash)
+
+
+def daily_cleanup():
+    """Remove old failed backup records and close backups left RUNNING by a restart."""
+    from datetime import timedelta
+    from app.core.database import SessionLocal
+    from app.core.timeutil import utcnow
+    from app.models.backup import Backup
+    from app.services.scheduler import is_leader
+    if not is_leader():
+        return
+    db = SessionLocal()
+    try:
+        now = utcnow()
+        stale = (db.query(Backup).filter(Backup.status == "RUNNING",
+                                         Backup.created_at < now - timedelta(hours=RUNNING_STALE_HOURS))
+                 .update({Backup.status: "FAILED", Backup.error: "Interrupted (NCM was restarted during the backup)"},
+                         synchronize_session=False))
+        removed = (db.query(Backup).filter(Backup.status == "FAILED",
+                                           Backup.created_at < now - timedelta(days=FAILED_KEEP_DAYS))
+                   .delete(synchronize_session=False))
+        db.commit()
+        if stale or removed:
+            logger.info("Cleanup: %s interrupted backups closed, %s old failed records removed", stale, removed)
+    except Exception:
+        db.rollback()
+        logger.exception("Daily cleanup failed")
+    finally:
+        db.close()
+
+
 def start_background_tasks():
     threading.Thread(target=backfill_fingerprints, name="ncm-fingerprints", daemon=True).start()

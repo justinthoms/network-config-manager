@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
-from datetime import datetime
 from app.core.database import Base
+from app.core.timeutil import utcnow
 
 class Backup(Base):
     __tablename__ = "backups"
@@ -9,7 +9,7 @@ class Backup(Base):
     status = Column(String(30), nullable=False)
     file_path = Column(String(1000), nullable=True)
     error = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
     # Added in v0.2
     size_bytes = Column(Integer, nullable=True)
     sha256 = Column(String(64), nullable=True)

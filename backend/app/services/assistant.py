@@ -6,7 +6,7 @@ when an admin has enabled it.
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta, timezone
 from pathlib import Path
 
 from app.core.config import settings
@@ -16,6 +16,7 @@ from app.services import ai_review as ai
 from app.services import ai_providers, llm
 from app.services import settings_store as store
 from app.services.diff import compare
+from app.core.timeutil import utcnow
 
 K_LIVE = "ai.live_commands"
 MAX_TOOL_ROUNDS = 6
@@ -116,7 +117,7 @@ def tool_backup_status(ctx: Ctx, device: str = ""):
 def tool_recent_changes(ctx: Ctx, device: str = "", days: int = 7, limit: int = 10):
     days = max(1, min(int(days or 7), 90))
     limit = max(1, min(int(limit or 10), 25))
-    since = datetime.utcnow() - timedelta(days=days)
+    since = utcnow() - timedelta(days=days)
     q = ctx.db.query(Backup).filter(Backup.status == "SUCCESS")
     if device:
         d, err = _find_device(ctx, device)
@@ -243,7 +244,7 @@ def tool_run_show_command(ctx: Ctx, device: str, command: str):
     try:
         out = run_show_command(d, command)
         record_audit(ctx.db, ctx.user, "AI_LIVE_COMMAND", "device", d.id, details=command)
-        return {"device": d.hostname, "command": command, "ran_at": ctx.t(datetime.utcnow()), "output": ctx.mask(out)}
+        return {"device": d.hostname, "command": command, "ran_at": ctx.t(utcnow()), "output": ctx.mask(out)}
     except LiveCommandError as exc:
         return {"error": f"command refused: {exc}"}
     except Exception as exc:
@@ -305,7 +306,7 @@ How to work:
 - If data is missing (no backups, device unknown), say so plainly.
 
 Useful live commands: Huawei: display interface brief, display logbuffer | include DOWN, display vlan, display mac-address, display ip interface brief, display device, display version.
-Juniper: show interfaces terse, show log messages | match "LINK_DOWN|LINK_UP" | last 30, show vlans, show system uptime.
+Juniper: show interfaces terse, show log messages | match LINK_ | last 30, show vlans, show system uptime.
 Arista: show interfaces status, show logging last 24 hours | include LINEPROTO, show vlan, show version."""
 
 
@@ -316,7 +317,7 @@ def chat(db, user, message: str, history: list[dict], tz_offset_min: int = 0, ca
     cache: dict = {}      # tool results reused if we fall back to another provider
 
     vendors = sorted({(d.vendor or "").title() for d in db.query(Device).all()}) or ["Huawei", "Juniper", "Arista"]
-    now_local = datetime.utcnow() + timedelta(minutes=tz_offset_min)
+    now_local = utcnow() + timedelta(minutes=tz_offset_min)
     sign = "+" if tz_offset_min >= 0 else "-"
     tzs = f"{sign}{abs(tz_offset_min) // 60}:{abs(tz_offset_min) % 60:02d}"
     system = SYSTEM.format(

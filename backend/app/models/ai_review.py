@@ -1,6 +1,6 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from app.core.database import Base
+from app.core.timeutil import utcnow
 
 
 class AIReview(Base):
@@ -16,4 +16,4 @@ class AIReview(Base):
     score = Column(Integer, nullable=True)                # validate: 0-100
     result = Column(Text, nullable=False)                 # JSON
     created_by = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)

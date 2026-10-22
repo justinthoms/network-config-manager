@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, UniqueConstraint
-from datetime import datetime
 from app.core.database import Base
+from app.core.timeutil import utcnow
 
 
 class BackupSchedule(Base):
@@ -14,5 +14,5 @@ class BackupSchedule(Base):
     retry_count = Column(Integer, default=2, nullable=False)
     retry_delay_seconds = Column(Integer, default=30, nullable=False)
     retention_count = Column(Integer, default=30, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)

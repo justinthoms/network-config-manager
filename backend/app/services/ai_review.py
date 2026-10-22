@@ -12,12 +12,12 @@ import re
 import queue
 import threading
 import time
-from datetime import datetime
 from pathlib import Path
 
 from app.core.config import settings
 from app.services import settings_store as store
 from app.services.diff import compare
+from app.core.timeutil import utcnow
 
 logger = logging.getLogger("ncm.ai")
 
@@ -325,7 +325,7 @@ def save(db, kind, device_id, backup_a, backup_b, result, user=None):
 
 
 def record_error(db, message: str):
-    store.set(db, K_LAST_ERROR, f"{datetime.utcnow().isoformat()} {message}")
+    store.set(db, K_LAST_ERROR, f"{utcnow().isoformat()} {message}")
 
 
 _auto_queue: "queue.Queue[tuple[int, int]]" = queue.Queue()

@@ -1,6 +1,6 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from app.core.database import Base
+from app.core.timeutil import utcnow
 
 
 class HealthCheck(Base):
@@ -19,4 +19,4 @@ class HealthCheck(Base):
     error = Column(Text, nullable=True)
     duration_ms = Column(Integer, nullable=True)
     created_by = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utcnow, index=True)

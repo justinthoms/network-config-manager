@@ -1,5 +1,4 @@
 import math
-from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -10,10 +9,11 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.rbac import ROLE_PERMISSIONS
 from app.core.security import (verify_password, create_access_token, hash_password, password_problem,
-                               pwd_context, login_limiter)
+                               needs_rehash, login_limiter)
 from app.models.user import User
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.services.audit import record_audit
+from app.core.timeutil import utcnow
 
 router = APIRouter()
 
@@ -41,9 +41,9 @@ def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
     login_limiter.success(name)
     if password_problem(data.password, user.username):
         user.must_change_password = True
-    if pwd_context.needs_update(user.password_hash):
+    if needs_rehash(user.password_hash):
         user.password_hash = hash_password(data.password)
-    user.last_login_at, user.last_login_ip = datetime.utcnow(), source
+    user.last_login_at, user.last_login_ip = utcnow(), source
     db.commit()
     record_audit(db, user, "LOGIN", "auth", user.username, "SUCCESS",
                  "password change required" if user.must_change_password else None, source)
@@ -94,7 +94,7 @@ def update_me(data: ProfileIn, request: Request, db: Session = Depends(get_db),
             raise HTTPException(400, "The new password must be different from the current one")
         u.password_hash = hash_password(data.new_password)
         u.must_change_password = False
-        u.password_changed_at = datetime.utcnow()
+        u.password_changed_at = utcnow()
         u.token_version = (u.token_version or 0) + 1      # sign out every other session
         new_token = create_access_token(u.username, u.token_version)
     db.commit()

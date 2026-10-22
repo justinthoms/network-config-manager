@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 
 from fastapi import APIRouter, Depends
@@ -11,6 +11,7 @@ from app.models.backup import Backup
 from app.models.device import Device
 from app.models.schedule import BackupSchedule
 from app.services.diff import compare
+from app.core.timeutil import utcnow
 
 router = APIRouter()
 
@@ -45,7 +46,7 @@ def _snippet(prev_text: str, text: str, max_lines: int = 4):
 @router.get("/summary")
 def summary(days: int = 14, db: Session = Depends(get_db), user=Depends(require_permission("dashboard.view"))):
     days = max(7, min(days, 90))
-    now = datetime.utcnow()
+    now = utcnow()
     since = (now - timedelta(days=days - 1)).replace(hour=0, minute=0, second=0, microsecond=0)
     today = now.date().isoformat()
 

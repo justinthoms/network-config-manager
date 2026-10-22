@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from datetime import datetime
 from app.core.database import Base
+from app.core.timeutil import utcnow
 
 class Device(Base):
     __tablename__ = "devices"
@@ -14,4 +14,4 @@ class Device(Base):
     ssh_port = Column(Integer, default=22)
     site = Column(String(100), default="DEFAULT")
     enabled = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
