@@ -187,9 +187,16 @@ def od_files(limit: int = 100, db: Session = Depends(get_db),
     return out
 
 
+def _own_item(db, item_id: str):
+    """The token can reach the whole drive; only serve items NCM uploaded as backups."""
+    if not db.query(Backup.id).filter(Backup.onedrive_item_id == item_id).first():
+        raise HTTPException(404, "Not an NCM backup in OneDrive")
+
+
 @router.get("/files/{item_id}/download")
 def od_download(item_id: str, db: Session = Depends(get_db),
                 user=Depends(require_permission("backups.download"))):
+    _own_item(db, item_id)
     content, name = _call(db, onedrive.download, db, item_id)
     return Response(content, media_type="text/plain",
                     headers={"Content-Disposition": f'attachment; filename="{name}"'})
@@ -198,5 +205,6 @@ def od_download(item_id: str, db: Session = Depends(get_db),
 @router.get("/files/{item_id}/link")
 def od_link(item_id: str, db: Session = Depends(get_db),
             user=Depends(require_permission("cloud.view"))):
+    _own_item(db, item_id)
     info = _call(db, onedrive.item_info, db, item_id)
     return {"url": info.get("webUrl")}
