@@ -313,7 +313,7 @@ u.must_change_password = True; u.is_active = True; u.token_version += 1; db.comm
 
 ## Development
 
-Run the tests from the `backend` folder (they use a throw-away database, not yours):
+Run the automated checks (in `backend/checks`) from the `backend` folder. They use a throw-away database, not yours:
 
 ```bash
 pip install pytest
@@ -336,4 +336,10 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-MIT License
+Copyright (c) 2026 Justin Thomas. Released under the [MIT License](LICENSE).
+
+**Trademarks:** Network Config Manager™, NCM™ and the NCM logo are trademarks of Justin Thomas. The MIT License covers the code only; it does not grant use of these names or the logo.
+
+---
+
+© 2026 Justin Thomas. Network Config Manager™ and NCM™ are trademarks of Justin Thomas.

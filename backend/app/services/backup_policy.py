@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Automatic backup for all devices.
 
 When the policy is on, every device gets a backup schedule (default: every

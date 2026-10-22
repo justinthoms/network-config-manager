@@ -21,7 +21,7 @@
 **Changed**
 - Database changes are managed with Alembic (`backend/migrations`); existing databases are upgraded automatically. Run `pip install -r backend/requirements.txt` when upgrading.
 - `passlib` was replaced by `bcrypt`; existing passwords keep working.
-- Test suite added (`cd backend && pytest`).
+- Automated checks added in `backend/checks` (run `cd backend && pytest`).
 
 ## 2.0.0 (October 2026)
 
@@ -177,3 +177,7 @@ Permissions: `ai.view` (all roles), `ai.run` (operator and above), `ai.manage` s
 - **Google Drive backup.** Connect a Google account with OAuth (`drive.file` scope: NCM only sees files it creates). Upload pending backups in one click, or turn on automatic upload after every successful backup. Files land in `NCM-Backups/<hostname>/<hostname>_YYYYmmdd_HHMMSS.conf`. Browse and download Drive copies from NCM.
 - Backups now store size and SHA-256, so NCM knows whether the config changed. Single backups can be deleted (`backups.delete`).
 - The UI now uses real role permissions from the backend (`/api/auth/me` returns `permissions`).
+
+---
+
+© 2026 Justin Thomas. Network Config Manager™ and NCM™ are trademarks of Justin Thomas.

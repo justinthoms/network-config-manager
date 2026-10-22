@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Device health checks: read-only show/display commands, parsed into a status.
 
 A check runs a short list of read-only commands in one SSH session

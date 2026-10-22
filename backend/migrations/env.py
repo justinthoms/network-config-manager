@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Alembic environment: uses NCM's own engine and models (DATABASE_URL from .env)."""
 from alembic import context
 

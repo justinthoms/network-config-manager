@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 # Importing the package registers every table on Base.metadata (used by init_db and Alembic).
 from app.models.user import User  # noqa: F401
 from app.models.device import Device  # noqa: F401

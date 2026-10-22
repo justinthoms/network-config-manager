@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Microsoft OneDrive backup integration (Microsoft Graph).
 
 Sign-in uses the OAuth 2.0 device-code flow with delegated permissions, the

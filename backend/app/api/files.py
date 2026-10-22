@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Web file browser for the backup directory (read-only, sandboxed to BACKUP_ROOT)."""
 import io
 import zipfile

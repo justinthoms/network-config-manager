@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from app.core.database import Base
 from app.core.timeutil import utcnow

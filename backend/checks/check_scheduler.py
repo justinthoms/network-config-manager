@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Scheduled jobs follow the database, and only one process runs them."""
 from app.models.schedule import BackupSchedule
 from app.services import scheduler as sched

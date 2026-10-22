@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Baseline: the schema of NCM 2.0.
 
 Works on a new, empty database and on databases made by earlier NCM versions

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """NCM chat assistant: answers questions about devices, backups and config changes.
 
 The AI model decides which tools to call; every tool reads NCM's own data (secrets

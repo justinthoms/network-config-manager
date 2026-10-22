@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Shared test setup: a throw-away database and backup folder, and signed-in users per role.
 
 Settings are read when app.core.config is imported, so the environment is set

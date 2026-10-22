@@ -1,8 +1,11 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
 
-from conftest import ADMIN_PASSWORD, USER_PASSWORD
+from ncm_fixtures import ADMIN_PASSWORD, USER_PASSWORD
 
 
 def test_login_and_me(client, super_admin):

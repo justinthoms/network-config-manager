@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """One background worker thread per queue.
 
 Used for work that follows every backup (cloud uploads), so a scheduled run of
