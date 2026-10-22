@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 .venv/
 venv/
 __pycache__/
@@ -36,3 +39,7 @@ Thumbs.db
 # Generated signing key (never commit)
 backend/.secret_key
 .secret_key
+backend/.scheduler.lock
+.scheduler.lock
+backend/.startup.lock
+.startup.lock

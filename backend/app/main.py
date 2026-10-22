@@ -1,9 +1,14 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
-from app.core.database import init_db
+from app.core.database import init_db, startup_lock
 from app.api.auth import router as auth_router
 from app.api.devices import router as devices_router
 from app.api.backups import router as backups_router
@@ -22,8 +27,23 @@ from app.services.maintenance import start_background_tasks
 
 from app.core.config import settings as _settings
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    from app.services.hardening import restrict_permissions, startup_warnings
+    from app.services.ai_providers import ensure_env_provider
+    restrict_permissions()
+    startup_warnings()
+    with startup_lock():         # with several worker processes, one sets up at a time
+        init_db()
+        start_scheduler()
+        ensure_env_provider()
+    start_background_tasks()
+    yield
+    stop_scheduler()
+
+
 app = FastAPI(
-    title="Network Config Manager", version="2.0.0",
+    title="Network Config Manager", version="2.0.0", lifespan=lifespan,
     docs_url="/docs" if _settings.enable_api_docs else None,
     redoc_url="/redoc" if _settings.enable_api_docs else None,
     openapi_url="/openapi.json" if _settings.enable_api_docs else None,
@@ -56,21 +76,6 @@ async def security_headers(request, call_next):
 
 BASE_DIR = Path(__file__).resolve().parent
 WEB_DIR = BASE_DIR / "web"
-
-@app.on_event("startup")
-def startup():
-    from app.services.hardening import restrict_permissions, startup_warnings
-    restrict_permissions()
-    startup_warnings()
-    init_db()
-    start_scheduler()
-    start_background_tasks()
-    from app.services.ai_providers import ensure_env_provider
-    ensure_env_provider()
-
-@app.on_event("shutdown")
-def shutdown():
-    stop_scheduler()
 
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(devices_router, prefix="/api/devices", tags=["Devices"])

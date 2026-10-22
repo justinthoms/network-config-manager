@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 from app.services.diff import compare, quick_stats
 
 A = "!Last configuration was updated at 2026-10-01\nsysname R1\nvlan batch 10 20\nsnmp-agent community read X\nreturn\n"

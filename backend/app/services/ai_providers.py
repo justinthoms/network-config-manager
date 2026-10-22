@@ -1,14 +1,17 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """AI provider registry, per-user preferences and provider selection with fallback."""
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 
 from app.core.config import settings
 from app.core.crypto import encrypt_secret, decrypt_secret
 from app.models.ai_provider import AIProvider
 from app.services import settings_store as store
 from app.services.llm import AIError, Conn, PRESETS
+from app.core.timeutil import utcnow
 
 logger = logging.getLogger("ncm.ai")
 
@@ -121,12 +124,12 @@ def run(db, user, fn):
     for i, (p, model) in enumerate(cands):
         try:
             result, used_model = fn(conn(p), model, p)
-            p.last_error, p.last_test_ok, p.last_test_at = None, True, datetime.utcnow()
+            p.last_error, p.last_test_ok, p.last_test_at = None, True, utcnow()
             db.commit()
             return result, p, used_model
         except AIError as exc:
             errors.append(f"{p.name} ({model}): {exc}")
-            p.last_error = f"{datetime.utcnow().isoformat()} {exc}"
+            p.last_error = f"{utcnow().isoformat()} {exc}"
             db.commit()
             last = i == len(cands) - 1
             if last or not allow_fallback or exc.code not in FALLBACK_CODES:

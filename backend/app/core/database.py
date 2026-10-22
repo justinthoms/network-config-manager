@@ -1,4 +1,9 @@
-from sqlalchemy import create_engine, text, inspect
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
+from contextlib import contextmanager
+
+from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
@@ -14,44 +19,37 @@ def get_db():
     finally:
         db.close()
 
-def _add_column_if_missing(table, column, definition):
-    """Lightweight forward-only migration (works for SQLite and PostgreSQL)."""
-    inspector = inspect(engine)
-    if table not in inspector.get_table_names():
+@contextmanager
+def startup_lock():
+    """Worker processes starting at the same time run first-start setup one after another."""
+    from app.core.config import BASE_DIR
+    try:
+        import fcntl
+    except ImportError:          # no flock (Windows): a single process is assumed
+        yield
         return
-    columns = {c["name"] for c in inspector.get_columns(table)}
-    if column not in columns:
-        with engine.begin() as conn:
-            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {definition}"))
+    with open(BASE_DIR / ".startup.lock", "a") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        yield
+
+
+def migrate():
+    """Bring the database schema up to date with Alembic (backend/migrations)."""
+    from alembic import command
+    from alembic.config import Config
+    from app.core.config import BASE_DIR
+
+    cfg = Config()
+    cfg.set_main_option("script_location", str(BASE_DIR / "migrations"))
+    with engine.begin() as conn:
+        cfg.attributes["connection"] = conn
+        command.upgrade(cfg, "head")
+
 
 def init_db():
-    # Import every model before create_all.
-    from app.models.user import User
-    from app.models.device import Device
-    from app.models.backup import Backup
-    from app.models.schedule import BackupSchedule
-    from app.models.audit import AuditLog
-    from app.models.setting import AppSetting  # noqa: F401
-    from app.models.ai_review import AIReview  # noqa: F401
-    from app.models.ai_provider import AIProvider  # noqa: F401
-    from app.models.health import HealthCheck  # noqa: F401
+    from app.models import User
 
-    Base.metadata.create_all(bind=engine)
-
-    # Safe migrations for existing databases.
-    _add_column_if_missing("users", "display_name", "VARCHAR(150)")
-    _add_column_if_missing("users", "email", "VARCHAR(255)")
-    _add_column_if_missing("backups", "size_bytes", "INTEGER")
-    _add_column_if_missing("backups", "sha256", "VARCHAR(64)")
-    _add_column_if_missing("backups", "gdrive_file_id", "VARCHAR(200)")
-    _add_column_if_missing("backups", "gdrive_synced_at", "TIMESTAMP")
-    _add_column_if_missing("backups", "onedrive_item_id", "VARCHAR(200)")
-    _add_column_if_missing("backups", "onedrive_synced_at", "TIMESTAMP")
-    _add_column_if_missing("users", "token_version", "INTEGER NOT NULL DEFAULT 0")
-    _add_column_if_missing("users", "must_change_password", "BOOLEAN NOT NULL DEFAULT FALSE")
-    _add_column_if_missing("users", "password_changed_at", "TIMESTAMP")
-    _add_column_if_missing("users", "last_login_at", "TIMESTAMP")
-    _add_column_if_missing("users", "last_login_ip", "VARCHAR(64)")
+    migrate()
 
     db = SessionLocal()
     try:

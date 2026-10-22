@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Microsoft OneDrive backup integration (Microsoft Graph).
 
 Sign-in uses the OAuth 2.0 device-code flow with delegated permissions, the
@@ -29,6 +32,7 @@ import httpx
 
 from app.core.config import settings
 from app.services import settings_store as store
+from app.core.timeutil import utcnow
 
 logger = logging.getLogger("ncm.onedrive")
 
@@ -182,7 +186,7 @@ def poll_device_flow(db, user_id: int) -> dict:
             _pending.pop(user_id, None)
             return {"state": "error", "message": f"Signed in to Microsoft, but NCM could not save the token: {exc}"}
         _pending.pop(user_id, None)
-        store.set(db, K_CONNECTED_AT, datetime.utcnow().isoformat(), commit=False)
+        store.set(db, K_CONNECTED_AT, utcnow().isoformat(), commit=False)
         store.set(db, K_LAST_ERROR, None, commit=False)
         store.set(db, K_ROOT_URL, None, commit=False)
         db.commit()
@@ -348,12 +352,12 @@ def upload_backup(db, backup, hostname: str) -> dict:
     path = Path(backup.file_path)
     if not path.is_file():
         raise OneDriveError("Backup file is missing on disk")
-    when = backup.created_at or datetime.utcnow()
+    when = backup.created_at or utcnow()
     name = f"{hostname}_{when:%Y%m%d_%H%M%S}.conf"
     result = upload_bytes(db, path.read_bytes(), item_path(db, hostname, when, name))
     backup.onedrive_item_id = result["id"]
-    backup.onedrive_synced_at = datetime.utcnow()
-    store.set(db, K_LAST_SYNC, datetime.utcnow().isoformat(), commit=False)
+    backup.onedrive_synced_at = utcnow()
+    store.set(db, K_LAST_SYNC, utcnow().isoformat(), commit=False)
     store.set(db, K_LAST_ERROR, None, commit=False)
     _remember_root_url(db)
     db.commit()
@@ -388,13 +392,17 @@ def download(db, item_id: str) -> tuple[bytes, str]:
 
 
 def record_error(db, message: str):
-    store.set(db, K_LAST_ERROR, f"{datetime.utcnow().isoformat()} {message}")
+    store.set(db, K_LAST_ERROR, f"{utcnow().isoformat()} {message}")
 
 
 # ───────────────────────── auto-sync hook ─────────────────────────
 
+from app.services.workqueue import SerialWorker  # noqa: E402
+
+_uploads = SerialWorker("onedrive-sync")     # one upload at a time, in backup order
+
 def auto_upload_async(backup_id: int):
-    """Called after every successful backup. Runs in a thread so SSH backups never wait on OneDrive."""
+    """Called after every successful backup. Queued for one worker thread so SSH backups never wait on OneDrive."""
     def _job():
         from app.core.database import SessionLocal
         from app.models.backup import Backup
@@ -417,4 +425,4 @@ def auto_upload_async(backup_id: int):
         finally:
             db.close()
 
-    threading.Thread(target=_job, name=f"onedrive-sync-{backup_id}", daemon=True).start()
+    _uploads.submit(_job)

@@ -1,6 +1,9 @@
-from datetime import datetime
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from app.core.database import Base
+from app.core.timeutil import utcnow
 
 
 class HealthCheck(Base):
@@ -19,4 +22,4 @@ class HealthCheck(Base):
     error = Column(Text, nullable=True)
     duration_ms = Column(Integer, nullable=True)
     created_by = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utcnow, index=True)

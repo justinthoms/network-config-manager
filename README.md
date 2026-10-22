@@ -188,6 +188,8 @@ For an internal name without a public certificate, add `tls internal` inside the
 
 **3. Check the Security page** (user menu → Security) and fix anything red or orange.
 
+**Several worker processes.** `uvicorn ... --workers N` is supported. Every process serves the web UI and API, but only one runs scheduled backups and health checks (it holds `backend/.scheduler.lock`); if it stops, another takes over within a minute. All workers must run on the same server and share the same `backend` folder.
+
 ## Setup guides
 
 ### AI providers
@@ -282,7 +284,8 @@ Only a Super Admin can create Super Admins or change OAuth client credentials.
 
 1. Back up `backend/.env`, `backend/.secret_key` (if present), the database and `BACKUP_ROOT`.
 2. Replace the code (`git pull`, or copy the new files) and **keep** your `.env` and database.
-3. Restart NCM. New tables and columns are added automatically.
+3. Update the Python packages: `.venv/bin/pip install -r backend/requirements.txt`.
+4. Restart NCM. The database is upgraded automatically at start ([Alembic](https://alembic.sqlalchemy.org) migrations in `backend/migrations`).
 
 When upgrading to 2.0: every device gets a daily backup schedule (devices with their own schedule keep it), and users with weak passwords must change them at their next sign-in. See [CHANGELOG.md](CHANGELOG.md).
 
@@ -308,6 +311,21 @@ u.must_change_password = True; u.is_active = True; u.token_version += 1; db.comm
 
 **A health command shows "Not supported".** Your software version uses different syntax; edit the command list in **Health → Schedule & settings**.
 
+## Development
+
+Run the automated checks (in `backend/checks`) from the `backend` folder. They use a throw-away database, not yours:
+
+```bash
+pip install pytest
+pytest
+```
+
+To change the database schema, edit the model in `app/models`, then add a migration and fill in its `upgrade()`:
+
+```bash
+alembic revision -m "add column x to devices"
+```
+
 ## API
 
 The web UI uses a JSON API under `/api` with bearer tokens from `POST /api/auth/login`. Set `ENABLE_API_DOCS=true` to browse it at `/docs`. Main groups: `auth`, `devices`, `backups`, `schedules` (including `/schedules/policy`), `health`, `cloud/gdrive`, `cloud/onedrive`, `ai`, `files`, `users`, `audit`, `security`, `dashboard`.
@@ -318,4 +336,10 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-MIT License
+Copyright (c) 2026 Justin Thomas. Released under the [MIT License](LICENSE).
+
+**Trademarks:** Network Config Manager™, NCM™ and the NCM logo are trademarks of Justin Thomas. The MIT License covers the code only; it does not grant use of these names or the logo.
+
+---
+
+© 2026 Justin Thomas. Network Config Manager™ and NCM™ are trademarks of Justin Thomas.

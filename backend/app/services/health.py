@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
+# Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
+
 """Device health checks: read-only show/display commands, parsed into a status.
 
 A check runs a short list of read-only commands in one SSH session
@@ -23,6 +26,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
 from app.services import settings_store as store
+from app.core.timeutil import utcnow
 
 logger = logging.getLogger("ncm.health")
 
@@ -629,7 +633,7 @@ def ai_summary(db, row, device, user=None) -> dict:
     result["issues"] = items
     result.update(_provider=prov.name, _model=used, language=language,
                   truncated=state.get("truncated", False), masked_ips=bool(masker),
-                  created_at=datetime.utcnow().isoformat())
+                  created_at=utcnow().isoformat())
     row.ai = json.dumps(result)
     db.commit()
     return result
@@ -691,7 +695,7 @@ def run_all(trigger: str = "scheduled", user: str | None = None, workers: int = 
         finally:
             db.close()
         _run_state.update(running=True, total=len(ids), done=0,
-                          started_at=datetime.utcnow().isoformat(), trigger=trigger)
+                          started_at=utcnow().isoformat(), trigger=trigger)
 
     def _job():
         counts = {s: 0 for s in STATUSES}
@@ -704,7 +708,7 @@ def run_all(trigger: str = "scheduled", user: str | None = None, workers: int = 
                         check_ids.append(cid)
             db2 = SessionLocal()
             try:
-                store.set_json(db2, K_LAST_RUN, {"finished_at": datetime.utcnow().isoformat(), "trigger": trigger,
+                store.set_json(db2, K_LAST_RUN, {"finished_at": utcnow().isoformat(), "trigger": trigger,
                                                  "devices": len(ids), "counts": counts})
             finally:
                 db2.close()
@@ -717,7 +721,16 @@ def run_all(trigger: str = "scheduled", user: str | None = None, workers: int = 
     return True
 
 
-def schedule_job(db=None):
+_applied_job: dict = {"sig": None}
+
+
+def run_scheduled():
+    from app.services.scheduler import is_leader
+    if is_leader():          # with several worker processes, only one runs the checks
+        run_all("scheduled")
+
+
+def schedule_job(db=None, only_if_changed: bool = False):
     """(Re)register the 'check all devices' job from the saved settings."""
     from app.services.scheduler import scheduler
     from apscheduler.triggers.interval import IntervalTrigger
@@ -731,11 +744,13 @@ def schedule_job(db=None):
     finally:
         if own:
             db.close()
+    if only_if_changed and _applied_job["sig"] == (enabled, minutes):
+        return
+    _applied_job["sig"] = (enabled, minutes)
     if scheduler.get_job(JOB_ID):
         scheduler.remove_job(JOB_ID)
     if enabled:
-        scheduler.add_job(run_all, trigger=IntervalTrigger(minutes=minutes), id=JOB_ID,
-                          kwargs={"trigger": "scheduled"}, replace_existing=True)
+        scheduler.add_job(run_scheduled, trigger=IntervalTrigger(minutes=minutes), id=JOB_ID, replace_existing=True)
 
 
 def next_run_at() -> str | None:
