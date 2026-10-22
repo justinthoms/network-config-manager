@@ -124,6 +124,8 @@ def check_ai(check_id: int, refresh: bool = False, db: Session = Depends(get_db)
 
 @router.put("/settings")
 def put_settings(data: SettingsIn, db: Session = Depends(get_db), user=Depends(require_permission("health.manage"))):
+    if data.commands and user.role != "super_admin":
+        raise HTTPException(403, "Only Super Admin can change health check commands")
     if data.commands:
         for vendor, cmds in data.commands.items():
             if vendor not in health.DEFAULT_COMMANDS:

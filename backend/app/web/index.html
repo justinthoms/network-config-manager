@@ -2270,7 +2270,7 @@ async function healthAI(id, refresh, btn) {
 }
 async function openHealthSettings() {
   let h; try { h = await apiJSON('/api/health/status'); S.health = h; } catch (e) { return toast(e.message, 'err'); }
-  const st = h.settings, opts = [15,30,60,120,240,360,720,1440];
+  const st = h.settings, cmdEdit = S.user?.role === 'super_admin', opts = [15,30,60,120,240,360,720,1440];
   if (!opts.includes(st.interval_minutes)) opts.push(st.interval_minutes);
   $('hlSettingsBody').innerHTML = `
     <label class="switch"><input type="checkbox" id="hs_on" ${st.schedule_enabled ? 'checked' : ''}><span class="track"></span>Check all enabled devices on a schedule</label>
@@ -2283,17 +2283,19 @@ async function openHealthSettings() {
     </div>
     <p class="muted" style="font-size:.82rem;margin-top:6px">${h.ai_configured ? 'Scheduled checks are run 4 devices at a time. Automatic AI summaries run one by one afterwards, to stay inside free-tier limits.' : 'No AI provider is set up yet, so AI summaries are skipped. Add one on the AI review page.'}</p>
     <h4 style="margin:22px 0 4px">Commands per vendor</h4>
-    <p class="muted" style="font-size:.85rem;margin-bottom:12px">One command per line. Only read-only <span class="mono">display</span> (Huawei) or <span class="mono">show</span> (Juniper, Arista) commands are accepted. Commands a device does not know are skipped and listed in the result.</p>
-    ${['huawei','juniper','arista'].map(v => `<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b>${VENDOR_NAMES[v]}</b>${st.custom_commands[v] ? '<span class="pill info plain">Custom</span>' : '<span class="pill plain">Default</span>'}<span style="flex:1"></span><button class="btn btn-sm btn-ghost" onclick="$('hs_cmd_${v}').value=S.health.settings.default_commands['${v}'].join('\\n')">Restore defaults</button></div>
-      <textarea class="input cmdlist" id="hs_cmd_${v}" spellcheck="false">${esc(st.commands[v].join('\n'))}</textarea></div>`).join('')}
+    <p class="muted" style="font-size:.85rem;margin-bottom:12px">One command per line. Only read-only <span class="mono">display</span> (Huawei) or <span class="mono">show</span> (Juniper, Arista) commands are accepted. Commands a device does not know are skipped and listed in the result.${cmdEdit ? '' : ' <b>Only a Super Admin can change these commands.</b>'}</p>
+    ${['huawei','juniper','arista'].map(v => `<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b>${VENDOR_NAMES[v]}</b>${st.custom_commands[v] ? '<span class="pill info plain">Custom</span>' : '<span class="pill plain">Default</span>'}<span style="flex:1"></span>${cmdEdit ? `<button class="btn btn-sm btn-ghost" onclick="$('hs_cmd_${v}').value=S.health.settings.default_commands['${v}'].join('\\n')">Restore defaults</button>` : ''}</div>
+      <textarea class="input cmdlist" id="hs_cmd_${v}" spellcheck="false" ${cmdEdit ? '' : 'readonly'}>${esc(st.commands[v].join('\n'))}</textarea></div>`).join('')}
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn" onclick="closeModal('healthSettingsModal')">Cancel</button><button class="btn btn-primary" onclick="saveHealthSettings(this)">Save</button></div>`;
   openModal('healthSettingsModal');
 }
 async function saveHealthSettings(btn) {
-  const commands = {};
-  ['huawei','juniper','arista'].forEach(v => { commands[v] = $('hs_cmd_' + v).value.split('\n').map(x => x.trim()).filter(Boolean); });
   const body = { schedule_enabled: $('hs_on').checked, interval_minutes: +$('hs_int').value, retention: +$('hs_ret').value,
-    log_window_hours: +$('hs_win').value, ai_mode: $('hs_ai').value, ai_language: $('hs_lang').value, commands };
+    log_window_hours: +$('hs_win').value, ai_mode: $('hs_ai').value, ai_language: $('hs_lang').value };
+  if (S.user?.role === 'super_admin') {      // the server accepts command changes from Super Admin only
+    body.commands = {};
+    ['huawei','juniper','arista'].forEach(v => { body.commands[v] = $('hs_cmd_' + v).value.split('\n').map(x => x.trim()).filter(Boolean); });
+  }
   await busy(btn, async () => {
     try { await apiJSON('/api/health/settings', { method:'PUT', body: JSON.stringify(body) });
       toast('Health settings saved'); closeModal('healthSettingsModal'); if (S.page === 'health') loadHealth(); }
