@@ -50,12 +50,14 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
                 current: User = Depends(require_permission("users.edit"))):
     user = db.query(User).filter(User.id == user_id).first()
     if not user: raise HTTPException(404, "User not found")
+    if user.role == "super_admin" and current.role != "super_admin":
+        raise HTTPException(403, "Only Super Admin can change a Super Admin")
     if payload.role is not None:
         if payload.role not in ROLE_PERMISSIONS: raise HTTPException(400, "Invalid role")
         if payload.role == "super_admin" and current.role != "super_admin":
             raise HTTPException(403, "Only Super Admin can assign Super Admin")
-        if user.id == current.id and payload.role != "super_admin":
-            raise HTTPException(400, "You cannot remove your own Super Admin role")
+        if user.id == current.id and payload.role != current.role:
+            raise HTTPException(400, "You cannot change your own role")
         if user.role != payload.role:
             user.token_version = (user.token_version or 0) + 1   # new permissions apply at next sign-in
         user.role = payload.role

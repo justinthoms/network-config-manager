@@ -107,6 +107,12 @@ def _get_config(device, conn):
     raise RuntimeError(f"Unsupported vendor: {vendor}")
 
 
+def _folder_name(device) -> str:
+    """Hostname as a single safe folder name, so a hostname like '../x' cannot leave BACKUP_ROOT."""
+    name = (device.hostname or "").replace("/", "_").replace("\\", "_").strip()
+    return name if name not in ("", ".", "..") else f"device-{device.id}"
+
+
 def run_backup(device, db):
     record = Backup(device_id=device.id, status="RUNNING")
     db.add(record)
@@ -137,7 +143,7 @@ def run_backup(device, db):
         output = output.strip()
 
         now = datetime.now()
-        directory = Path(settings.backup_root) / f"{now:%Y}" / f"{now:%m}" / f"{now:%d}" / device.hostname
+        directory = Path(settings.backup_root) / f"{now:%Y}" / f"{now:%m}" / f"{now:%d}" / _folder_name(device)
         directory.mkdir(parents=True, exist_ok=True)
         path = directory / f"{now:%Y%m%d_%H%M%S}.conf"
         path.write_text(output + "\n", encoding="utf-8")

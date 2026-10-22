@@ -40,15 +40,18 @@ from app.services import llm, ai_providers  # noqa: E402
 # ───────────────────────── masking ─────────────────────────
 
 _KEYWORDS = (r"password|passwd|secret|pre-shared-key|preshared-key|authentication-key|auth-key|"
-             r"key-string|community|shared-key|psk|md5|sha|encrypted-password|key")
-_MODIFIERS = (r"cipher|simple|irreversible-cipher|encrypted|hash|sha512|sha256|ascii-text|plain-text|"
-              r"read|write|ro|rw|key|\d{1,2}")
+             r"key-string|community|shared-key|psk|md5|sha|encrypted-password|key|cipher|plain|"
+             r"auth|priv|authentication-mode|privacy-mode")
+# Algorithm / encoding words between a keyword and its value ("md5 7 <key>", "auth sha512 <key>")
+_MODIFIERS = (r"cipher|simple|irreversible-cipher|encrypted|hash|sha\d*|ascii-text|plain-text|plain|"
+              r"md5|hmac-sha\d*|hmac-md5|aes\d*|des|3des|read|write|ro|rw|key|\d{1,2}")
+# [ \t] not \s: a match must never run onto the next config line
 _SECRET_RE = re.compile(
-    rf"(?P<pre>\b(?:{_KEYWORDS})\b(?:\s+(?:{_MODIFIERS})\b)*\s+)(?P<val>\"[^\"]*\"|\S+)",
+    rf"(?P<pre>\b(?:{_KEYWORDS})\b(?:[ \t]+(?:{_MODIFIERS})\b)*[ \t]+)(?P<val>\"[^\"\n]*\"|\S+)",
     re.IGNORECASE,
 )
-# Hash / encrypted blobs anywhere (Junos $9$, crypt $1$ $5$ $6$, Huawei %^%# and %$%$)
-_HASH_RE = re.compile(r'"?(?:\$\d[a-z]?\$[^\s"]+|%\^%#[^\s"]+|%\$%\$[^\s"]+)"?')
+# Hash / encrypted blobs anywhere (Junos $9$, crypt $1$ $5$ $6$, Huawei %^%#, %$%$, %@%@ and @%@%)
+_HASH_RE = re.compile(r'"?(?:\$\d[a-z]?\$[^\s"]+|%\^%#[^\s"]+|%\$%\$[^\s"]+|%@%@[^\s"]+|@%@%[^\s"]+)"?')
 _PEM_RE = re.compile(r"-----BEGIN [A-Z ]*-----.*?-----END [A-Z ]*-----", re.DOTALL)
 _IPV4_RE = re.compile(r"\b(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}\b")
 # Values after a keyword that are syntax, not secrets
