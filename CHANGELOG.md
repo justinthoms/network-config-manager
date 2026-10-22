@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+
+**Security**
+- An Admin can no longer change, disable or reset the password of a Super Admin.
+- Fixed script injection through device hostnames, sites and file names in the web UI.
+- A saved AI provider key is only sent to that provider's own address.
+- OneDrive download and link only work for backups NCM uploaded, not other files in the drive.
+- More secret forms are masked before text goes to an AI provider (NTP/OSPF `md5 7` keys, SNMPv3 `auth`/`priv` keys, Huawei `plain` and `%@%@` cipher text).
+- A device hostname can no longer place backup files outside `BACKUP_ROOT`.
+- Only a Super Admin can change the health check command lists.
+
+**Reliability**
+- Running with several worker processes (`--workers N`) is safe: only one process runs scheduled jobs, the others follow schedule changes within a minute, and first-start setup no longer races.
+- Automatic Google Drive and OneDrive uploads go through one queue each instead of one thread and database connection per backup.
+- Failed backup records older than 30 days are removed daily, and backups cut off by a restart are marked failed.
+- The sign-in lockout counter no longer grows without limit.
+- Deleting a device that has AI reviews no longer fails on PostgreSQL.
+
+**Changed**
+- Database changes are managed with Alembic (`backend/migrations`); existing databases are upgraded automatically. Run `pip install -r backend/requirements.txt` when upgrading.
+- `passlib` was replaced by `bcrypt`; existing passwords keep working.
+- Test suite added (`cd backend && pytest`).
+
 ## 2.0.0 (October 2026)
 
 The first 2.x release. It brings together the work developed as 0.7, 0.8 and 0.9 (details below).
