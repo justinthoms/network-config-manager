@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.1 (November 2026)
+
+**Fixed**
+- NCM 2.1.0 did not start on Windows: the in-app updater used a Linux-only file lock. It now uses the Windows lock there.
+
 ## 2.1.0 (November 2026)
 
 **Added**
