@@ -503,6 +503,47 @@ pre.code{font-family:var(--mono);font-size:.8rem;line-height:1.6;white-space:pre
 pre.code span.l{display:block;counter-increment:ln}
 pre.code span.l::before{content:counter(ln);display:inline-block;width:3.2em;margin-right:14px;text-align:right;color:var(--muted);user-select:none}
 pre.code span.l.cm{color:var(--muted)}
+/* config viewer */
+.viewer-box{display:flex;flex-direction:column;max-height:92vh;overflow:hidden}
+.viewer-box.full{width:100%;max-width:none;height:100%;max-height:100%;border-radius:0}
+.modal.vw-full{padding:0}
+.vw-head{gap:14px;flex-wrap:wrap}
+.vw-title{min-width:0;flex:1}
+.vw-title h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vw-title .sub{font-size:.8rem;color:var(--muted);margin-top:2px}
+.vw-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 20px;border-bottom:1px solid var(--line);background:var(--surface)}
+.vw-find{display:flex;align-items:center;gap:4px;flex:1;min-width:220px;max-width:460px;height:34px;padding:0 6px 0 10px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--surface)}
+.vw-find:focus-within{box-shadow:var(--focus);border-color:var(--signal)}
+.vw-find input{flex:1;min-width:0;border:0;background:transparent;outline:none;height:100%}
+.vw-find .ico{width:16px;height:16px;color:var(--muted);flex:none}
+.vw-find .cnt{font-size:.78rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.vw-find .btn{height:26px;width:26px;padding:0;justify-content:center}
+.vw-bar select.input{height:34px;width:min(240px,100%)}
+.vw-bar .switch{font-size:.84rem}
+.vw-note{padding:8px 20px;font-size:.84rem;background:var(--act-soft);color:var(--text-2);border-bottom:1px solid var(--line)}
+.vw-note.info{background:var(--signal-soft)}
+pre.code.vw-code{flex:1;max-height:none;min-height:240px;margin:0;border-radius:0}
+pre.code.vw-code.wrap{white-space:pre-wrap;word-break:break-all}
+pre.code.vw-code.wrap span.l{padding-left:calc(3.2em + 14px);text-indent:calc(-3.2em - 14px)}
+pre.code span.l.sec{color:var(--signal);font-weight:650}
+pre.code span.l.hit{background:color-mix(in srgb,var(--act) 10%,transparent)}
+pre.code span.l.goto{background:var(--signal-soft)}
+pre.code mark{background:color-mix(in srgb,var(--act) 35%,transparent);color:inherit;border-radius:2px}
+pre.code mark.cur{background:var(--act);color:#fff}
+pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px;padding:0 4px;font-size:.92em}
+@media (max-width:700px){.vw-bar{padding:10px 12px}.vw-find{max-width:none;flex-basis:100%}}
+/* config search */
+.cs-dev{border-top:1px solid var(--line);padding:14px 20px}
+.cs-dev:first-child{border-top:0}
+.cs-dev-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.cs-hit{display:grid;grid-template-columns:4.2em 1fr;gap:10px;font-family:var(--mono);font-size:.8rem;padding:3px 8px;border-radius:6px;cursor:pointer}
+.cs-hit:hover{background:var(--raised)}
+.cs-hit .ln{color:var(--muted);text-align:right}
+.cs-hit .sec{display:block;color:var(--signal);font-size:.74rem}
+.cs-hit mark{background:color-mix(in srgb,var(--act) 35%,transparent);color:inherit;border-radius:2px}
+.cs-hit .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px;padding:0 4px}
+.cmd-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.cmd-chips span{font-family:var(--mono);font-size:.76rem;padding:2px 8px;border-radius:6px;background:var(--raised);border:1px solid var(--line)}
 .toasts{position:fixed;right:20px;bottom:20px;z-index:100;display:flex;flex-direction:column;gap:8px}
 .toast{display:flex;align-items:center;gap:10px;min-width:260px;max-width:420px;padding:12px 16px;border-radius:var(--r);background:var(--ink);color:#fff;font-size:.9rem;box-shadow:var(--shadow-pop);animation:pop .2s ease-out}
 .toast .led{width:8px;height:8px}
@@ -589,6 +630,7 @@ pre.code span.l.cm{color:var(--muted)}
       <button data-page="devices" data-permission="devices.view">Devices</button>
       <button data-page="health" data-permission="health.view">Health<span class="count hidden" id="navHealth"></span></button>
       <button data-page="backups" data-permission="backups.view">Backups<span class="count hidden" id="navFailed"></span></button>
+      <button data-page="search" data-permission="backups.view" title="Search text in every device configuration">Search</button>
       <button data-page="diff" data-permission="backups.diff" title="Config changes">Changes</button>
       <button data-page="files" data-permission="files.view" title="File browser">Files</button>
       <button data-page="schedules" data-permission="schedules.view">Schedules</button>
@@ -684,10 +726,28 @@ pre.code span.l.cm{color:var(--muted)}
           <div><h1>Backups</h1><p>Every configuration snapshot NCM has taken, newest first.</p></div>
           <div class="toolbar">
             <select class="input" id="bkDevice" style="width:210px" onchange="loadBackups()"><option value="">All devices</option></select>
+            <button class="btn" onclick="showPage('search')"><svg class="ico"><use href="#i-search"/></svg>Search configs</button>
             <div class="seg" id="bkStatus"><button class="on" data-v="">All</button><button data-v="SUCCESS">Successful</button><button data-v="FAILED">Failed</button></div>
           </div>
         </div>
         <div class="panel"><div class="table-wrap" id="backups"></div></div>
+      </section>
+
+      <!-- CONFIG SEARCH -->
+      <section id="page-search" class="page">
+        <div class="page-head">
+          <div><h1>Config search</h1><p>Find text in the latest configuration of every device: a VLAN, an IP address, a description, an NTP or syslog server.</p></div>
+          <div class="toolbar"><button class="btn" onclick="exportConfigSearch()"><svg class="ico"><use href="#i-down"/></svg>Export CSV</button></div>
+        </div>
+        <div class="panel" style="margin-bottom:14px;padding:14px 20px">
+          <form style="display:flex;gap:10px;flex-wrap:wrap;align-items:center" onsubmit="event.preventDefault();runConfigSearch()">
+            <input class="input" id="csQuery" placeholder="e.g. vlan 120, 10.20.0.1, ntp server, description UPLINK" style="flex:1;min-width:240px" autocomplete="off">
+            <select class="input" id="csDevice" style="width:210px"><option value="">All devices</option></select>
+            <button class="btn btn-primary" type="submit"><svg class="ico"><use href="#i-search"/></svg>Search</button>
+          </form>
+          <div class="muted" id="csSummary" style="font-size:.85rem;margin-top:8px"></div>
+        </div>
+        <div class="panel" id="csResults"></div>
       </section>
 
       <!-- DIFF -->
@@ -872,9 +932,32 @@ pre.code span.l.cm{color:var(--muted)}
     <div class="form-actions"><button class="btn" onclick="closeModal('deviceModal')">Cancel</button><button class="btn btn-primary" id="deviceSave" onclick="saveDevice()">Add device</button></div>
   </div></div></div>
 
-<div id="viewerModal" class="modal hidden" onclick="if(event.target===this)closeModal('viewerModal')"><div class="modal-box wide">
-  <div class="modal-head"><h3 id="viewerTitle">Backup</h3><div class="toolbar"><input class="input" id="viewerFind" placeholder="Find in file" style="width:200px;height:32px" oninput="findInViewer()"><button class="btn btn-sm hidden" id="viewerAI"></button><button class="btn btn-sm" id="viewerDl"><svg><use href="#i-down"/></svg>Download</button><button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('viewerModal')" aria-label="Close">✕</button></div></div>
-  <pre class="code" id="viewerContent"></pre></div></div>
+<div id="viewerModal" class="modal hidden" onclick="if(event.target===this)closeViewer()"><div class="modal-box wide viewer-box" id="viewerBox">
+  <div class="modal-head vw-head">
+    <div class="vw-title"><h3 id="viewerTitle">Backup</h3><div class="sub" id="viewerMeta"></div></div>
+    <div class="toolbar">
+      <button class="btn btn-sm btn-icon hidden" id="vwPrev" title="Older backup of this device" aria-label="Older backup">‹</button>
+      <button class="btn btn-sm btn-icon hidden" id="vwNext" title="Newer backup of this device" aria-label="Newer backup">›</button>
+      <button class="btn btn-sm hidden" id="viewerCmp"><svg class="ico"><use href="#i-diff"/></svg>Compare with previous</button>
+      <button class="btn btn-sm hidden" id="viewerAI"></button>
+      <button class="btn btn-sm" id="viewerDl"><svg class="ico"><use href="#i-down"/></svg>Download</button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="toggleViewerFull()" title="Full screen" aria-label="Full screen">⤢</button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeViewer()" aria-label="Close">✕</button>
+    </div>
+  </div>
+  <div class="vw-bar">
+    <div class="vw-find"><svg class="ico"><use href="#i-search"/></svg>
+      <input id="viewerFind" placeholder="Find text, or :120 to go to line 120" oninput="findInViewer()" onkeydown="viewerFindKey(event)" aria-label="Find in file">
+      <span class="cnt" id="vwCount"></span>
+      <button class="btn btn-ghost btn-sm" onclick="stepFind(-1)" title="Previous match (Shift+Enter)" aria-label="Previous match">↑</button>
+      <button class="btn btn-ghost btn-sm" onclick="stepFind(1)" title="Next match (Enter)" aria-label="Next match">↓</button></div>
+    <select class="input" id="vwSections" onchange="jumpSection(this)" aria-label="Jump to section"></select>
+    <label class="switch"><input type="checkbox" id="vwWrap" onchange="setViewerWrap(this.checked)"><span class="track"></span>Wrap lines</label>
+    <label class="switch" id="vwMaskSw" title="Hide passwords, keys and SNMP communities, for example while sharing your screen"><input type="checkbox" id="vwMask" onchange="setViewerMask(this.checked)"><span class="track"></span>Hide secrets</label>
+    <button class="btn btn-sm" onclick="copyViewer()">Copy</button>
+  </div>
+  <div class="vw-note hidden" id="vwNote"></div>
+  <pre class="code vw-code" id="viewerContent" tabindex="0"></pre></div></div>
 
 <div id="fileDiffModal" class="modal hidden" onclick="if(event.target===this)closeModal('fileDiffModal')"><div class="modal-box wide">
   <div class="modal-head"><h3>Compare files</h3><button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('fileDiffModal')" aria-label="Close">✕</button></div>
@@ -1105,9 +1188,9 @@ function logout() {
 $('loginForm').onsubmit = e => { e.preventDefault(); login(); };
 
 // ───────────── navigation ─────────────
-const TITLES = { dashboard:'Overview', devices:'Devices', backups:'Backups', diff:'Config changes', files:'File browser',
+const TITLES = { dashboard:'Overview', devices:'Devices', backups:'Backups', diff:'Config changes', search:'Config search', files:'File browser',
   schedules:'Schedules', health:'Device health', cloud:'Cloud backup', ai:'AI review', profile:'My profile', users:'Users', audit:'Audit log', security:'Security', roadmap:'Roadmap' };
-const PAGE_PERM = { devices:'devices.view', backups:'backups.view', diff:'backups.diff', files:'files.view',
+const PAGE_PERM = { devices:'devices.view', backups:'backups.view', search:'backups.view', diff:'backups.diff', files:'files.view',
   schedules:'schedules.view', health:'health.view', cloud:'cloud.view', ai:'ai.view', users:'users.view', audit:'audit.view', security:'security.view' };
 document.querySelectorAll('#nav button[data-page], #userMenu button[data-page]').forEach(b => b.onclick = () => { $('userMenu').classList.add('hidden'); showPage(b.dataset.page); });
 function toggleUserMenu(e) { e.stopPropagation(); $('userMenu').classList.toggle('hidden'); }
@@ -1132,6 +1215,7 @@ function refreshCurrent(fromNav) {
   if (n === 'dashboard') loadSummary();
   if (n === 'devices') loadDevices();
   if (n === 'backups') loadBackups();
+  if (n === 'search') { fillDeviceSelects(); setTimeout(() => $('csQuery').focus(), 50); if (!$('csResults').innerHTML) runConfigSearch(); }
   if (n === 'diff') { fillDeviceSelects(); if (!fromNav && $('diffDevice').value) loadTimeline(); }
   if (n === 'files') browse(S.files.path);
   if (n === 'schedules') loadSchedules();
@@ -1287,6 +1371,7 @@ function renderDevices() {
         ${can('backups.run') && d.enabled ? `<button class="btn btn-sm btn-go" onclick="backupDevice(${d.id}, this)">${ico('play')}Back up</button>` : ''}
         ${can('devices.test') ? `<button class="btn btn-sm" onclick="testDevice(${d.id}, this)">Test SSH</button>` : ''}
         ${can('health.run') && d.enabled ? `<button class="btn btn-sm btn-icon" title="Health check" onclick="runHealth(${d.id}, this)">${ico('pulse')}</button>` : ''}
+        ${can('backups.view') ? `<button class="btn btn-sm btn-icon" title="View latest config" onclick="viewLatestConfig(${d.id},'${jsq(d.hostname)}')">${ico('eye')}</button>` : ''}
         ${can('backups.diff') ? `<button class="btn btn-sm btn-icon" title="Config changes" onclick="openDeviceChanges(${d.id})">${ico('diff')}</button>` : ''}
         ${can('schedules.edit') ? `<button class="btn btn-sm btn-icon" title="Schedule" onclick="openSchedule(${d.id})">${ico('clock')}</button>` : ''}
         ${can('devices.edit') ? `<button class="btn btn-sm btn-icon" title="Edit" onclick="openEditDevice(${d.id})">${ico('edit')}</button>` : ''}
@@ -1403,7 +1488,7 @@ async function importCSV(e) {
 // ───────────── backups ─────────────
 function fillDeviceSelects() {
   const opts = S.devices.map(d => `<option value="${d.id}">${esc(d.hostname)}</option>`).join('');
-  [['bkDevice','All devices'],['diffDevice','Select device'],['diffDeviceB','Same device']].forEach(([id, ph]) => {
+  [['bkDevice','All devices'],['csDevice','All devices'],['diffDevice','Select device'],['diffDeviceB','Same device']].forEach(([id, ph]) => {
     const el = $(id), v = el.value; el.innerHTML = `<option value="">${ph}</option>` + opts; el.value = v;
   });
 }
@@ -1450,28 +1535,158 @@ async function deleteBackup(id) {
   if (!confirm(`Delete backup #${id} and its file on disk? Copies in Google Drive or OneDrive are not removed.`)) return;
   try { await apiJSON(`/api/backups/${id}`, { method:'DELETE' }); toast('Backup deleted'); loadBackups(); } catch (e) { toast(e.message, 'err'); }
 }
-function showViewer(title, text, dl) {
-  $('viewerAI').classList.add('hidden');
-  S.viewerText = text; $('viewerTitle').textContent = title; $('viewerFind').value = '';
-  renderViewer(''); $('viewerDl').onclick = dl; $('viewerDl').classList.toggle('hidden', !dl || !can('backups.download'));
+// ───────────── config viewer ─────────────
+// S.vw: { kind:'backup'|'file', id, path, title, text, masked, canReveal, prev, next, device, taken, q, cur }
+const lsGet = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch (_) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+function viewerWantsMask() { return lsGet('ncm_vw_mask', '1') === '1'; }
+async function fetchViewerText(url) {
+  const r = await api(url + (url.includes('?') ? '&' : '?') + 'masked=' + viewerWantsMask());
+  if (!r.ok) { let d = {}; try { d = await r.json(); } catch (_) {} throw Error(d.detail || 'This file cannot be opened'); }
+  const h = n => r.headers.get(n) || '';
+  return { text: await r.text(), masked: h('X-NCM-Masked') === '1', canReveal: h('X-NCM-Can-Reveal') === '1',
+           prev: +h('X-NCM-Prev') || null, next: +h('X-NCM-Next') || null, device: +h('X-NCM-Device') || null, taken: h('X-NCM-Taken') || null };
+}
+function openViewer(v) {
+  S.vw = Object.assign({ q: '', cur: 0, gotoLine: null }, v);
+  const keepQ = $('viewerFind').value && !$('viewerModal').classList.contains('hidden') ? $('viewerFind').value : '';
+  $('viewerFind').value = keepQ; S.vw.q = keepQ;
+  $('viewerTitle').textContent = v.title;
+  const lines = v.text.split('\n').length;
+  $('viewerMeta').textContent = [v.taken ? `Taken ${fmt(v.taken)} (${ago(v.taken)})` : '', `${lines.toLocaleString()} lines`, bytes(new Blob([v.text]).size)].filter(Boolean).join(' · ');
+  // secrets toggle and note
+  $('vwMaskSw').classList.toggle('hidden', !v.canReveal);
+  $('vwMask').checked = v.masked;
+  const note = $('vwNote');
+  if (v.masked && !v.canReveal) { note.className = 'vw-note'; note.textContent = 'Passwords, keys and SNMP communities are hidden for your role. Ask an Operator or Admin if you need them.'; }
+  else if (v.masked) { note.className = 'vw-note info'; note.textContent = 'Secrets are hidden. Turn off "Hide secrets" to see them (this is written to the audit log).'; }
+  else note.className = 'vw-note hidden';
+  // actions
+  const isB = v.kind === 'backup';
+  $('vwPrev').classList.toggle('hidden', !isB); $('vwNext').classList.toggle('hidden', !isB);
+  $('vwPrev').disabled = !v.prev; $('vwNext').disabled = !v.next;
+  $('vwPrev').onclick = () => v.prev && viewBackup(v.prev, v.host); $('vwNext').onclick = () => v.next && viewBackup(v.next, v.host);
+  const cmp = $('viewerCmp'); cmp.classList.toggle('hidden', !(isB && v.prev && v.device && can('backups.diff')));
+  cmp.onclick = () => { closeViewer(); openDiffPair(v.device, v.prev, v.id); };
+  $('viewerDl').onclick = v.download; $('viewerDl').classList.toggle('hidden', !v.download || !can('backups.download'));
+  const ai = $('viewerAI'); ai.classList.add('hidden');
+  if (isB && can('ai.run') && S.ai?.configured) { ai.innerHTML = `${ico('ai')}AI config check`; ai.onclick = () => { closeViewer(); aiValidate(v.id); }; ai.classList.remove('hidden'); }
+  // sections
+  const secs = []; v.text.split('\n').forEach((l, i) => { if (isSection(l)) secs.push([i, l.trim()]); });
+  $('vwSections').innerHTML = `<option value="">${secs.length ? `Jump to section (${secs.length})` : 'No sections found'}</option>` +
+    secs.slice(0, 2000).map(([i, l]) => `<option value="${i}">${esc(l.length > 60 ? l.slice(0, 60) + '…' : l)}</option>`).join('');
+  $('vwSections').disabled = !secs.length;
+  $('vwWrap').checked = lsGet('ncm_vw_wrap', '0') === '1'; setViewerWrap($('vwWrap').checked, true);
+  renderViewer();
   openModal('viewerModal');
+  if (v.gotoLine) gotoLine(v.gotoLine); else if (!S.vw.q) $('viewerContent').scrollTop = 0;
 }
-function renderViewer(q) {
-  const lines = S.viewerText.split('\n'); let first = null;
+function isSection(l) {
+  if (!l || /^\s/.test(l) || /^\s*([!#]|\/\*|return|quit|exit|end\b)/i.test(l)) return false;
+  return /^(interface|vlan|router|ip vrf|vrf|bgp|ospf|isis|aaa|user-interface|acl|ip access-list|access-list|policy|route-map|class-map|policy-map|snmp|ntp|line|system|protocols|routing-options|firewall|security|management|spanning-tree|lldp|mpls|stp|port-group|interfaces|vlans|hostname|sysname|logging|info-center|radius|tacacs|hwtacacs|ssh|stelnet|ip route|ip prefix-list|monitor|daemon|event-handler|mlag|banner|key chain|traffic|qos|dhcp)\b/i.test(l) || /\{\s*$/.test(l);
+}
+function renderViewer() {
+  const v = S.vw, q = (v.q || '').toLowerCase(), lines = v.text.split('\n');
+  const findMode = q && !/^:\d+$/.test(q);
+  const rx = findMode ? new RegExp(esc(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi') : null;
+  let n = 0;
   $('viewerContent').innerHTML = lines.map((l, i) => {
-    const cm = /^\s*([!#]|\/\*)/.test(l) ? ' cm' : '';
+    let cls = /^\s*([!#]|\/\*)/.test(l) ? ' cm' : isSection(l) ? ' sec' : '';
     let h = esc(l) || ' ';
-    if (q && l.toLowerCase().includes(q)) { if (first === null) first = i; h = h.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/[&<>'"]/g, c => esc(c)), 'gi'), m => `<mark>${m}</mark>`); }
-    return `<span class="l${cm}" id="vl${i}">${h}</span>`;
+    if (rx && l.toLowerCase().includes(q)) { cls += ' hit'; h = h.replace(rx, m => `<mark data-i="${n++}">${m}</mark>`); }
+    h = h.replace(/&lt;MASKED[A-Z-]*&gt;/g, m => `<span class="mask" title="Hidden secret">${m}</span>`);
+    return `<span class="l${cls}" id="vl${i}">${h}</span>`;
   }).join('');
-  if (first !== null) $('vl' + first).scrollIntoView({ block:'center' });
+  v.matches = n;
+  if (findMode) { v.cur = Math.min(v.cur, Math.max(0, n - 1)); markCurrent(); }
+  $('vwCount').textContent = !q ? '' : /^:\d+$/.test(q) ? 'Enter to go' : n ? `${v.cur + 1} of ${n}` : 'No matches';
 }
-function findInViewer() { renderViewer($('viewerFind').value.trim().toLowerCase()); }
-async function viewBackup(id, host) {
-  try { const r = await api(`/api/backups/${id}/view`); if (!r.ok) throw Error('This backup file cannot be opened');
-    showViewer(`${host}, backup #${id}`, await r.text(), () => downloadAuth(`/api/backups/${id}/download`, `backup-${id}.conf`));
-    if (can('ai.run') && S.ai?.configured) { const b = $('viewerAI'); b.innerHTML = `${ico('ai')}AI config check`; b.onclick = () => { closeModal('viewerModal'); aiValidate(id); }; b.classList.remove('hidden'); } }
-  catch (e) { toast(e.message, 'err'); }
+function markCurrent() {
+  const marks = $('viewerContent').querySelectorAll('mark');
+  marks.forEach(m => m.classList.remove('cur'));
+  const m = marks[S.vw.cur]; if (m) { m.classList.add('cur'); m.scrollIntoView({ block: 'center' }); }
+  $('vwCount').textContent = marks.length ? `${S.vw.cur + 1} of ${marks.length}` : (S.vw.q ? 'No matches' : '');
+}
+let _findT;
+function findInViewer() {
+  clearTimeout(_findT);
+  _findT = setTimeout(() => { S.vw.q = $('viewerFind').value.trim(); S.vw.cur = 0; renderViewer(); }, 120);
+}
+function stepFind(d) {
+  const v = S.vw; if (!v?.matches) return;
+  v.cur = (v.cur + d + v.matches) % v.matches; markCurrent();
+}
+function viewerFindKey(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const q = $('viewerFind').value.trim();
+    if (/^:\d+$/.test(q)) return gotoLine(+q.slice(1));
+    if (q !== S.vw.q) { clearTimeout(_findT); S.vw.q = q; S.vw.cur = 0; renderViewer(); return; }
+    stepFind(e.shiftKey ? -1 : 1);
+  } else if (e.key === 'Escape' && e.target.value) { e.stopPropagation(); e.preventDefault(); e.target.value = ''; findInViewer(); }
+}
+function gotoLine(n) {
+  const el = $('vl' + (n - 1)); if (!el) return toast(`This file has ${S.vw.text.split('\n').length} lines`, 'err');
+  document.querySelectorAll('#viewerContent .goto').forEach(x => x.classList.remove('goto'));
+  el.classList.add('goto'); el.scrollIntoView({ block: 'center' });
+}
+function jumpSection(sel) { if (sel.value !== '') gotoLine(+sel.value + 1); sel.value = ''; }
+function setViewerWrap(on, quiet) { $('viewerContent').classList.toggle('wrap', on); if (!quiet) lsSet('ncm_vw_wrap', on ? '1' : '0'); }
+async function setViewerMask(on) {
+  lsSet('ncm_vw_mask', on ? '1' : '0');
+  const v = S.vw; if (v.kind === 'backup') viewBackup(v.id, v.host); else viewFile(v.path);
+}
+function copyViewer() { navigator.clipboard?.writeText(S.vw.text).then(() => toast(S.vw.masked ? 'Copied, with secrets hidden' : 'Copied')); }
+function toggleViewerFull() { $('viewerBox').classList.toggle('full'); $('viewerModal').classList.toggle('vw-full'); }
+function closeViewer() { closeModal('viewerModal'); }
+async function viewBackup(id, host, gotoLineNo) {
+  try {
+    const r = await fetchViewerText(`/api/backups/${id}/view`);
+    openViewer(Object.assign(r, { kind: 'backup', id, host, title: `${host || 'Backup'} · backup #${id}`, gotoLine: gotoLineNo,
+      download: () => downloadAuth(`/api/backups/${id}/download`, `${host || 'backup'}-${id}.conf`) }));
+  } catch (e) { toast(e.message, 'err'); }
+}
+async function viewLatestConfig(deviceId, host) {
+  try {
+    const d = await apiJSON(`/api/backups/?device_id=${deviceId}&status=SUCCESS&limit=1`);
+    if (!d.length) return toast(`${host} has no successful backup yet. Click "Back up" first.`, 'err');
+    viewBackup(d[0].id, host);
+  } catch (e) { toast(e.message, 'err'); }
+}
+document.addEventListener('keydown', e => {
+  if ($('viewerModal').classList.contains('hidden')) return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { e.preventDefault(); $('viewerFind').focus(); $('viewerFind').select(); }
+  else if (e.key === 'F3') { e.preventDefault(); stepFind(e.shiftKey ? -1 : 1); }
+});
+
+// ───────────── config search ─────────────
+async function runConfigSearch() {
+  const q = $('csQuery').value.trim(), dev = $('csDevice').value;
+  if (q.length < 2) { $('csResults').innerHTML = '<div class="empty"><b>Search every device configuration</b>Type at least 2 characters, for example a VLAN number, an IP address, an interface description or an NTP server.</div>'; $('csSummary').textContent = ''; return; }
+  $('csResults').innerHTML = '<div class="empty"><span class="spin"></span> Searching…</div>';
+  try {
+    const r = await apiJSON(`/api/backups/search?q=${encodeURIComponent(q)}${dev ? '&device_id=' + dev : ''}`);
+    S.cs = r;
+    $('csSummary').innerHTML = `${r.total_hits.toLocaleString()} match${r.total_hits === 1 ? '' : 'es'} in ${r.devices_matched} of ${r.devices_searched} device${r.devices_searched === 1 ? '' : 's'} (latest successful backup of each).${r.masked ? ' Secrets are hidden for your role.' : ''}`;
+    if (!r.results.length) { $('csResults').innerHTML = `<div class="empty"><b>No matches</b>No latest backup contains “${esc(q)}”.</div>`; return; }
+    const rx = new RegExp(esc(q.split(/\s+/).join(' ')).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    const hl = t => esc(t).replace(rx, m => `<mark>${m}</mark>`).replace(/&lt;MASKED[A-Z-]*&gt;/g, m => `<span class="mask">${m}</span>`);
+    $('csResults').innerHTML = r.results.map(d => `<div class="cs-dev">
+      <div class="cs-dev-head">${vendorBadge({ vendor: d.vendor || '' })}<b>${esc(d.hostname)}</b><span class="pill plain">${d.count} match${d.count === 1 ? '' : 'es'}</span>
+        <span class="muted" style="font-size:.82rem">${d.site ? esc(d.site) + ' · ' : ''}backup #${d.backup_id}, ${esc(ago(d.taken))}</span><span style="flex:1"></span>
+        <button class="btn btn-sm" onclick="viewBackup(${d.backup_id},'${jsq(d.hostname)}')">${ico('eye')}Open config</button></div>
+      ${d.hits.map(h => `<div class="cs-hit" title="Open at line ${h.line}" onclick="openSearchHit(${d.backup_id},'${jsq(d.hostname)}',${h.line})"><span class="ln">${h.line}</span><span>${h.section ? `<span class="sec">${esc(h.section)}</span>` : ''}${hl(h.text)}</span></div>`).join('')}
+      ${d.count > d.hits.length ? `<div class="muted" style="font-size:.8rem;padding:4px 8px">…and ${d.count - d.hits.length} more. Open the config to see all.</div>` : ''}
+    </div>`).join('');
+  } catch (e) { $('csResults').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+function openSearchHit(id, host, line) { $('viewerFind').value = ''; viewBackup(id, host, line); }
+function exportConfigSearch() {
+  const r = S.cs; if (!r?.results?.length) return toast('Nothing to export yet', 'err');
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const rows = [['device', 'site', 'backup_id', 'line', 'section', 'text'].join(',')];
+  r.results.forEach(d => d.hits.forEach(h => rows.push([d.hostname, d.site, d.backup_id, h.line, h.section, h.text].map(q).join(','))));
+  saveBlob(rows.join('\n') + '\n', `config-search-${r.query.replace(/[^\w.-]+/g, '_').slice(0, 40)}.csv`, 'text/csv');
 }
 
 // ───────────── config changes ─────────────
@@ -1553,7 +1768,7 @@ function renderDiff(el, d, mode) {
   S.lastPatch = d;
   const st = d.stats, la = d.backup_a ? `#${d.backup_a.id} ${d.backup_a.hostname}, ${fmt(d.backup_a.created_at)}` : d.file_a;
   const lb = d.backup_b ? `#${d.backup_b.id} ${d.backup_b.hostname}, ${fmt(d.backup_b.created_at)}` : d.file_b;
-  const head = `<div class="diff-summary">
+  const head = (d.masked ? '<div class="vw-note">Secrets (passwords, keys, SNMP communities) are hidden for your role in this comparison.</div>' : '') + `<div class="diff-summary">
       <span><span class="big m">~${st.modified}</span> <span class="muted">changed</span></span>
       <span><span class="big a">+${st.added - st.modified}</span> <span class="muted">added</span></span>
       <span><span class="big d">−${st.removed - st.modified}</span> <span class="muted">removed</span></span>
@@ -1632,9 +1847,10 @@ async function searchFiles() {
     renderFiles(d, true); } catch (e) { toast(e.message, 'err'); }
 }
 async function viewFile(path) {
-  try { const r = await api('/api/files/view?path=' + encodeURIComponent(path));
-    if (!r.ok) { const d = await r.json(); throw Error(d.detail); }
-    showViewer(path, await r.text(), () => downloadAuth('/api/files/download?path=' + encodeURIComponent(path), path.split('/').pop()));
+  try {
+    const r = await fetchViewerText('/api/files/view?path=' + encodeURIComponent(path));
+    openViewer(Object.assign(r, { kind: 'file', path, title: path, prev: null, next: null,
+      download: () => downloadAuth('/api/files/download?path=' + encodeURIComponent(path), path.split('/').pop()) }));
   } catch (e) { toast(e.message, 'err'); }
 }
 function downloadFolder() { downloadAuth('/api/files/download?path=' + encodeURIComponent(S.files.path), (S.files.path.split('/').pop() || 'backups') + '.zip'); }
@@ -2271,7 +2487,7 @@ async function healthAI(id, refresh, btn) {
   finally { if (S.hl?.id === id) { S.hl.aiLoading = false; if (S.hl.tab === 'ai') hlAI(); } }
 }
 async function openHealthSettings() {
-  let h; try { h = await apiJSON('/api/health/status'); S.health = h; } catch (e) { return toast(e.message, 'err'); }
+  let h, pol; try { [h, pol] = await Promise.all([apiJSON('/api/health/status'), apiJSON('/api/health/command-policy')]); S.health = h; S.cmdPolicy = pol; } catch (e) { return toast(e.message, 'err'); }
   const st = h.settings, cmdEdit = S.user?.role === 'super_admin', opts = [15,30,60,120,240,360,720,1440];
   if (!opts.includes(st.interval_minutes)) opts.push(st.interval_minutes);
   $('hlSettingsBody').innerHTML = `
@@ -2285,24 +2501,49 @@ async function openHealthSettings() {
     </div>
     <p class="muted" style="font-size:.82rem;margin-top:6px">${h.ai_configured ? 'Scheduled checks are run 4 devices at a time. Automatic AI summaries run one by one afterwards, to stay inside free-tier limits.' : 'No AI provider is set up yet, so AI summaries are skipped. Add one on the AI review page.'}</p>
     <h4 style="margin:22px 0 4px">Commands per vendor</h4>
-    <p class="muted" style="font-size:.85rem;margin-bottom:12px">One command per line. Only read-only <span class="mono">display</span> (Huawei) or <span class="mono">show</span> (Juniper, Arista) commands are accepted. Commands a device does not know are skipped and listed in the result.${cmdEdit ? '' : ' <b>Only a Super Admin can change these commands.</b>'}</p>
+    <p class="muted" style="font-size:.85rem;margin-bottom:12px">One command per line. A command must be on the <b>allowed list</b> below: read-only <span class="mono">display</span> (Huawei) or <span class="mono">show</span> (Juniper, Arista) commands only, never one that prints the configuration or secrets. Commands a device does not know are skipped and listed in the result.${cmdEdit ? '' : ' <b>Only a Super Admin can change these commands.</b>'}</p>
     ${['huawei','juniper','arista'].map(v => `<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b>${VENDOR_NAMES[v]}</b>${st.custom_commands[v] ? '<span class="pill info plain">Custom</span>' : '<span class="pill plain">Default</span>'}<span style="flex:1"></span>${cmdEdit ? `<button class="btn btn-sm btn-ghost" onclick="$('hs_cmd_${v}').value=S.health.settings.default_commands['${v}'].join('\\n')">Restore defaults</button>` : ''}</div>
       <textarea class="input cmdlist" id="hs_cmd_${v}" spellcheck="false" ${cmdEdit ? '' : 'readonly'}>${esc(st.commands[v].join('\n'))}</textarea></div>`).join('')}
+    <h4 style="margin:22px 0 4px">Allowed commands</h4>
+    <p class="muted" style="font-size:.85rem;margin-bottom:10px">Health checks and the assistant's live commands run only commands that start with one of these. Output filters such as <span class="mono">| include DOWN</span> may be added after them. ${cmdEdit ? 'As Super Admin you can allow extra read-only commands, one per line. Commands that show the configuration, secrets, users or files are always refused.' : '<b>Only a Super Admin can allow extra commands.</b>'}</p>
+    ${['huawei','juniper','arista'].map(v => { const p = pol.vendors[v]; return `<div style="margin-bottom:14px">
+      <details><summary style="cursor:pointer"><b>${VENDOR_NAMES[v]}</b> <span class="muted">${p.builtin.length} built in${p.extra.length ? `, ${p.extra.length} extra` : ''}</span></summary>
+        <div class="cmd-chips">${p.builtin.map(c => `<span>${esc(c)}</span>`).join('')}</div></details>
+      <label class="f" style="margin-top:6px">Extra allowed commands
+        <textarea class="input cmdlist" style="min-height:64px" id="hs_allow_${v}" spellcheck="false" placeholder="${cmdEdit ? (v === 'huawei' ? 'display lldp local' : 'show lldp local-info') : 'None'}" ${cmdEdit ? '' : 'readonly'}>${esc(p.extra.join('\n'))}</textarea></label></div>`; }).join('')}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 16px">
+      <select class="input" id="hs_test_v" style="width:130px">${['huawei','juniper','arista'].map(v => `<option value="${v}">${VENDOR_NAMES[v]}</option>`).join('')}</select>
+      <input class="input mono" id="hs_test_c" placeholder="Check a command, e.g. show interfaces status" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter'){event.preventDefault();testAllowedCommand()}">
+      <button class="btn" onclick="testAllowedCommand()">Check</button>
+      <div id="hs_test_r" class="msg" style="flex-basis:100%;margin:0"></div></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn" onclick="closeModal('healthSettingsModal')">Cancel</button><button class="btn btn-primary" onclick="saveHealthSettings(this)">Save</button></div>`;
   openModal('healthSettingsModal');
 }
 async function saveHealthSettings(btn) {
   const body = { schedule_enabled: $('hs_on').checked, interval_minutes: +$('hs_int').value, retention: +$('hs_ret').value,
     log_window_hours: +$('hs_win').value, ai_mode: $('hs_ai').value, ai_language: $('hs_lang').value };
+  const lines = id => $(id).value.split('\n').map(x => x.trim()).filter(Boolean);
+  let extra = null;
   if (S.user?.role === 'super_admin') {      // the server accepts command changes from Super Admin only
-    body.commands = {};
-    ['huawei','juniper','arista'].forEach(v => { body.commands[v] = $('hs_cmd_' + v).value.split('\n').map(x => x.trim()).filter(Boolean); });
+    body.commands = {}; extra = {};
+    ['huawei','juniper','arista'].forEach(v => { body.commands[v] = lines('hs_cmd_' + v); extra[v] = lines('hs_allow_' + v); });
   }
   await busy(btn, async () => {
-    try { await apiJSON('/api/health/settings', { method:'PUT', body: JSON.stringify(body) });
+    try {
+      if (extra) await apiJSON('/api/health/command-policy', { method:'PUT', body: JSON.stringify({ extra }) });   // first, so new commands may use them
+      await apiJSON('/api/health/settings', { method:'PUT', body: JSON.stringify(body) });
       toast('Health settings saved'); closeModal('healthSettingsModal'); if (S.page === 'health') loadHealth(); }
     catch (e) { toast(e.message, 'err'); }
   });
+}
+
+async function testAllowedCommand() {
+  const vendor = $('hs_test_v').value, command = $('hs_test_c').value.trim();
+  if (!command) return;
+  try {
+    const r = await apiJSON('/api/health/command-policy/check', { method:'POST', body: JSON.stringify({ vendor, command }) });
+    msg('hs_test_r', r.ok ? `Allowed on ${VENDOR_NAMES[vendor]}.` : r.error, r.ok ? 'success' : 'error');
+  } catch (e) { msg('hs_test_r', e.message, 'error'); }
 }
 
 // ───────────── users & audit ─────────────

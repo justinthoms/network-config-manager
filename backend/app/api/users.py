@@ -55,6 +55,10 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
     if not user: raise HTTPException(404, "User not found")
     if user.role == "super_admin" and current.role != "super_admin":
         raise HTTPException(403, "Only Super Admin can change a Super Admin")
+    if (user.role == "admin" and user.id != current.id and current.role != "super_admin"
+            and (payload.password or (payload.is_active is not None and payload.is_active != user.is_active)
+                 or (payload.role is not None and payload.role != user.role))):
+        raise HTTPException(403, "Only Super Admin can reset, disable or change the role of another Admin")
     if payload.role is not None:
         if payload.role not in ROLE_PERMISSIONS: raise HTTPException(400, "Invalid role")
         if payload.role == "super_admin" and current.role != "super_admin":

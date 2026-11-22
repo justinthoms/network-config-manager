@@ -2,7 +2,19 @@
 
 ## Unreleased
 
+**Added**
+- New config viewer: line numbers, find with match count (Enter / Shift+Enter, Ctrl+F), `:120` to go to a line, jump to section (interface, vlan, router ...), wrap lines, copy, full screen, older/newer backup buttons and "Compare with previous".
+- "Hide secrets" switch in the viewer (on by default, remembered per browser) so a config can be shown on a shared screen. Turning it off is written to the audit log.
+- Config search page: find text in the latest backup of every device, with the line number and the section each match is in, click to open the config at that line, and export to CSV.
+- "View latest config" button on the Devices page.
+- Allowed command list for health checks and the assistant's live commands. Built-in read-only commands per vendor; only a Super Admin can allow extra ones, with a "Check a command" helper in Health settings.
+
 **Security**
+- Viewers (and any role without `backups.download`) now always see configs with secrets masked: in the backup viewer, the file browser, config comparisons, the config search and the dashboard change snippets. Before, the view endpoints returned the raw file.
+- Health check and live commands that print the configuration, tech-support, users, files or secrets are refused, so they cannot reach the health output that every role can read.
+- An Admin can no longer reset the password of, disable, or change the role of another Admin; only a Super Admin can.
+- Single file and backup downloads are written to the audit log.
+- Folder downloads are zipped to a temporary file instead of memory.
 - An Admin can no longer change, disable or reset the password of a Super Admin.
 - Fixed script injection through device hostnames, sites and file names in the web UI.
 - A saved AI provider key is only sent to that provider's own address.
