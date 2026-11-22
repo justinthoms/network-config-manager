@@ -22,10 +22,13 @@ from app.api.dashboard import router as dashboard_router
 from app.api.ai import router as ai_router
 from app.api.health import router as health_router
 from app.api.security import router as security_router
+from app.api.system import router as system_router
 from app.services.scheduler import start_scheduler, stop_scheduler
 from app.services.maintenance import start_background_tasks
+from app.services import updater
 
 from app.core.config import settings as _settings
+from app.version import __version__
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -37,13 +40,15 @@ async def lifespan(_app: FastAPI):
         init_db()
         start_scheduler()
         ensure_env_provider()
+        updater.on_startup()     # finish an in-app upgrade that restarted NCM
     start_background_tasks()
+    updater.start_background_checker()
     yield
     stop_scheduler()
 
 
 app = FastAPI(
-    title="Network Config Manager", version="2.0.0", lifespan=lifespan,
+    title="Network Config Manager", version=__version__, lifespan=lifespan,
     docs_url="/docs" if _settings.enable_api_docs else None,
     redoc_url="/redoc" if _settings.enable_api_docs else None,
     openapi_url="/openapi.json" if _settings.enable_api_docs else None,
@@ -90,6 +95,7 @@ app.include_router(dashboard_router, prefix="/api/dashboard", tags=["Dashboard"]
 app.include_router(ai_router, prefix="/api/ai", tags=["AI review"])
 app.include_router(health_router, prefix="/api/health", tags=["Health"])
 app.include_router(security_router, prefix="/api/security", tags=["Security"])
+app.include_router(system_router, prefix="/api/system", tags=["System"])
 
 LOGO_DIR = WEB_DIR / "vendors"
 LOGO_EXT = (".svg", ".png", ".webp", ".jpg", ".jpeg")

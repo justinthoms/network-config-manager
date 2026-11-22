@@ -57,6 +57,18 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-3-flash-preview"
 
+    # ── Updates from GitHub releases ──
+    # NCM checks this repository's releases and offers in-app upgrades to Super Admins.
+    update_repo: str = "justinthoms/network-config-manager"
+    update_api_url: str = "https://api.github.com"
+    # Check for a new version in the background (turn off on networks without internet access).
+    update_check_enabled: bool = True
+    update_check_hours: int = 12
+    # Optional GitHub token: only needed for a private repository or to avoid rate limits.
+    update_github_token: str = ""
+    # Also offer pre-releases (e.g. 2.2.0-beta1).
+    update_include_prereleases: bool = False
+
     model_config = SettingsConfigDict(
         env_file=ENV_FILE,
         env_file_encoding="utf-8",

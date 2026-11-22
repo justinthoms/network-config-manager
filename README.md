@@ -37,6 +37,8 @@ Open-source, self-hosted configuration manager for NOC and network operations te
 - ☁️ **Off-site copies** in Google Drive and OneDrive, uploaded automatically after each backup.
 - 📁 **File browser** for the backup folder: search, preview, download as ZIP, compare any two files.
 - 🔐 **Security:** role-based access, encrypted device credentials, strong password policy, sign-in lockout, session revocation, idle sign-out, security headers, and a built-in security self-check.
+- 🔎 **Config viewer and search:** find text, go to a line, jump to a section, secrets hidden on screen; search the latest config of every device at once.
+- ⬆️ **In-app upgrades:** NCM tells you when a new version is published on GitHub and upgrades itself from the web UI, with automatic rollback copies.
 - 🧾 **Audit log** of every sign-in, change and command.
 - 📥 CSV import and export, 🌙 dark mode, installable as a web app.
 
@@ -148,6 +150,8 @@ All settings live in `backend/.env`. The important ones:
 | `PUBLIC_BASE_URL` | `http://localhost:8000` | Address browsers use to open NCM (Google Drive sign-in). |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | | Optional, can also be set on the Cloud page. |
 | `ONEDRIVE_CLIENT_ID` / `ONEDRIVE_TENANT_ID` | | Optional, can also be set on the Cloud page. |
+| `UPDATE_CHECK_ENABLED` | `true` | Check GitHub for new versions every `UPDATE_CHECK_HOURS` (12). Turn off on networks without internet access. |
+| `UPDATE_REPO` | `justinthoms/network-config-manager` | Where releases come from. `UPDATE_GITHUB_TOKEN` is only needed for a private repository. |
 
 Schedules, health-check commands, AI providers and cloud settings are managed in the web UI.
 
@@ -277,10 +281,42 @@ Please report security problems privately to the maintainer instead of opening a
 | `users.view` | ✓ | ✓ |  |  |
 | `audit.view` | ✓ | ✓ |  |  |
 | `security.view` | ✓ | ✓ |  |  |
+| `system.view` (see updates) | ✓ | ✓ |  |  |
+| `system.update` (upgrade, roll back) | ✓ |  |  |  |
 
-Only a Super Admin can create Super Admins or change OAuth client credentials.
+Only a Super Admin can create Super Admins, change OAuth client credentials, change health check and allowed commands, or reset another Admin.
+
+Roles without `backups.download` always see configurations with passwords, keys and SNMP communities masked.
 
 ## Upgrading
+
+### From the web UI (2.1 and later)
+
+When a new version is published on GitHub, Admins and Super Admins see a banner at the top of NCM. Open **user menu → Updates** to read the release notes, then a Super Admin clicks **Upgrade** and confirms with their password. NCM then:
+
+1. downloads the release from GitHub and checks the archive;
+2. installs new Python packages if the release needs them;
+3. starts the new version in a test process and runs its database changes on a **copy** of your database (nothing has changed yet, so a failure here leaves NCM as it was);
+4. saves the current version and a copy of the SQLite database in `backend/.upgrade/rollback` (the last 3 are kept);
+5. installs the new code and restarts itself (a single process, `--workers N` and systemd all work).
+
+Kept as they are: `backend/.env`, `backend/.secret_key`, the database, `BACKUP_ROOT` and custom vendor logos. With PostgreSQL, back up the database yourself first (`pg_dump`). In Docker, rebuild the image as well, or the upgrade is lost when the container is re-created.
+
+**Roll back** from the same page, or from a shell if the web UI does not come back:
+
+```bash
+cd /opt/ncm/backend && ../.venv/bin/python -m app.services.updater rollback
+```
+
+```bash
+sudo systemctl restart ncm
+```
+
+Add `--with-database` to the rollback to also put back the database copy (changes made since the upgrade are lost). `python -m app.services.updater status` lists the saved versions.
+
+**Publishing a release** (for maintainers): set `__version__` in `backend/app/version.py`, add the changes to `CHANGELOG.md`, merge, then create a GitHub release with the tag `v<version>` (for example `v2.1.0`) and the release notes. Servers see it at their next check.
+
+### By hand
 
 1. Back up `backend/.env`, `backend/.secret_key` (if present), the database and `BACKUP_ROOT`.
 2. Replace the code (`git pull`, or copy the new files) and **keep** your `.env` and database.

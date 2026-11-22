@@ -532,6 +532,25 @@ pre.code mark{background:color-mix(in srgb,var(--act) 35%,transparent);color:inh
 pre.code mark.cur{background:var(--act);color:#fff}
 pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px;padding:0 4px;font-size:.92em}
 @media (max-width:700px){.vw-bar{padding:10px 12px}.vw-find{max-width:none;flex-basis:100%}}
+/* updates */
+.upd-banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:10px 16px;border-radius:var(--r);background:var(--signal-soft);border:1px solid color-mix(in srgb,var(--signal) 30%,transparent);font-size:.92rem}
+.upd-banner b{color:var(--signal)}
+.upd-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+@media (max-width:900px){.upd-grid{grid-template-columns:1fr}}
+.upd-ver{font-size:2rem;font-weight:700;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.upd-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.upd-notes{font-size:.92rem;line-height:1.55;max-height:420px;overflow:auto;padding-right:6px}
+.upd-notes ul,.upd-notes ol{margin:6px 0 10px 20px}.upd-notes p{margin:6px 0}
+.upd-notes code{font-family:var(--mono);font-size:.85em;background:var(--raised);padding:1px 5px;border-radius:4px}
+.upd-steps{list-style:none;display:grid;gap:6px;margin:4px 0 12px}
+.upd-steps li{display:flex;align-items:center;gap:10px;font-size:.92rem}
+.upd-steps .dot{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font-size:.7rem;font-weight:700;background:var(--line);color:var(--muted);flex:none}
+.upd-steps .done .dot{background:var(--link);color:#fff}.upd-steps .skipped .dot{background:var(--line-2);color:var(--text-2)}
+.upd-steps .failed .dot{background:var(--fault);color:#fff}.upd-steps .running .dot{background:var(--signal);color:#fff;animation:pulse 1s infinite alternate}
+.upd-steps .note{color:var(--muted);font-size:.84rem}
+@keyframes pulse{to{opacity:.45}}
+.upd-log{font-family:var(--mono);font-size:.76rem;background:var(--raised);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;max-height:220px;overflow:auto;white-space:pre-wrap}
+.upd-list li{margin:4px 0 4px 18px;font-size:.9rem}
 /* config search */
 .cs-dev{border-top:1px solid var(--line);padding:14px 20px}
 .cs-dev:first-child{border-top:0}
@@ -648,8 +667,10 @@ pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px
           <button data-page="users" data-permission="users.view"><svg class="ico"><use href="#i-users"/></svg>Users</button>
           <button data-page="audit" data-permission="audit.view"><svg class="ico"><use href="#i-audit"/></svg>Audit log</button>
           <button data-page="security" data-permission="security.view"><svg class="ico"><use href="#i-shield"/></svg>Security</button>
+          <button data-page="updates" data-permission="system.view"><svg class="ico"><use href="#i-up"/></svg>Updates<span class="count hidden" id="navUpdate" style="margin-left:auto">1</span></button>
           <button data-page="roadmap"><svg class="ico"><use href="#i-map"/></svg>Roadmap</button>
           <hr>
+          <div class="muted" style="font-size:.78rem;padding:2px 12px 6px" id="menuVersion"></div>
           <button onclick="toggleTheme()" id="themeBtn"><svg class="ico"><use href="#i-moon"/></svg><span>Dark mode</span></button>
           <button onclick="logout()"><svg class="ico"><use href="#i-logout"/></svg>Sign out</button>
         </div>
@@ -659,6 +680,7 @@ pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px
 
   <div class="main">
     <main class="content">
+      <div class="upd-banner hidden" id="updBanner"></div>
 
       <!-- OVERVIEW -->
       <section id="page-dashboard" class="page">
@@ -835,6 +857,13 @@ pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px
         <div class="page-head"><div><h1>Security</h1><p>How well this NCM server is protected. Fix red and orange items first.</p></div>
           <div class="toolbar"><button class="btn" onclick="loadSecurity()"><svg><use href="#i-refresh"/></svg>Check again</button></div></div>
         <div id="secBody"><div class="panel"><div class="panel-body"><div class="skel"></div></div></div></div>
+      </section>
+
+      <!-- UPDATES -->
+      <section id="page-updates" class="page">
+        <div class="page-head"><div><h1>Updates</h1><p>New NCM versions from GitHub. Upgrade from here: your settings, database, backups and keys are kept.</p></div>
+          <div class="toolbar"><button class="btn" id="updCheckBtn" onclick="checkUpdates(this)"><svg><use href="#i-refresh"/></svg>Check now</button></div></div>
+        <div id="updBody"><div class="panel"><div class="panel-body"><div class="skel"></div></div></div></div>
       </section>
 
       <!-- HEALTH -->
@@ -1040,6 +1069,10 @@ pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px
     <button class="btn btn-ghost btn-sm btn-icon" onclick="closeHealthModal()" aria-label="Close">✕</button></div></div>
   <div class="hl-tabs" id="hlTabs"></div>
   <div id="hlBody"></div></div></div>
+<div id="upgradeModal" class="modal hidden" onclick="if(event.target===this&&!S.updBusy)closeModal('upgradeModal')"><div class="modal-box">
+  <div class="modal-head"><h3 id="upgTitle">Upgrade NCM</h3><button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('upgradeModal')" aria-label="Close">✕</button></div>
+  <div class="modal-body" id="upgBody"></div></div></div>
+
 <div id="healthSettingsModal" class="modal hidden" onclick="if(event.target===this)closeModal('healthSettingsModal')"><div class="modal-box" style="width:min(820px,100%)">
   <div class="modal-head"><h3>Health check settings</h3><button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('healthSettingsModal')" aria-label="Close">✕</button></div>
   <div class="modal-body" id="hlSettingsBody"></div></div></div>
@@ -1189,9 +1222,9 @@ $('loginForm').onsubmit = e => { e.preventDefault(); login(); };
 
 // ───────────── navigation ─────────────
 const TITLES = { dashboard:'Overview', devices:'Devices', backups:'Backups', diff:'Config changes', search:'Config search', files:'File browser',
-  schedules:'Schedules', health:'Device health', cloud:'Cloud backup', ai:'AI review', profile:'My profile', users:'Users', audit:'Audit log', security:'Security', roadmap:'Roadmap' };
+  schedules:'Schedules', health:'Device health', cloud:'Cloud backup', ai:'AI review', profile:'My profile', users:'Users', audit:'Audit log', security:'Security', updates:'Updates', roadmap:'Roadmap' };
 const PAGE_PERM = { devices:'devices.view', backups:'backups.view', search:'backups.view', diff:'backups.diff', files:'files.view',
-  schedules:'schedules.view', health:'health.view', cloud:'cloud.view', ai:'ai.view', users:'users.view', audit:'audit.view', security:'security.view' };
+  schedules:'schedules.view', health:'health.view', cloud:'cloud.view', ai:'ai.view', users:'users.view', audit:'audit.view', security:'security.view', updates:'system.view' };
 document.querySelectorAll('#nav button[data-page], #userMenu button[data-page]').forEach(b => b.onclick = () => { $('userMenu').classList.add('hidden'); showPage(b.dataset.page); });
 function toggleUserMenu(e) { e.stopPropagation(); $('userMenu').classList.toggle('hidden'); }
 document.addEventListener('click', e => { if (!e.target.closest('.umenu')) $('userMenu').classList.add('hidden'); });
@@ -1224,6 +1257,7 @@ function refreshCurrent(fromNav) {
   if (n === 'users') loadUsers();
   if (n === 'audit') loadAudit();
   if (n === 'security') loadSecurity();
+  if (n === 'updates') loadUpdates();
   if (n === 'roadmap') renderRoadmap();
   if (n === 'ai') loadAI();
   if (n === 'profile') loadProfile();
@@ -1237,6 +1271,7 @@ async function bootData() {
     can('health.view') ? apiJSON('/api/health/status').then(h => { S.health = h; healthBadge(); }).catch(() => {}) : null]);
   updateChatFab();
   fillDeviceSelects();
+  loadVersion();
 }
 
 // ───────────── overview ─────────────
@@ -2544,6 +2579,161 @@ async function testAllowedCommand() {
     const r = await apiJSON('/api/health/command-policy/check', { method:'POST', body: JSON.stringify({ vendor, command }) });
     msg('hs_test_r', r.ok ? `Allowed on ${VENDOR_NAMES[vendor]}.` : r.error, r.ok ? 'success' : 'error');
   } catch (e) { msg('hs_test_r', e.message, 'error'); }
+}
+
+// ───────────── updates ─────────────
+const UPD_STEP = { download:'Download the release from GitHub', verify:'Check the archive', unpack:'Unpack',
+  packages:'Install Python packages', test:'Test the new version on a copy of the database', snapshot:'Save the current version for rollback',
+  install:'Install the new version', restart:'Restart NCM' };
+async function loadVersion() {
+  try {
+    const v = await apiJSON('/api/system/version'); S.version = v;
+    $('menuVersion').textContent = `NCM ${v.version}`;
+    const show = v.update_available && can('system.view');
+    $('navUpdate').classList.toggle('hidden', !show);
+    const dismissed = lsGet('ncm_upd_dismiss', '') === v.latest;
+    const b = $('updBanner');
+    if (show && !dismissed) {
+      b.innerHTML = `${ico('up')}<span><b>NCM ${esc(v.latest)} is available.</b> You are running ${esc(v.version)}.</span><span style="flex:1"></span>
+        <button class="btn btn-sm btn-primary" onclick="showPage('updates')">See what's new</button>
+        <button class="btn btn-sm btn-ghost" onclick="lsSet('ncm_upd_dismiss','${jsq(v.latest)}');$('updBanner').classList.add('hidden')">Later</button>`;
+      b.classList.remove('hidden');
+    } else b.classList.add('hidden');
+    if (['running', 'restarting'].includes(v.upgrade) && S.page !== 'updates') toast('An NCM upgrade is in progress. See Updates.', 'info');
+  } catch (_) {}
+}
+async function loadUpdates() {
+  try { S.upd = await apiJSON('/api/system/update'); renderUpdates(); }
+  catch (e) { $('updBody').innerHTML = `<div class="panel"><div class="empty">${esc(e.message)}</div></div>`; }
+}
+async function checkUpdates(btn) {
+  await busy(btn, async () => {
+    try { S.upd = await apiJSON('/api/system/update/check', { method:'POST' }); renderUpdates(); loadVersion();
+      const lc = S.upd.last_check; toast(lc?.update_available ? `NCM ${lc.latest.version} is available` : 'NCM is up to date'); }
+    catch (e) { toast(e.message, 'err'); loadUpdates(); }
+  });
+}
+function renderUpdates() {
+  const u = S.upd, lc = u.last_check || {}, env = u.environment, st = u.upgrade;
+  const latest = lc.latest, newer = lc.update_available ? (lc.releases || []) : [];
+  const active = st && ['running', 'restarting', 'restart_needed'].includes(st.status);
+  const recent = st && !active && st.finished_at && (Date.now() - parseDate(st.finished_at)) < 864e5;
+  const statusLine = lc.error ? `<span class="pill bad">Check failed</span> <span class="muted">${esc(lc.error)}</span>`
+    : !lc.checked_at ? '<span class="pill plain">Not checked yet</span>'
+    : lc.update_available ? `<span class="pill info">Update available</span>` : '<span class="pill ok">Up to date</span>';
+  const progress = (active || recent) ? renderUpgradeProgress(st) : '';
+  $('updBody').innerHTML = `${progress}
+  <div class="upd-grid">
+    <div class="panel"><div class="panel-body">
+      <div class="muted" style="font-size:.85rem">Running on this server</div>
+      <div class="upd-ver">NCM ${esc(u.current)}</div>
+      <div class="upd-row" style="margin-top:6px">${statusLine}</div>
+      <div class="muted" style="font-size:.85rem;margin-top:10px">Latest release on GitHub: <b>${latest ? esc(latest.version) : '—'}</b>${latest?.published_at ? `, published ${esc(fmt(latest.published_at))}` : ''}<br>
+        Last checked: ${lc.checked_at ? `${esc(fmt(lc.checked_at))} (${esc(ago(lc.checked_at))})` : 'never'} · from <a href="https://github.com/${esc(u.repo)}/releases" target="_blank" rel="noopener">${esc(u.repo)}</a></div>
+      <label class="switch" style="margin-top:14px" title="${u.can_upgrade ? '' : 'Only a Super Admin can change this'}"><input type="checkbox" ${u.auto_check ? 'checked' : ''} ${u.can_upgrade ? '' : 'disabled'} onchange="setAutoCheck(this.checked)"><span class="track"></span>Check for new versions every ${u.check_hours} hours</label>
+    </div></div>
+    <div class="panel"><div class="panel-body">
+      <div class="muted" style="font-size:.85rem;margin-bottom:6px">Before you upgrade</div>
+      <ul class="upd-list" style="list-style:disc">
+        <li>Kept: <span class="mono">.env</span>, signing key, database, backups (<span class="mono">BACKUP_ROOT</span>), custom vendor logos.</li>
+        <li>The new version is tested on ${env.database_snapshot ? 'a copy of your database' : 'a test database'} before anything changes.</li>
+        <li>The current version${env.database_snapshot ? ' and the database are' : ' is'} saved, so you can roll back.</li>
+        <li>Restart: ${esc({ exec:'NCM restarts itself (about 10 seconds).', workers:'all worker processes restart by themselves.', reload:'development mode reloads by itself.', manual:'you restart NCM yourself afterwards.' }[env.restart_mode])}</li>
+      </ul>
+      ${env.problems.map(x => `<div class="vw-note" style="background:var(--fault-soft);border-radius:8px;margin-top:8px">${esc(x)}</div>`).join('')}
+      ${env.warnings.map(x => `<div class="vw-note" style="border-radius:8px;margin-top:8px">${esc(x)}</div>`).join('')}
+    </div></div>
+  </div>
+  ${newer.length ? newer.map((r, i) => `<div class="panel" style="margin-bottom:16px">
+    <div class="panel-head"><div><b style="font-size:1.05rem">${esc(r.name || r.version)}</b> ${r.prerelease ? '<span class="pill warn">Pre-release</span>' : ''} ${i === 0 ? '<span class="pill info">Latest</span>' : ''}
+      <div class="muted" style="font-size:.85rem">Version ${esc(r.version)} · ${esc(fmt(r.published_at))} · <a href="${esc(r.url)}" target="_blank" rel="noopener">View on GitHub</a></div></div>
+      ${u.can_upgrade ? `<button class="btn ${i === 0 ? 'btn-primary' : ''}" ${active || env.problems.length ? 'disabled' : ''} onclick="openUpgrade('${jsq(r.version)}')">${ico('up')}Upgrade to ${esc(r.version)}</button>` : '<span class="muted" style="font-size:.85rem">Only a Super Admin can upgrade.</span>'}</div>
+    <div class="panel-body"><div class="upd-notes">${r.notes ? md(r.notes) : '<p class="muted">No release notes.</p>'}</div></div></div>`).join('')
+    : `<div class="panel" style="margin-bottom:16px"><div class="empty"><b>${lc.checked_at && !lc.error ? 'You are on the latest version' : 'No update information yet'}</b>${lc.checked_at ? 'NCM will tell you here, and with a banner at the top, when a new version is published on GitHub.' : 'Click "Check now" to ask GitHub.'}</div></div>`}
+  <div class="panel"><div class="panel-head"><div><b>Roll back</b><div class="muted" style="font-size:.85rem">Versions saved before each upgrade (the last ${3} are kept).</div></div></div>
+    ${u.snapshots.length ? `<div class="table-wrap"><table class="t"><thead><tr><th>Version</th><th>Saved</th><th>Database copy</th><th class="right"></th></tr></thead><tbody>${u.snapshots.map(x => `<tr>
+      <td><b>${esc(x.version)}</b></td><td>${esc(fmt(x.created_at))}<div class="sub">${esc(ago(x.created_at))}</div></td>
+      <td>${x.has_database ? '<span class="pill ok">Yes</span>' : '<span class="pill plain">No</span>'}</td>
+      <td class="right">${u.can_upgrade ? `<button class="btn btn-sm" ${active ? 'disabled' : ''} onclick="openRollback('${jsq(x.id)}','${jsq(x.version)}',${x.has_database})">Roll back to ${esc(x.version)}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`
+      : '<div class="empty">Nothing to roll back to yet. A copy is saved automatically at every upgrade.</div>'}
+    <div class="panel-body muted" style="font-size:.82rem;border-top:1px solid var(--line)">If the web page does not come back after an upgrade, roll back from a shell on the server: <span class="mono">cd backend && ../.venv/bin/python -m app.services.updater rollback</span>, then restart NCM.</div>
+  </div>`;
+  if (active) pollUpgrade();
+}
+function renderUpgradeProgress(st) {
+  const title = st.kind === 'rollback' ? `Rollback to ${esc(st.to)}` : `Upgrade ${esc(st.from)} → ${esc(st.to)}`;
+  const pill = { running:'<span class="pill info">In progress</span>', restarting:'<span class="pill info">Restarting</span>', restart_needed:'<span class="pill warn">Restart NCM to finish</span>',
+    done:'<span class="pill ok">Finished</span>', failed:'<span class="pill bad">Failed, nothing was changed</span>' }[st.status] || esc(st.status);
+  const failedAfterInstall = st.status === 'failed' && st.steps.some(x => x.id === 'install' && x.status === 'done');
+  return `<div class="panel" style="margin-bottom:16px" id="updProgress"><div class="panel-head"><div><b>${title}</b> ${failedAfterInstall ? '<span class="pill bad">Failed</span>' : pill}<div class="muted" style="font-size:.85rem">Started by ${esc(st.by)}, ${esc(ago(st.started_at))}</div></div></div>
+    <div class="panel-body">
+      <ul class="upd-steps">${st.steps.map((x, i) => `<li class="${esc(x.status)}"><span class="dot">${x.status === 'done' ? '✓' : x.status === 'failed' ? '!' : x.status === 'skipped' ? '–' : i + 1}</span><span>${esc(UPD_STEP[x.id] || x.id)}${x.note ? ` <span class="note">· ${esc(x.note)}</span>` : ''}</span></li>`).join('')}</ul>
+      ${st.error ? `<div class="vw-note" style="background:var(--fault-soft);border-radius:8px;margin-bottom:10px">${esc(st.error)}</div>` : ''}
+      ${st.status === 'restarting' ? '<p class="muted" style="margin-bottom:10px"><span class="spin"></span> Waiting for NCM to come back. This page reloads by itself.</p>' : ''}
+      <details ${st.status === 'failed' ? 'open' : ''}><summary class="muted" style="cursor:pointer;font-size:.85rem">Details</summary><div class="upd-log">${esc((st.log || []).join('\n'))}</div></details>
+    </div></div>`;
+}
+let _updPoll;
+function pollUpgrade() {
+  clearTimeout(_updPoll);
+  _updPoll = setTimeout(async () => {
+    let r = null;
+    try { r = await apiJSON('/api/system/update/state'); } catch (_) {}      // NCM is restarting: try again
+    const st = r?.upgrade;
+    if (st) {
+      const el = $('updProgress'); if (el && S.page === 'updates') el.outerHTML = renderUpgradeProgress(st);
+      if (st.status === 'done') {
+        toast(`NCM ${r.version} is running`); setTimeout(() => location.reload(), 1200); return;
+      }
+      if (st.status === 'failed') { loadUpdates(); return; }
+      if (st.status === 'restart_needed') return;
+    }
+    pollUpgrade();
+  }, 2000);
+}
+async function setAutoCheck(on) {
+  try { await apiJSON('/api/system/update/settings', { method:'PUT', body: JSON.stringify({ auto_check: on }) }); toast(on ? 'Automatic checks on' : 'Automatic checks off'); }
+  catch (e) { toast(e.message, 'err'); loadUpdates(); }
+}
+function openUpgrade(version) {
+  const env = S.upd.environment;
+  $('upgTitle').textContent = `Upgrade to NCM ${version}`;
+  $('upgBody').innerHTML = `
+    <p style="margin-bottom:12px">NCM ${esc(S.upd.current)} will be upgraded to <b>${esc(version)}</b>. Users are signed out briefly while NCM restarts; scheduled backups continue afterwards.</p>
+    ${env.warnings.map(x => `<div class="vw-note" style="border-radius:8px;margin-bottom:8px">${esc(x)}</div>`).join('')}
+    <label class="f" style="margin-top:8px">Your password, to confirm<input class="input" type="password" id="upgPass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doUpgrade('${jsq(version)}', this)"></label>
+    <p id="upgMsg" class="msg"></p>
+    <div class="form-actions"><button class="btn" onclick="closeModal('upgradeModal')">Cancel</button><button class="btn btn-primary" id="upgGo" onclick="doUpgrade('${jsq(version)}', this)">${ico('up')}Upgrade now</button></div>`;
+  openModal('upgradeModal'); setTimeout(() => $('upgPass').focus(), 50);
+}
+async function doUpgrade(version, btn) {
+  const password = $('upgPass').value; if (!password) return msg('upgMsg', 'Enter your password', 'error');
+  S.updBusy = true;
+  await busy($('upgGo'), async () => {
+    try { await apiJSON('/api/system/update/start', { method:'POST', body: JSON.stringify({ version, password }) });
+      closeModal('upgradeModal'); toast('Upgrade started'); showPage('updates'); }
+    catch (e) { msg('upgMsg', e.message, 'error'); }
+  });
+  S.updBusy = false;
+}
+function openRollback(id, version, hasDb) {
+  $('upgTitle').textContent = `Roll back to NCM ${version}`;
+  $('upgBody').innerHTML = `
+    <p style="margin-bottom:12px">The code of NCM ${esc(version)} saved on this server is put back and NCM restarts. The current version is saved first, so this can be undone.</p>
+    ${hasDb ? `<label class="switch" style="margin-bottom:8px"><input type="checkbox" id="rbDb"><span class="track"></span>Also put the database back</label>
+      <p class="muted" style="font-size:.85rem;margin-bottom:10px">Only needed if the newer version changed the database in a way the older one cannot read. <b>Backups, users and changes made since then are lost</b> (backup files on disk stay).</p>` : ''}
+    <label class="f">Your password, to confirm<input class="input" type="password" id="upgPass" autocomplete="current-password"></label>
+    <p id="upgMsg" class="msg"></p>
+    <div class="form-actions"><button class="btn" onclick="closeModal('upgradeModal')">Cancel</button><button class="btn btn-danger" id="upgGo" onclick="doRollback('${jsq(id)}')">Roll back</button></div>`;
+  openModal('upgradeModal'); setTimeout(() => $('upgPass').focus(), 50);
+}
+async function doRollback(id) {
+  const password = $('upgPass').value; if (!password) return msg('upgMsg', 'Enter your password', 'error');
+  await busy($('upgGo'), async () => {
+    try { await apiJSON('/api/system/update/rollback', { method:'POST', body: JSON.stringify({ snapshot: id, restore_database: !!$('rbDb')?.checked, password }) });
+      closeModal('upgradeModal'); toast('Rollback started'); loadUpdates(); }
+    catch (e) { msg('upgMsg', e.message, 'error'); }
+  });
 }
 
 // ───────────── users & audit ─────────────

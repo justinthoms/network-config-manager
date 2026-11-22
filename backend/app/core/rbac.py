@@ -12,6 +12,7 @@ PERMISSIONS = {
     "health.view", "health.run", "health.manage",
     "users.view", "users.create", "users.edit", "users.delete",
     "audit.view", "security.view",
+    "system.view", "system.update",
 }
 
 ROLE_PERMISSIONS = {
@@ -26,7 +27,7 @@ ROLE_PERMISSIONS = {
         "ai.view", "ai.run", "ai.manage",
         "health.view", "health.run", "health.manage",
         "users.view", "users.create", "users.edit",
-        "audit.view", "security.view",
+        "audit.view", "security.view", "system.view",
     },
     "operator": {
         "dashboard.view",

@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## 2.1.0 (November 2026)
 
 **Added**
+- In-app upgrades: NCM checks GitHub releases (every 12 hours, can be turned off), shows a banner to Admins when a new version is out, and a Super Admin can upgrade from **Updates** after confirming their password. The new version is tested on a copy of the database before anything changes; the previous version and database are saved for one-click rollback (also from the command line: `python -m app.services.updater rollback`). `.env`, keys, the database, backups and custom vendor logos are kept.
+- Version shown in the user menu; new permissions `system.view` (Admin, Super Admin) and `system.update` (Super Admin).
 - New config viewer: line numbers, find with match count (Enter / Shift+Enter, Ctrl+F), `:120` to go to a line, jump to section (interface, vlan, router ...), wrap lines, copy, full screen, older/newer backup buttons and "Compare with previous".
 - "Hide secrets" switch in the viewer (on by default, remembered per browser) so a config can be shown on a shared screen. Turning it off is written to the audit log.
 - Config search page: find text in the latest backup of every device, with the line number and the section each match is in, click to open the config at that line, and export to CSV.
