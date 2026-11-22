@@ -314,7 +314,7 @@ sudo systemctl restart ncm
 
 Add `--with-database` to the rollback to also put back the database copy (changes made since the upgrade are lost). `python -m app.services.updater status` lists the saved versions.
 
-**Publishing a release** (for maintainers): set `__version__` in `backend/app/version.py`, add the changes to `CHANGELOG.md`, merge, then create a GitHub release with the tag `v<version>` (for example `v2.1.0`) and the release notes. Servers see it at their next check.
+**Publishing a release** (for maintainers): set `__version__` in `backend/app/version.py`, add a `## <version>` section to `CHANGELOG.md` and, optionally, release notes in `docs/releases/v<version>.md`, then merge to `main`. The *Release* GitHub Action runs the tests and creates the tag `v<version>` and the GitHub release. Servers see it at their next check.
 
 ### By hand
 
