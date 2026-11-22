@@ -245,6 +245,8 @@ def tool_run_show_command(ctx: Ctx, device: str, command: str):
     if not d.enabled:
         return {"error": "device is disabled in NCM"}
     try:
+        from app.services import command_policy
+        command = command_policy.check(ctx.db, d.vendor, command)
         out = run_show_command(d, command)
         record_audit(ctx.db, ctx.user, "AI_LIVE_COMMAND", "device", d.id, details=command)
         return {"device": d.hostname, "command": command, "ran_at": ctx.t(utcnow()), "output": ctx.mask(out)}
@@ -276,7 +278,8 @@ TOOLS = {
                    {"device": ("STRING", "hostname"), "section": ("STRING", "optional keyword")}, ["device"]),
     "run_show_command": (tool_run_show_command, "LIVE: run one read-only command on the device over SSH. Huawei uses 'display ...', "
                          "Juniper and Arista use 'show ...'. Use only when the question needs current state (interface up/down, "
-                         "logs, uptime, MAC/ARP, neighbours) that backups cannot answer.",
+                         "logs, uptime, MAC/ARP, neighbours) that backups cannot answer. "
+                         "Only commands on NCM's allowed list run; commands that print the configuration are refused.",
                          {"device": ("STRING", "hostname"), "command": ("STRING", "the read-only command")}, ["device", "command"]),
 }
 

@@ -15,6 +15,7 @@ from app.models.backup import Backup
 from app.services.backup import run_backup
 from app.services.audit import record_audit
 from app.services.diff import compare, quick_stats
+from app.services import redact
 
 router = APIRouter()
 
@@ -84,6 +85,7 @@ def backup_diff(backup_a: int, backup_b: int,
                 ignore_whitespace: bool = False,
                 ignore_volatile: bool = True,
                 cross_device: bool = False,
+                masked: bool | None = None,
                 db: Session = Depends(get_db),
                 user=Depends(require_permission("backups.diff"))):
     if backup_a == backup_b:
@@ -103,8 +105,12 @@ def backup_diff(backup_a: int, backup_b: int,
     path_b = _safe_backup_path(b.file_path)
     hosts = {d.id: d.hostname for d in db.query(Device).filter(Device.id.in_({a.device_id, b.device_id})).all()}
 
+    hide = redact.must_mask(user, masked)
+    text_a, text_b = _read(path_a), _read(path_b)
+    if hide:
+        text_a, text_b = redact.mask(text_a), redact.mask(text_b)
     result = compare(
-        _read(path_a), _read(path_b),
+        text_a, text_b,
         ignore_whitespace=ignore_whitespace, ignore_volatile=ignore_volatile,
         label_a=f"#{a.id} {hosts.get(a.device_id, '')} ({path_a.name})",
         label_b=f"#{b.id} {hosts.get(b.device_id, '')} ({path_b.name})",
@@ -113,6 +119,7 @@ def backup_diff(backup_a: int, backup_b: int,
         "backup_a": _serialize(a, hosts.get(a.device_id, f"Device {a.device_id}")),
         "backup_b": _serialize(b, hosts.get(b.device_id, f"Device {b.device_id}")),
         "device_id": a.device_id,
+        "masked": hide,
     })
     return result
 
@@ -149,15 +156,78 @@ def change_timeline(device_id: int, limit: int = 30, ignore_volatile: bool = Tru
     return out[::-1]
 
 
+MAX_SEARCH_HITS = 40
+
+
+@router.get("/search")
+def search_configs(q: str, device_id: int | None = None, db: Session = Depends(get_db),
+                   user=Depends(require_permission("backups.view"))):
+    """Find text in the latest successful backup of every device (plain text, not case-sensitive).
+
+    Each hit carries the line number and the section it belongs to (the nearest
+    line above it with no indent, such as 'interface GE1/0/1'). Users who may not
+    see secrets search the masked text, so a secret cannot be found by guessing it.
+    """
+    needle = " ".join((q or "").split()).lower()
+    if len(needle) < 2 or len(needle) > 200:
+        raise HTTPException(400, "Type between 2 and 200 characters")
+    from sqlalchemy import func
+    latest = db.query(Backup.device_id, func.max(Backup.id).label("bid")).filter(Backup.status == "SUCCESS")
+    if device_id is not None:
+        latest = latest.filter(Backup.device_id == device_id)
+    latest = latest.group_by(Backup.device_id).all()
+    devices = {d.id: d for d in db.query(Device).all()}
+    hide = redact.must_mask(user, None)
+    results, total = [], 0
+    for dev_id, bid in latest:
+        b = db.get(Backup, bid)
+        try:
+            text = _read(_safe_backup_path(b.file_path))
+        except HTTPException:
+            continue
+        if hide:
+            text = redact.mask(text)
+        hits, section = [], None
+        for no, line in enumerate(text.splitlines(), 1):
+            if line and not line[0].isspace() and not line.lstrip().startswith(("!", "#")):
+                section = line.strip()
+            if needle in " ".join(line.split()).lower():
+                hits.append({"line": no, "text": line.rstrip()[:300],
+                             "section": section if section and section != line.strip() else None})
+        if hits:
+            total += len(hits)
+            d = devices.get(dev_id)
+            results.append({"device_id": dev_id, "hostname": d.hostname if d else f"Device {dev_id}",
+                            "vendor": d.vendor if d else None, "site": d.site if d else None,
+                            "backup_id": bid, "taken": b.created_at.isoformat() if b.created_at else None,
+                            "count": len(hits), "hits": hits[:MAX_SEARCH_HITS]})
+    results.sort(key=lambda r: r["hostname"].lower())
+    return {"query": q, "devices_searched": len(latest), "devices_matched": len(results),
+            "total_hits": total, "masked": hide, "results": results}
+
+
 @router.get("/{backup_id}/view", response_class=PlainTextResponse)
-def view_backup(backup_id: int, db: Session = Depends(get_db),
+def view_backup(backup_id: int, masked: bool | None = None, db: Session = Depends(get_db),
                 user=Depends(require_permission("backups.view"))):
+    """The backup text. Secrets are hidden unless the user may download backups and asks for them."""
     backup = db.query(Backup).filter(Backup.id == backup_id).first()
     if not backup:
         raise HTTPException(404, "Backup not found")
     if backup.status != "SUCCESS":
         raise HTTPException(404, "Only successful backups can be viewed")
-    return _read(_safe_backup_path(backup.file_path))
+    text, hidden = redact.for_user(_read(_safe_backup_path(backup.file_path)), user, masked)
+    if not hidden:
+        record_audit(db, user, "BACKUP_VIEW", "backup", backup_id, details="with secrets")
+    prev = (db.query(Backup.id).filter(Backup.device_id == backup.device_id, Backup.status == "SUCCESS",
+                                       Backup.id < backup.id).order_by(Backup.id.desc()).first())
+    nxt = (db.query(Backup.id).filter(Backup.device_id == backup.device_id, Backup.status == "SUCCESS",
+                                      Backup.id > backup.id).order_by(Backup.id.asc()).first())
+    return PlainTextResponse(text, headers={
+        redact.MASK_HEADER: "1" if hidden else "0",
+        "X-NCM-Can-Reveal": "1" if redact.can_reveal(user) else "0",
+        "X-NCM-Prev": str(prev[0]) if prev else "", "X-NCM-Next": str(nxt[0]) if nxt else "",
+        "X-NCM-Device": str(backup.device_id),
+        "X-NCM-Taken": backup.created_at.isoformat() if backup.created_at else ""})
 
 
 @router.get("/{backup_id}/download")
@@ -171,6 +241,7 @@ def download_backup(backup_id: int, db: Session = Depends(get_db),
     device = db.query(Device).filter(Device.id == backup.device_id).first()
     path = _safe_backup_path(backup.file_path)
     name = f"{device.hostname}_{path.name}" if device else path.name
+    record_audit(db, user, "BACKUP_DOWNLOAD", "backup", backup_id, details=name)
     return FileResponse(path=str(path), filename=name, media_type="text/plain")
 
 

@@ -13,7 +13,8 @@ from app.models.health import HealthCheck
 from app.services import health
 from app.services import settings_store as store
 from app.services.audit import record_audit
-from app.services.network import validate_show_command, LiveCommandError
+from app.services import command_policy
+from app.services.network import LiveCommandError
 
 router = APIRouter()
 
@@ -26,6 +27,45 @@ class SettingsIn(BaseModel):
     ai_language: str | None = Field(default=None, pattern="^(English|Malayalam)$")
     log_window_hours: int | None = Field(default=None, ge=1, le=720)
     commands: dict[str, list[str] | None] | None = None   # vendor -> list, or null to restore defaults
+
+
+class PolicyIn(BaseModel):
+    extra: dict[str, list[str]]          # vendor -> extra allowed commands (replaces the saved list)
+
+
+@router.get("/command-policy")
+def get_policy(db: Session = Depends(get_db), user=Depends(require_permission("health.view"))):
+    return {"vendors": command_policy.policy_view(db), "can_edit": user.role == "super_admin"}
+
+
+@router.post("/command-policy/check")
+def check_command(data: dict, db: Session = Depends(get_db), user=Depends(require_permission("health.view"))):
+    """Say whether a command would be allowed, without running it."""
+    try:
+        return {"ok": True, "command": command_policy.check(db, str(data.get("vendor", "")), str(data.get("command", "")))}
+    except LiveCommandError as exc:
+        return {"ok": False, "error": str(exc)}
+
+
+@router.put("/command-policy")
+def put_policy(data: PolicyIn, db: Session = Depends(get_db), user=Depends(require_permission("health.manage"))):
+    if user.role != "super_admin":
+        raise HTTPException(403, "Only Super Admin can change the allowed commands")
+    saved = {}
+    for vendor, items in data.extra.items():
+        if vendor not in command_policy.BUILTIN:
+            raise HTTPException(400, f"Unknown vendor {vendor}")
+        try:
+            saved[vendor] = command_policy.clean_extra(vendor, items)
+        except LiveCommandError as exc:
+            raise HTTPException(400, f"{vendor}: {exc}")
+    for vendor, items in saved.items():
+        store.set_json(db, command_policy.K_EXTRA + vendor, items, commit=False) if items else \
+            store.set(db, command_policy.K_EXTRA + vendor, None, commit=False)
+    db.commit()
+    record_audit(db, user, "COMMAND_POLICY_UPDATE", "health", "commands",
+                 details="; ".join(f"{v}: {len(x)} extra" for v, x in saved.items()))
+    return {"vendors": command_policy.policy_view(db), "can_edit": True}
 
 
 def _latest_map(db) -> dict[int, HealthCheck]:
@@ -142,7 +182,7 @@ def put_settings(data: SettingsIn, db: Session = Depends(get_db), user=Depends(r
                 if not c:
                     continue
                 try:
-                    clean.append(validate_show_command(vendor, c))
+                    clean.append(command_policy.check(db, vendor, c))
                 except LiveCommandError as exc:
                     raise HTTPException(400, f"{vendor}: '{c}': {exc}")
             if not clean or len(clean) > 25:

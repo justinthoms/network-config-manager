@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.deps import require_permission
+from app.services import redact
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.backup import Backup
@@ -127,6 +128,8 @@ def summary(days: int = 14, db: Session = Depends(get_db), user=Depends(require_
         if not prev:
             continue
         a_text, b_text = _read(prev.file_path), _read(b.file_path)
+        if a_text is not None and b_text is not None and redact.must_mask(user, None):
+            a_text, b_text = redact.mask(a_text), redact.mask(b_text)
         if a_text is None or b_text is None:
             continue
         changed, lines, added, removed = _snippet(a_text, b_text)

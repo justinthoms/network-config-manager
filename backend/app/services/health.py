@@ -499,9 +499,18 @@ def run_check(db, device, user: str | None = None, trigger: str = "manual"):
     try:
         if vendor not in SUPPORTED:
             raise RuntimeError(f"Unsupported vendor: {device.vendor}")
-        cmds = commands_for(db, vendor)
+        from app.services import command_policy
+        from app.services.network import LiveCommandError
+        cmds, refused = [], []
+        for c in commands_for(db, vendor):     # the allowed list may have changed since these were saved
+            try:
+                cmds.append(command_policy.check(db, vendor, c))
+            except LiveCommandError as exc:
+                refused.append({"command": c, "output": "", "ok": False, "error": f"not allowed: {exc}"})
+        if not cmds:
+            raise RuntimeError("None of the health commands is on the allowed command list")
         res = run_show_commands(device, cmds)
-        results = res["results"]
+        results = res["results"] + refused
         a = analyse(vendor, results, window)
         if not any(r["ok"] for r in results):
             raise RuntimeError("None of the health commands worked on this device. Check the command list "
