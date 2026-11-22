@@ -29,7 +29,6 @@ every worker; with --reload the file change restarts it.
 If the web UI does not come back, roll back from a shell:
     cd backend && ../.venv/bin/python -m app.services.updater rollback
 """
-import fcntl
 import functools
 import hashlib
 import json
@@ -50,6 +49,12 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
+
+try:                                   # Linux / macOS
+    import fcntl
+except ImportError:                    # Windows
+    fcntl = None
+    import msvcrt
 
 from app.core.config import BASE_DIR, settings
 from app.version import __version__
@@ -231,7 +236,7 @@ def restart_mode() -> str:
     parent = _parent_cmdline()
     if "--reload" in own or "--reload" in parent:
         return "reload"
-    if "uvicorn" in parent and "--workers" in parent:
+    if "uvicorn" in parent and "--workers" in parent and hasattr(signal, "SIGHUP"):
         return "workers"
     if "uvicorn" in own or Path(sys.argv[0]).name.startswith("uvicorn") or "uvicorn" in sys.argv[0]:
         return "exec"
@@ -343,7 +348,11 @@ def _take_lock():
     WORK.mkdir(parents=True, exist_ok=True)
     fh = open(LOCK_FILE, "a")
     try:
-        fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if fcntl:
+            fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        else:
+            fh.seek(0)
+            msvcrt.locking(fh.fileno(), msvcrt.LK_NBLCK, 1)
     except OSError:
         fh.close()
         raise UpdateError("An upgrade or rollback is already running")
@@ -354,7 +363,11 @@ def _release_lock():
     global _lock_fh
     if _lock_fh:
         try:
-            fcntl.flock(_lock_fh, fcntl.LOCK_UN)
+            if fcntl:
+                fcntl.flock(_lock_fh, fcntl.LOCK_UN)
+            else:
+                _lock_fh.seek(0)
+                msvcrt.locking(_lock_fh.fileno(), msvcrt.LK_UNLCK, 1)
         finally:
             _lock_fh.close()
             _lock_fh = None
