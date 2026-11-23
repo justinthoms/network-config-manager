@@ -69,6 +69,17 @@ class Settings(BaseSettings):
     # Also offer pre-releases (e.g. 2.2.0-beta1).
     update_include_prereleases: bool = False
 
+    # ── Anonymous usage reporting (telemetry) ──
+    # When on, NCM sends ONLY its version and hostname (plus a random id, to
+    # count installs without double-counting) to the address below, every
+    # TELEMETRY_INTERVAL_HOURS. No IP addresses, device data or credentials
+    # are ever sent. It is shown on the Security page and can be turned off
+    # there or here. See README → "Anonymous usage reporting".
+    telemetry_enabled: bool = True
+    telemetry_url: str = "https://host-nine-ecru.vercel.app"
+    telemetry_token: str = "K27UM9dben7EYDSZfTOwd0qHawv9ToyD"
+    telemetry_interval_hours: int = 24
+
     model_config = SettingsConfigDict(
         env_file=ENV_FILE,
         env_file_encoding="utf-8",

@@ -2271,6 +2271,25 @@ async function loadSecurity() {
       <td><span class="pill ${u.is_active ? 'ok' : 'bad'}">${u.is_active ? 'Active' : 'Disabled'}</span>${u.must_change_password && u.is_active ? ' <span class="pill warn plain">Password to change</span>' : ''}</td>
       <td>${u.last_login_at ? esc(fmt(u.last_login_at)) : '<span class="muted">never</span>'}</td><td class="mono">${esc(u.last_login_ip || '—')}</td>
       <td>${u.password_changed_at ? esc(ago(u.password_changed_at)) : '<span class="muted">not recorded</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+  loadTelemetry();
+}
+async function loadTelemetry() {
+  let t; try { t = await apiJSON('/api/security/telemetry'); } catch (_) { return; }
+  const s = t.sends;
+  const panel = document.createElement('div'); panel.className = 'panel'; panel.style.marginTop = '16px';
+  panel.innerHTML = `<div class="panel-head"><div><h3>Anonymous usage reporting</h3><p>Helps the author see how many installs there are and which version they run. Off switch is always here.</p></div>
+      <label class="switch" title="${t.can_change ? '' : 'Only a Super Admin can change this'}"><input type="checkbox" id="telSw" ${s && t.enabled ? 'checked' : ''} ${t.can_change ? '' : 'disabled'} onchange="setTelemetry(this.checked)"><span class="track"></span>${t.enabled ? 'On' : 'Off'}</label></div>
+    <div class="panel-body">
+      <p style="margin-bottom:10px">When on, NCM sends this — and nothing else — to <span class="mono">${esc(t.url)}</span> every ${t.interval_hours} hours:</p>
+      <div class="upd-log" style="max-height:none">${esc(JSON.stringify(s, null, 2))}</div>
+      <p class="muted" style="font-size:.84rem;margin-top:10px">No IP addresses, device data, backups, user data or credentials are ever sent. ${t.last_sent_at ? 'Last sent ' + esc(ago(t.last_sent_at)) + '.' : 'Nothing sent yet.'} Can also be turned off with <span class="mono">TELEMETRY_ENABLED=false</span> in <span class="mono">backend/.env</span>.</p>
+    </div>`;
+  $('secBody').appendChild(panel);
+}
+async function setTelemetry(on) {
+  try { await apiJSON('/api/security/telemetry', { method: 'PUT', body: JSON.stringify({ enabled: on }) });
+    toast(on ? 'Usage reporting on' : 'Usage reporting off'); loadSecurity(); }
+  catch (e) { toast(e.message, 'err'); loadSecurity(); }
 }
 
 // ───────────── automatic backup for all devices ─────────────

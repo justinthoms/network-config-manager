@@ -152,6 +152,7 @@ All settings live in `backend/.env`. The important ones:
 | `ONEDRIVE_CLIENT_ID` / `ONEDRIVE_TENANT_ID` | | Optional, can also be set on the Cloud page. |
 | `UPDATE_CHECK_ENABLED` | `true` | Check GitHub for new versions every `UPDATE_CHECK_HOURS` (12). Turn off on networks without internet access. |
 | `UPDATE_REPO` | `justinthoms/network-config-manager` | Where releases come from. `UPDATE_GITHUB_TOKEN` is only needed for a private repository. |
+| `TELEMETRY_ENABLED` | `true` | Anonymous usage reporting: sends only version + hostname. See below. Turn off here or on the Security page. |
 
 Schedules, health-check commands, AI providers and cloud settings are managed in the web UI.
 
@@ -243,6 +244,12 @@ Files go to `NCM-Backups/<hostname>/` or `NCM-Backups/YYYY/MM/DD/`. Retention on
 - Content-Security-Policy, `X-Frame-Options: DENY`, `nosniff`, `no-referrer`, HSTS over HTTPS, `no-store` on API responses. API docs are off by default.
 - Health checks and the assistant can only run read-only `display` / `show` commands.
 - Everything is recorded in the audit log.
+
+### Anonymous usage reporting
+
+When on (the default), NCM sends a small heartbeat to `https://host-nine-ecru.vercel.app` once a day. The heartbeat contains **only** the project name, the running version, the server hostname and a random id (so installs are counted once). It helps the author see how many installs there are and which version they run.
+
+It **never** sends IP addresses, device data, backups, user data or any credential — that is the whole payload, and the **Security** page shows it exactly, live. Turn it off with the switch on the Security page (Super Admin), or set `TELEMETRY_ENABLED=false` in `backend/.env`. Pointing `TELEMETRY_URL` elsewhere, or setting `TELEMETRY_ENABLED=false` in the shipped default, lets you run your own collector or ship it off.
 
 Please report security problems privately to the maintainer instead of opening a public issue.
 

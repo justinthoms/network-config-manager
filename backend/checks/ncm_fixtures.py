@@ -27,6 +27,7 @@ os.environ.update({
     "GOOGLE_CLIENT_ID": "", "GOOGLE_CLIENT_SECRET": "",
     "ONEDRIVE_CLIENT_ID": "", "GEMINI_API_KEY": "",
     "UPDATE_CHECK_ENABLED": "false",
+    "TELEMETRY_ENABLED": "false",
 })
 
 ADMIN_PASSWORD = os.environ["DEFAULT_ADMIN_PASSWORD"]
