@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0 (November 2026)
+
+**Added**
+- Anonymous usage reporting (telemetry), on by default: once a day NCM sends only its version, hostname and a random install id to `TELEMETRY_URL`. No IP addresses, device data, backups, user data or credentials are ever sent. The **Security** page shows exactly what is sent and lets a Super Admin turn it off; `TELEMETRY_ENABLED=false` in `backend/.env` does the same.
+
 ## 2.1.1 (November 2026)
 
 **Fixed**

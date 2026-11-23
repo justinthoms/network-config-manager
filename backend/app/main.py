@@ -43,6 +43,8 @@ async def lifespan(_app: FastAPI):
         updater.on_startup()     # finish an in-app upgrade that restarted NCM
     start_background_tasks()
     updater.start_background_checker()
+    from app.services import telemetry
+    telemetry.start_background()
     yield
     stop_scheduler()
 

@@ -1,15 +1,39 @@
 # Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
 # Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.api.deps import require_permission
+from app.api.deps import current_user, require_permission
 from app.core.database import get_db
 from app.models.user import User
-from app.services import hardening
+from app.services import hardening, telemetry
+from app.services.audit import record_audit
 
 router = APIRouter()
+
+
+@router.get("/telemetry")
+def telemetry_status(db: Session = Depends(get_db), user=Depends(require_permission("security.view"))):
+    out = telemetry.what_is_sent(db)
+    out["can_change"] = user.role == "super_admin"
+    return out
+
+
+class TelemetryIn(BaseModel):
+    enabled: bool
+
+
+@router.put("/telemetry")
+def set_telemetry(data: TelemetryIn, request: Request, db: Session = Depends(get_db),
+                  user: User = Depends(current_user)):
+    if user.role != "super_admin":
+        raise HTTPException(403, "Only a Super Admin can change usage reporting")
+    telemetry.set_enabled(db, data.enabled)
+    record_audit(db, user, "TELEMETRY_SETTING", "system", "telemetry",
+                 details=f"enabled={data.enabled}", source_ip=request.client.host if request.client else None)
+    return telemetry.what_is_sent(db)
 
 
 @router.get("/status")
