@@ -11,6 +11,7 @@ class DeviceCreate(BaseModel):
     username: str
     password: str
     ssh_port: int = Field(default=22, ge=1, le=65535)
+    protocol: str = "ssh"
     site: str = "DEFAULT"
 
 class DeviceUpdate(BaseModel):
@@ -21,6 +22,7 @@ class DeviceUpdate(BaseModel):
     username: str | None = None
     password: str | None = None
     ssh_port: int | None = Field(default=None, ge=1, le=65535)
+    protocol: str | None = None
     site: str | None = None
     enabled: bool | None = None
 
@@ -32,6 +34,7 @@ class DeviceOut(BaseModel):
     model: str | None
     username: str
     ssh_port: int
+    protocol: str
     site: str
     enabled: bool
     model_config = ConfigDict(from_attributes=True)

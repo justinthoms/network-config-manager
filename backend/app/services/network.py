@@ -9,7 +9,31 @@ SUPPORTED = {
     "huawei": "huawei",
     "juniper": "juniper_junos",
     "arista": "arista_eos",
+    "cisco": "cisco_ios",          # IOS / IOS-XE
 }
+
+# Vendors that use an enable (privileged EXEC) step and "terminal length 0" paging.
+_ENABLE_VENDORS = ("arista", "cisco")
+
+PROTOCOLS = ("ssh", "telnet")
+
+
+def _protocol(device) -> str:
+    p = (getattr(device, "protocol", "ssh") or "ssh").lower()
+    return p if p in PROTOCOLS else "ssh"
+
+
+def netmiko_params(device) -> dict:
+    """Connection kwargs for Netmiko, for SSH or Telnet. One place, so every
+    code path (test, backup, live commands) connects the same way."""
+    vendor = (device.vendor or "").lower()
+    proto = _protocol(device)
+    device_type = SUPPORTED[vendor] + ("_telnet" if proto == "telnet" else "")
+    port = device.ssh_port or (23 if proto == "telnet" else 22)
+    pw = decrypt_secret(device.password_encrypted)
+    return dict(device_type=device_type, host=device.management_ip, username=device.username,
+                password=pw, secret=pw, port=port,
+                timeout=30, conn_timeout=30, auth_timeout=30, banner_timeout=30, fast_cli=False)
 
 
 def test_connection(device):
@@ -23,25 +47,17 @@ def test_connection(device):
 
     conn = None
     try:
-        conn = ConnectHandler(
-            device_type=SUPPORTED[vendor],
-            host=device.management_ip,
-            username=device.username,
-            password=decrypt_secret(device.password_encrypted),
-            port=device.ssh_port,
-            timeout=30,
-            conn_timeout=30,
-            auth_timeout=30,
-            banner_timeout=30,
-            fast_cli=False,
-        )
+        conn = ConnectHandler(**netmiko_params(device))
 
         prompt = conn.find_prompt()
 
-        # Arista backups require privileged EXEC mode, so test that privilege
-        # here as well. Huawei and Juniper do not use this enable workflow.
-        if vendor == "arista":
-            conn.enable()
+        # Arista and Cisco backups require privileged EXEC mode, so test that
+        # privilege here as well. Huawei and Juniper do not use enable.
+        if vendor in _ENABLE_VENDORS:
+            try:
+                conn.enable()
+            except Exception:
+                pass
             prompt = conn.find_prompt()
 
         return {
@@ -73,7 +89,7 @@ def test_connection(device):
 # ───────────────────────── read-only live commands ─────────────────────────
 import re as _re
 
-_READ_VERB = {"huawei": ("display",), "juniper": ("show",), "arista": ("show",)}
+_READ_VERB = {"huawei": ("display",), "juniper": ("show",), "arista": ("show",), "cisco": ("show",)}
 _PIPE_OK = {"match", "except", "count", "last", "no-more", "display", "find", "include", "exclude",
             "begin", "section", "i", "e", "b", "s", "inc", "exc", "grep", "json", "nz", "trim"}
 _BLOCKED = _re.compile(r"\b(reload|reboot|reset|delete|erase|format|write|save|copy|request|configure|"
@@ -115,14 +131,10 @@ def run_show_command(device, command: str, max_chars: int = 20000) -> str:
         cmd += " | no-more"
     conn = None
     try:
-        conn = ConnectHandler(
-            device_type=SUPPORTED[vendor], host=device.management_ip, username=device.username,
-            password=decrypt_secret(device.password_encrypted), port=device.ssh_port,
-            timeout=30, conn_timeout=30, auth_timeout=30, banner_timeout=30, fast_cli=False,
-        )
+        conn = ConnectHandler(**netmiko_params(device))
         if vendor == "huawei":
             conn.send_command("screen-length 0 temporary", read_timeout=10)
-        elif vendor == "arista":
+        elif vendor in _ENABLE_VENDORS:
             try:
                 if not conn.check_enable_mode():
                     conn.enable()
@@ -161,14 +173,10 @@ def run_show_commands(device, commands: list[str], max_chars: int = 60000) -> di
             checked.append((c, None, str(exc)))
     conn = None
     try:
-        conn = ConnectHandler(
-            device_type=SUPPORTED[vendor], host=device.management_ip, username=device.username,
-            password=decrypt_secret(device.password_encrypted), port=device.ssh_port,
-            timeout=30, conn_timeout=30, auth_timeout=30, banner_timeout=30, fast_cli=False,
-        )
+        conn = ConnectHandler(**netmiko_params(device))
         if vendor == "huawei":
             conn.send_command("screen-length 0 temporary", read_timeout=10)
-        elif vendor == "arista":
+        elif vendor in _ENABLE_VENDORS:
             try:
                 if not conn.check_enable_mode():
                     conn.enable()

@@ -15,6 +15,7 @@ class Device(Base):
     username = Column(String(100), nullable=False)
     password_encrypted = Column(String(500), nullable=False)
     ssh_port = Column(Integer, default=22)
+    protocol = Column(String(10), nullable=False, default="ssh")   # "ssh" or "telnet"
     site = Column(String(100), default="DEFAULT")
     enabled = Column(Boolean, default=True)
     created_at = Column(DateTime, default=utcnow)

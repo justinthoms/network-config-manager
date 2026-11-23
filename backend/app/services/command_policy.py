@@ -50,6 +50,15 @@ BUILTIN = {
         "show ip bgp", "show bgp", "show isis", "show mlag", "show logging", "show clock", "show uptime",
         "show inventory", "show ntp", "show vrrp", "show bfd", "show hardware",
     ],
+    "cisco": [
+        "show version", "show processes cpu", "show processes memory", "show memory statistics",
+        "show environment", "show environment all", "show platform", "show interfaces", "show interfaces status",
+        "show ip interface", "show ip route", "show ipv6 route", "show arp", "show ip arp", "show mac address-table",
+        "show vlan", "show cdp neighbors", "show lldp neighbors", "show spanning-tree", "show etherchannel summary",
+        "show ip ospf neighbor", "show ip bgp summary", "show bgp", "show ip eigrp neighbors", "show standby",
+        "show logging", "show clock", "show inventory", "show ntp status", "show ntp associations", "show module",
+        "show power", "show redundancy", "show boot", "show vtp status", "show ip protocols", "show lldp",
+    ],
 }
 
 # Commands that print configuration or secrets: never allowed, not even as an extra command.

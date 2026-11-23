@@ -117,7 +117,7 @@ def test_super_admin_can_reset_admin(client, super_admin, make_user):
 
 # ───────────── command policy ─────────────
 
-@pytest.mark.parametrize("vendor", ["huawei", "juniper", "arista"])
+@pytest.mark.parametrize("vendor", ["huawei", "juniper", "arista", "cisco"])
 def test_default_health_commands_are_allowed(vendor, db):
     from app.services.health import DEFAULT_COMMANDS
     for c in DEFAULT_COMMANDS[vendor]:

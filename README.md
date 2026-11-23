@@ -30,7 +30,7 @@ Open-source, self-hosted configuration manager for NOC and network operations te
 
 ## Features
 
-- 💾 **Backups over SSH** for Huawei (VRP), Juniper (Junos) and Arista (EOS), on demand or on a schedule, with retries and retention. **Every device is backed up daily** by default, including devices added later.
+- 💾 **Backups over SSH or Telnet** for Huawei (VRP), Juniper (Junos), Arista (EOS) and Cisco (IOS / IOS-XE), on demand or on a schedule, with retries and retention. **Every device is backed up daily** by default, including devices added later. (Telnet is for legacy gear only — it is not encrypted; SSH is the default.)
 - 🔄 **Change tracking:** per-device timeline, side-by-side or unified diff, timestamp and header noise hidden, compare across devices, `.diff` download.
 - 🩺 **Device health checks:** CPU, memory, fans, power, temperature, alarms, interfaces and logs sorted by syslog level, from read-only `display` / `show` commands. OK / Warning / Critical per device, on demand or on a schedule.
 - 🤖 **AI review** with your own provider (Gemini, OpenAI, Anthropic, OpenRouter, Groq, Mistral, or a local Ollama): config audits with a score, risk rating for every change, health summaries, and an assistant that answers questions about your network in English or Malayalam. Secrets are always masked first.
