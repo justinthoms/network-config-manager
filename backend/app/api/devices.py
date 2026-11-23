@@ -20,14 +20,29 @@ router = APIRouter()
 def list_devices(db: Session = Depends(get_db), user=Depends(require_permission("devices.view"))):
     return db.query(Device).order_by(Device.hostname).all()
 
+from app.services.network import SUPPORTED
+
+
+def _check_vendor(vendor: str):
+    if (vendor or "").lower() not in SUPPORTED:
+        raise HTTPException(400, f"Unsupported vendor. Choose one of: {', '.join(sorted(SUPPORTED))}")
+
+
+def _check_protocol(protocol: str):
+    if (protocol or "ssh").lower() not in ("ssh", "telnet"):
+        raise HTTPException(400, "Protocol must be ssh or telnet")
+
+
 @router.post("/", response_model=DeviceOut)
 def create_device(data: DeviceCreate, db: Session = Depends(get_db),
                   user=Depends(require_permission("devices.create"))):
+    _check_vendor(data.vendor)
     if db.query(Device).filter(Device.hostname == data.hostname).first():
         raise HTTPException(409, "Hostname already exists")
+    _check_protocol(data.protocol)
     device = Device(hostname=data.hostname, management_ip=data.management_ip, vendor=data.vendor.lower(),
         model=data.model, username=data.username, password_encrypted=encrypt_secret(data.password),
-        ssh_port=data.ssh_port, site=data.site)
+        ssh_port=data.ssh_port, protocol=(data.protocol or "ssh").lower(), site=data.site)
     db.add(device); db.commit(); db.refresh(device)
     try:
         from app.services.backup_policy import on_device_created
@@ -48,7 +63,10 @@ def update_device(device_id: int, data: DeviceUpdate, db: Session = Depends(get_
             raise HTTPException(409, "Hostname already exists")
         device.hostname = data.hostname
     if data.management_ip is not None: device.management_ip = data.management_ip
-    if data.vendor is not None: device.vendor = data.vendor.lower()
+    if data.vendor is not None:
+        _check_vendor(data.vendor); device.vendor = data.vendor.lower()
+    if data.protocol is not None:
+        _check_protocol(data.protocol); device.protocol = data.protocol.lower()
     if data.model is not None: device.model = data.model
     if data.username is not None: device.username = data.username
     if data.password: device.password_encrypted = encrypt_secret(data.password)

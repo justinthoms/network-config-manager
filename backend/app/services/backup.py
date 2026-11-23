@@ -10,7 +10,7 @@ from netmiko import ConnectHandler
 from app.core.config import settings
 from app.core.crypto import decrypt_secret
 from app.models.backup import Backup
-from app.services.network import SUPPORTED
+from app.services.network import SUPPORTED, netmiko_params
 
 
 def _arista_config(conn):
@@ -80,6 +80,22 @@ def _arista_config(conn):
         raise RuntimeError(f"Arista configuration collection failed: {exc}")
 
 
+def _cisco_config(conn):
+    """Cisco IOS / IOS-XE running configuration."""
+    try:
+        if not conn.check_enable_mode():
+            conn.enable()
+    except Exception:
+        pass
+    conn.send_command_timing("terminal length 0", read_timeout=10)
+    time.sleep(0.3)
+    output = conn.send_command("show running-config", read_timeout=60,
+                               strip_prompt=False, strip_command=False)
+    if not output or len(output.strip()) < 50:
+        raise RuntimeError(f"Cisco configuration output unexpectedly short: {len(output or '')} bytes")
+    return output
+
+
 def _huawei_config(conn):
     conn.send_command("screen-length 0 temporary", read_timeout=10)
     return conn.send_command(
@@ -107,6 +123,8 @@ def _get_config(device, conn):
         return _huawei_config(conn)
     if vendor == "juniper":
         return _juniper_config(conn)
+    if vendor == "cisco":
+        return _cisco_config(conn)
     raise RuntimeError(f"Unsupported vendor: {vendor}")
 
 
@@ -126,19 +144,7 @@ def run_backup(device, db):
         if vendor not in SUPPORTED:
             raise RuntimeError(f"Unsupported vendor: {vendor}")
 
-        password = decrypt_secret(device.password_encrypted)
-        conn = ConnectHandler(
-            device_type=SUPPORTED[vendor],
-            host=device.management_ip,
-            username=device.username,
-            password=password,
-            port=device.ssh_port,
-            timeout=30,
-            conn_timeout=30,
-            auth_timeout=30,
-            banner_timeout=30,
-            fast_cli=False,
-        )
+        conn = ConnectHandler(**netmiko_params(device))
 
         output = _get_config(device, conn)
         if not output or len(output.strip()) < 20:

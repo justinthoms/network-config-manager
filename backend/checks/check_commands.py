@@ -17,6 +17,8 @@ ALLOWED = [
     ("arista", "show version"),
     ("arista", "show interfaces status"),
     ("arista", "show running-config | section bgp"),
+    ("cisco", "show running-config"),
+    ("cisco", "show interfaces status"),
 ]
 
 REFUSED = [
@@ -40,7 +42,7 @@ REFUSED = [
     ("arista", "show file systems"),
     ("arista", ""),
     ("arista", "show " + "x" * 300),
-    ("cisco", "show version"),                # unsupported vendor
+    ("mikrotik", "show version"),             # unsupported vendor
 ]
 
 

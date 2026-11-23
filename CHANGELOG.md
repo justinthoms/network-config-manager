@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.0 (November 2026)
+
+**Added**
+- Cisco (IOS / IOS-XE) is now a supported vendor: config backup (`show running-config`), health checks (CPU, memory, environment, interfaces, logs) and live commands, with a built-in read-only command allow-list. Enable/privileged EXEC is handled automatically.
+- Telnet, as an alternative to SSH per device, for legacy equipment. SSH stays the default; the device form warns that Telnet is not encrypted. A one-line database change adds the `protocol` column automatically at startup.
+- Device vendor is now validated: only supported vendors are accepted.
+- Clearer, redrawn device icons (switch / router).
+
 ## 2.2.0 (November 2026)
 
 **Added**

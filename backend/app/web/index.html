@@ -186,7 +186,7 @@ table.t{width:100%;border-collapse:collapse;font-size:.9rem}
 .dev{display:flex;align-items:center;gap:11px}
 .vb{--vc:#667085;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;color:#fff;background:var(--vc);position:relative}
 .vb svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.vb.huawei{--vc:#c7202f}.vb.juniper{--vc:#0b7a6c}.vb.arista{--vc:#2b5aa8}
+.vb.huawei{--vc:#c7202f}.vb.juniper{--vc:#0b7a6c}.vb.arista{--vc:#2b5aa8}.vb.cisco{--vc:#1ba0d7}
 .vb.logo{background:#fff;border:1px solid var(--line)}
 .vb.logo img{width:24px;height:24px;object-fit:contain}
 .vb .vi{position:absolute;right:-4px;bottom:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:5px;background:var(--surface);color:var(--vc);font-size:.6rem;font-weight:800;display:grid;place-items:center;border:1.5px solid var(--vc);line-height:1}
@@ -603,8 +603,8 @@ pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px
   <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></symbol>
   <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></symbol>
   <symbol id="i-ai" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
-  <symbol id="t-router" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M7.5 10.2h8l-2.2-2.2M16.5 13.8h-8l2.2 2.2"/></symbol>
-  <symbol id="t-switch" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M6.5 10.5h9l-2-2M17.5 13.5h-9l2 2"/></symbol>
+  <symbol id="t-router" viewBox="0 0 24 24"><rect x="2.5" y="13" width="19" height="6.5" rx="2"/><path d="M5.6 16.2h.01M8 16.2h.01"/><path d="M12 11V4m0 0L9.6 6.4M12 4l2.4 2.4M8 8l-2.2 2.2M8 8H5.3M8 8v2.7M16 8l2.2 2.2M16 8h2.7M16 8v2.7"/></symbol>
+  <symbol id="t-switch" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="10" rx="2"/><path d="M5.6 10.3h.01M8 10.3h.01"/><path d="M6.4 13.6v2.1M8.9 13.6v2.1M11.4 13.6v2.1M13.9 13.6v2.1M16.4 13.6v2.1M18.9 13.6v2.1"/></symbol>
   <symbol id="t-fw" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="1.5"/><path d="M3 9.5h18M3 14.5h18M9 4.5v5M15 9.5v5M9 14.5v5"/></symbol>
   <symbol id="i-onedrive" viewBox="0 0 48 48"><path fill="#0364b8" stroke="none" d="M15 31a9 9 0 0 1 1.6-17.8A12.5 12.5 0 0 1 39 18.5 7.5 7.5 0 0 1 39 31z"/><path fill="#28a8ea" stroke="none" d="M11 38a8 8 0 0 1-.6-16A11 11 0 0 1 31 19.5a8 8 0 0 1 8.3 7.2A5.7 5.7 0 0 1 39 38z"/></symbol>
   <symbol id="i-gdrive" viewBox="0 0 48 48"><path fill="#0f9d58" stroke="none" d="M16.5 6h15l13 22.5h-15z"/><path fill="#4285f4" stroke="none" d="M44.5 28.5 37 41.5H11l7.5-13z"/><path fill="#f4b400" stroke="none" d="M3.5 28.5 16.5 6l7.5 13-13 22.5z"/></symbol>
@@ -945,17 +945,20 @@ pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px
       <button class="vendor-card selected" data-v="huawei" onclick="selectVendor('huawei')"><span class="vb huawei"><svg><use href="#t-router"/></svg></span><div><b>Huawei</b><span>VRP</span></div></button>
       <button class="vendor-card" data-v="juniper" onclick="selectVendor('juniper')"><span class="vb juniper"><svg><use href="#t-router"/></svg></span><div><b>Juniper</b><span>Junos</span></div></button>
       <button class="vendor-card" data-v="arista" onclick="selectVendor('arista')"><span class="vb arista"><svg><use href="#t-router"/></svg></span><div><b>Arista</b><span>EOS</span></div></button>
+      <button class="vendor-card" data-v="cisco" onclick="selectVendor('cisco')"><span class="vb cisco"><svg><use href="#t-router"/></svg></span><div><b>Cisco</b><span>IOS / IOS-XE</span></div></button>
     </div>
     <div class="form-grid">
       <label class="f">Hostname<input class="input" id="d_hostname" placeholder="TSR-CORE-R01"></label>
       <label class="f">Management IP<input class="input mono" id="d_ip" placeholder="172.19.5.50"></label>
       <label class="f">Model<input class="input" id="d_model" placeholder="S6730"></label>
       <label class="f">Site<input class="input" id="d_site" placeholder="TSR"></label>
-      <label class="f">SSH username<input class="input" id="d_user" autocomplete="off"></label>
-      <label class="f">SSH password<input class="input" id="d_pass" type="password" autocomplete="new-password"></label>
-      <label class="f">SSH port<input class="input" id="d_port" type="number" min="1" max="65535" value="22"></label>
+      <label class="f">Username<input class="input" id="d_user" autocomplete="off"></label>
+      <label class="f">Password<input class="input" id="d_pass" type="password" autocomplete="new-password"></label>
+      <label class="f">Protocol<select class="input" id="d_proto" onchange="onProtoChange()"><option value="ssh">SSH (recommended)</option><option value="telnet">Telnet</option></select></label>
+      <label class="f">Port<input class="input" id="d_port" type="number" min="1" max="65535" value="22"></label>
       <label class="check" id="d_enabled_wrap" style="align-self:end;height:38px"><input type="checkbox" id="d_enabled" checked>Device enabled</label>
     </div>
+    <p id="d_telnet_warn" class="vw-note hidden" style="background:var(--act-soft);border-radius:8px;margin:12px 0 0">Telnet sends the username, password and configuration in clear text. Use it only on an isolated management network where SSH is not available.</p>
     <p class="muted" style="font-size:.82rem;margin-top:12px">Passwords are encrypted before they are stored.</p>
     <p id="deviceResult" class="msg"></p>
     <div class="form-actions"><button class="btn" onclick="closeModal('deviceModal')">Cancel</button><button class="btn btn-primary" id="deviceSave" onclick="saveDevice()">Add device</button></div>
@@ -1110,7 +1113,7 @@ const ago = v => {
 };
 const bytes = n => n == null ? '—' : n < 1024 ? n + ' B' : n < 1048576 ? (n/1024).toFixed(1) + ' KB' : (n/1048576).toFixed(1) + ' MB';
 const ico = (id, cls='ico') => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
-const VENDOR_NAMES = { huawei:'Huawei', juniper:'Juniper', arista:'Arista' };
+const VENDOR_NAMES = { huawei:'Huawei', juniper:'Juniper', arista:'Arista', cisco:'Cisco' };
 function deviceType(d) {
   const t = `${d.model || ''} ${d.hostname || ''}`.toUpperCase();
   if (/SRX|USG|FIREWALL|FORTI|ASA\d|PA-\d|(^|[-_ ])FW/.test(t)) return 'fw';
@@ -1122,7 +1125,7 @@ function vendorBadge(d) {
   const v = (d.vendor || '').toLowerCase(), type = deviceType(d);
   const title = `${VENDOR_NAMES[v] || d.vendor || 'Unknown'} ${TYPE_LABEL[type].toLowerCase()}`;
   if (S.logos[v]) return `<span class="vb logo" title="${esc(title)}"><img src="${esc(S.logos[v])}" alt="${esc(VENDOR_NAMES[v] || v)}"></span>`;
-  return `<span class="vb ${['huawei','juniper','arista'].includes(v) ? v : ''}" title="${esc(title)}"><svg><use href="#t-${type}"/></svg><span class="vi">${esc((v || '?')[0].toUpperCase())}</span></span>`;
+  return `<span class="vb ${['huawei','juniper','arista','cisco'].includes(v) ? v : ''}" title="${esc(title)}"><svg><use href="#t-${type}"/></svg><span class="vi">${esc((v || '?')[0].toUpperCase())}</span></span>`;
 }
 const devName = id => (S.devices.find(x => x.id === id) || {}).hostname || `Device ${id}`;
 
@@ -1398,7 +1401,7 @@ function renderDevices() {
     return `<tr>
       <td><div class="dev">${vendorBadge(d)}<div><b>${esc(d.hostname)}</b><div class="sub">${TYPE_LABEL[deviceType(d)]}, ID ${d.id}</div></div></div></td>
       <td style="text-transform:capitalize">${esc(d.vendor)}<div class="sub" style="text-transform:none">${esc(d.model || '—')}</div></td>
-      <td><span class="mono">${esc(d.management_ip)}:${d.ssh_port}</span><div class="sub">${esc(d.username)}</div></td>
+      <td><span class="mono">${esc(d.management_ip)}:${d.ssh_port}</span>${d.protocol === 'telnet' ? ' <span class="pill warn plain" title="Telnet is not encrypted">Telnet</span>' : ''}<div class="sub">${esc(d.username)}</div></td>
       <td>${esc(d.site || '—')}</td>
       <td>${p ? `<span style="display:inline-flex;align-items:center;gap:7px"><i class="led ${p.state}"></i>${esc(p.last_backup_at ? ago(p.last_backup_at) : 'never')}</span>` : '<span class="muted">—</span>'}</td>
       <td><span class="pill ${d.enabled?'ok':'warn'}">${d.enabled?'Enabled':'Disabled'}</span></td>
@@ -1418,16 +1421,21 @@ function selectVendor(v) { document.querySelectorAll('.vendor-card').forEach(x =
 function openAddDevice() {
   S.editingDevice = null; $('deviceModalTitle').textContent = 'Add device'; $('deviceSave').textContent = 'Add device';
   ['d_hostname','d_ip','d_model','d_user','d_pass'].forEach(id => $(id).value = '');
-  $('d_site').value = ''; $('d_port').value = 22; $('d_enabled').checked = true; $('d_pass').placeholder = '';
+  $('d_site').value = ''; $('d_port').value = 22; $('d_proto').value = 'ssh'; onProtoChange(true); $('d_enabled').checked = true; $('d_pass').placeholder = '';
   $('d_enabled_wrap').classList.add('hidden'); selectVendor('huawei'); msg('deviceResult', ''); openModal('deviceModal');
   setTimeout(() => $('d_hostname').focus(), 50);
+}
+function onProtoChange(keepPort) {
+  const telnet = $('d_proto').value === 'telnet';
+  $('d_telnet_warn').classList.toggle('hidden', !telnet);
+  if (!keepPort) { const cur = $('d_port').value; if (telnet && (cur === '' || cur === '22')) $('d_port').value = 23; else if (!telnet && cur === '23') $('d_port').value = 22; }
 }
 function openEditDevice(id) {
   const d = S.devices.find(x => x.id === id); if (!d) return;
   S.editingDevice = id; $('deviceModalTitle').textContent = 'Edit ' + d.hostname; $('deviceSave').textContent = 'Save changes';
   $('d_hostname').value = d.hostname; $('d_ip').value = d.management_ip; $('d_model').value = d.model || '';
   $('d_user').value = d.username; $('d_pass').value = ''; $('d_pass').placeholder = 'Leave blank to keep current';
-  $('d_site').value = d.site || ''; $('d_port').value = d.ssh_port; $('d_enabled').checked = !!d.enabled;
+  $('d_site').value = d.site || ''; $('d_port').value = d.ssh_port; $('d_proto').value = d.protocol || 'ssh'; onProtoChange(true); $('d_enabled').checked = !!d.enabled;
   $('d_enabled_wrap').classList.remove('hidden'); selectVendor(d.vendor); msg('deviceResult', ''); openModal('deviceModal');
 }
 async function saveDevice() {
@@ -1435,7 +1443,7 @@ async function saveDevice() {
     hostname: $('d_hostname').value.trim(), management_ip: $('d_ip').value.trim(),
     vendor: document.querySelector('.vendor-card.selected')?.dataset.v || 'huawei',
     model: $('d_model').value.trim() || null, username: $('d_user').value.trim(),
-    ssh_port: parseInt($('d_port').value || '22', 10), site: $('d_site').value.trim() || 'DEFAULT',
+    ssh_port: parseInt($('d_port').value || '22', 10), protocol: $('d_proto').value, site: $('d_site').value.trim() || 'DEFAULT',
   };
   if ($('d_pass').value) p.password = $('d_pass').value;
   if (!p.hostname || !p.management_ip || !p.username || (!S.editingDevice && !p.password))
@@ -1483,7 +1491,7 @@ function exportCSV() {
   toast('Device list exported');
 }
 function downloadCSVTemplate() {
-  saveBlob('\ufeffhostname,management_ip,vendor,model,username,password,ssh_port,site,enabled\r\nGENERIC-CORE-R01,192.0.2.10,arista,7280R,operator,CHANGE_ME,22,DEFAULT,true\r\n',
+  saveBlob('\ufeffhostname,management_ip,vendor,model,username,password,ssh_port,protocol,site,enabled\r\nGENERIC-CORE-R01,192.0.2.10,arista,7280R,operator,CHANGE_ME,22,ssh,DEFAULT,true\r\n',
     'ncm-device-import-template.csv', 'text/csv;charset=utf-8');
 }
 function parseCSV(text) {
@@ -1507,7 +1515,7 @@ async function importCSV(e) {
   let ok = 0; const errors = [];
   for (let i = 1; i < rows.length; i++) {
     const o = {}; head.forEach((h, j) => o[h] = (rows[i][j] ?? '').trim());
-    const p = { hostname:o.hostname, management_ip:o.management_ip, vendor:(o.vendor||'huawei').toLowerCase(), model:o.model||null,
+    const p = { hostname:o.hostname, management_ip:o.management_ip, vendor:(o.vendor||'huawei').toLowerCase(), protocol:(o.protocol||'ssh').toLowerCase(), model:o.model||null,
       username:o.username, password:o.password, ssh_port:parseInt(o.ssh_port||'22',10), site:o.site||'DEFAULT' };
     if (!p.hostname || !p.management_ip || !p.username || !p.password) { errors.push(`Row ${i+1}: a required value is empty`); continue; }
     try { const d = await apiJSON('/api/devices/', { method:'POST', body:JSON.stringify(p) }); ok++;
@@ -2556,17 +2564,17 @@ async function openHealthSettings() {
     <p class="muted" style="font-size:.82rem;margin-top:6px">${h.ai_configured ? 'Scheduled checks are run 4 devices at a time. Automatic AI summaries run one by one afterwards, to stay inside free-tier limits.' : 'No AI provider is set up yet, so AI summaries are skipped. Add one on the AI review page.'}</p>
     <h4 style="margin:22px 0 4px">Commands per vendor</h4>
     <p class="muted" style="font-size:.85rem;margin-bottom:12px">One command per line. A command must be on the <b>allowed list</b> below: read-only <span class="mono">display</span> (Huawei) or <span class="mono">show</span> (Juniper, Arista) commands only, never one that prints the configuration or secrets. Commands a device does not know are skipped and listed in the result.${cmdEdit ? '' : ' <b>Only a Super Admin can change these commands.</b>'}</p>
-    ${['huawei','juniper','arista'].map(v => `<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b>${VENDOR_NAMES[v]}</b>${st.custom_commands[v] ? '<span class="pill info plain">Custom</span>' : '<span class="pill plain">Default</span>'}<span style="flex:1"></span>${cmdEdit ? `<button class="btn btn-sm btn-ghost" onclick="$('hs_cmd_${v}').value=S.health.settings.default_commands['${v}'].join('\\n')">Restore defaults</button>` : ''}</div>
+    ${['huawei','juniper','arista','cisco'].map(v => `<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b>${VENDOR_NAMES[v]}</b>${st.custom_commands[v] ? '<span class="pill info plain">Custom</span>' : '<span class="pill plain">Default</span>'}<span style="flex:1"></span>${cmdEdit ? `<button class="btn btn-sm btn-ghost" onclick="$('hs_cmd_${v}').value=S.health.settings.default_commands['${v}'].join('\\n')">Restore defaults</button>` : ''}</div>
       <textarea class="input cmdlist" id="hs_cmd_${v}" spellcheck="false" ${cmdEdit ? '' : 'readonly'}>${esc(st.commands[v].join('\n'))}</textarea></div>`).join('')}
     <h4 style="margin:22px 0 4px">Allowed commands</h4>
     <p class="muted" style="font-size:.85rem;margin-bottom:10px">Health checks and the assistant's live commands run only commands that start with one of these. Output filters such as <span class="mono">| include DOWN</span> may be added after them. ${cmdEdit ? 'As Super Admin you can allow extra read-only commands, one per line. Commands that show the configuration, secrets, users or files are always refused.' : '<b>Only a Super Admin can allow extra commands.</b>'}</p>
-    ${['huawei','juniper','arista'].map(v => { const p = pol.vendors[v]; return `<div style="margin-bottom:14px">
+    ${['huawei','juniper','arista','cisco'].map(v => { const p = pol.vendors[v]; return `<div style="margin-bottom:14px">
       <details><summary style="cursor:pointer"><b>${VENDOR_NAMES[v]}</b> <span class="muted">${p.builtin.length} built in${p.extra.length ? `, ${p.extra.length} extra` : ''}</span></summary>
         <div class="cmd-chips">${p.builtin.map(c => `<span>${esc(c)}</span>`).join('')}</div></details>
       <label class="f" style="margin-top:6px">Extra allowed commands
         <textarea class="input cmdlist" style="min-height:64px" id="hs_allow_${v}" spellcheck="false" placeholder="${cmdEdit ? (v === 'huawei' ? 'display lldp local' : 'show lldp local-info') : 'None'}" ${cmdEdit ? '' : 'readonly'}>${esc(p.extra.join('\n'))}</textarea></label></div>`; }).join('')}
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 16px">
-      <select class="input" id="hs_test_v" style="width:130px">${['huawei','juniper','arista'].map(v => `<option value="${v}">${VENDOR_NAMES[v]}</option>`).join('')}</select>
+      <select class="input" id="hs_test_v" style="width:130px">${['huawei','juniper','arista','cisco'].map(v => `<option value="${v}">${VENDOR_NAMES[v]}</option>`).join('')}</select>
       <input class="input mono" id="hs_test_c" placeholder="Check a command, e.g. show interfaces status" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter'){event.preventDefault();testAllowedCommand()}">
       <button class="btn" onclick="testAllowedCommand()">Check</button>
       <div id="hs_test_r" class="msg" style="flex-basis:100%;margin:0"></div></div>
@@ -2580,7 +2588,7 @@ async function saveHealthSettings(btn) {
   let extra = null;
   if (S.user?.role === 'super_admin') {      // the server accepts command changes from Super Admin only
     body.commands = {}; extra = {};
-    ['huawei','juniper','arista'].forEach(v => { body.commands[v] = lines('hs_cmd_' + v); extra[v] = lines('hs_allow_' + v); });
+    ['huawei','juniper','arista','cisco'].forEach(v => { body.commands[v] = lines('hs_cmd_' + v); extra[v] = lines('hs_allow_' + v); });
   }
   await busy(btn, async () => {
     try {

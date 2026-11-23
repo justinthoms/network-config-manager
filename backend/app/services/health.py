@@ -64,6 +64,14 @@ DEFAULT_COMMANDS = {
         "show interfaces counters errors",
         "show logging 500",
     ],
+    "cisco": [
+        "show version",
+        "show processes cpu sorted",
+        "show processes memory sorted",
+        "show environment all",
+        "show interfaces status",
+        "show logging",
+    ],
 }
 
 K_SCHED = "health.schedule_enabled"
@@ -270,15 +278,21 @@ def _memory(vendor, text):
         free = _num(r"Free memory:\s*(\d+)\s*kB", text)
         if total and free is not None:
             v = (total - free) * 100 / total
+    if v is None:                                     # Cisco IOS "show processes memory"
+        m = re.search(r"(?:Processor Pool\s+)?Total:\s*(\d+)[,\s]+Used:\s*(\d+)", text or "")
+        if m and int(m.group(1)):
+            v = int(m.group(2)) * 100 / int(m.group(1))
     return None if v is None else int(round(v))
 
 
 def _facts(vendor, text, facts):
     facts.setdefault("version", _str(r"VRP \(R\) software,\s*Version\s+([^\n]+)", text)
                      or _str(r"^Junos:\s*(\S+)", text) or _str(r"JUNOS [^\n]*?\[([^\]]+)\]", text)
+                     or _str(r"Cisco IOS[^\n]*?Version\s+([^\s,]+)", text)
                      or _str(r"Software image version:\s*(\S+)", text))
     facts.setdefault("model", _str(r"^\s*(?:HUAWEI|Huawei)\s+(\S+)[^\n]*uptime is", text)
-                     or _str(r"^Model:\s*(\S+)", text) or _str(r"^Arista\s+(\S+)", text))
+                     or _str(r"^Model:\s*(\S+)", text) or _str(r"^Arista\s+(\S+)", text)
+                     or _str(r"^cisco\s+(\S+)\s+\(", text) or _str(r"Model number\s*:\s*(\S+)", text))
     facts.setdefault("uptime", _str(r"uptime is\s+([^\n]+)", text) or _str(r"^Uptime:\s*([^\n]+)", text)
                      or _str(r"^\s*Uptime\s+([^\n]+)", text))
     for k in [k for k, v in facts.items() if v is None]:
@@ -312,6 +326,15 @@ def _interfaces(vendor, text, intf):
             if t[1] not in ("up", "down"):
                 continue
             state = "admin_down" if t[1] == "down" else "up" if t[2] == "up" else "down"
+        elif vendor == "cisco":    # cisco show interfaces status (same status words as EOS)
+            if not re.match(r"^(Gi|Te|Fa|Fo|Twe|Tw|Hu|Po|Eth|Et|Mg|Vl|Lo|Tu)\S*\d", name):
+                continue
+            m = re.search(r"\s(connected|notconnect|disabled|err-disabled|errdisabled|inactive|monitoring|faulty)\s", f" {line} ")
+            if not m:
+                continue
+            st = m.group(1).lower()
+            state = {"connected": "up", "disabled": "admin_down", "err-disabled": "err_disabled",
+                     "errdisabled": "err_disabled", "monitoring": "up"}.get(st, "down")
         else:  # arista show interfaces status
             if not re.match(r"^(Et|Po|Ma)\S*\d", name):
                 continue
