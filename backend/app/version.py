@@ -2,4 +2,4 @@
 # Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
 
 """The NCM version. A release is tagged v<this> on GitHub; the updater compares against it."""
-__version__ = "2.3.1"
+__version__ = "2.3.2"
