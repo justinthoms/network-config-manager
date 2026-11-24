@@ -2036,7 +2036,7 @@ function renderCloud() {
       <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap"><label class="f" style="width:280px">Drive folder name<input class="input" id="g_root" value="${esc(c.root_folder)}"></label>
       <button class="btn" onclick="saveDriveSettings({root_folder:$('g_root').value.trim()})">Save folder</button>
       <span style="flex:1"></span><button class="btn btn-danger" onclick="disconnectDrive()">Disconnect</button></div>
-      <p class="muted" style="font-size:.82rem;margin-top:8px">New backups go to this folder in Drive (one sub-folder per device). Renaming it does not move or rename files already in Drive — those stay in the old folder.</p>
+      <p class="muted" style="font-size:.82rem;margin-top:8px">New backups go to this folder in Drive (one sub-folder per device). Only files in this folder are shown below. Renaming it does not move files already in Drive — those stay in the old folder, which you can open from Drive.</p>
     </div></div>` : ''}
     <div class="panel"><div class="panel-head"><div><h3>Files in Google Drive</h3><p>Most recent uploads by NCM</p></div><button class="btn btn-sm" onclick="loadDriveFiles()">${ico('refresh')}Refresh</button></div>
       <div class="table-wrap" id="driveFiles"><div class="panel-body"><div class="skel"></div></div></div></div>`;
@@ -2044,23 +2044,12 @@ function renderCloud() {
 }
 async function loadDriveFiles() {
   try { const f = await apiJSON('/api/cloud/gdrive/files?limit=100');
-    const other = f.filter(x => x.in_current_folder === false).length;
-    const note = other ? `<div class="vw-note" style="border-radius:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span style="flex:1;min-width:200px">${other} file${other === 1 ? ' is' : 's are'} in an older folder, not in “${esc(S.cloud.root_folder)}”. Renaming the folder does not move them.</span>${can('cloud.manage') ? `<button class="btn btn-sm" onclick="tidyDrive(this)">Move ${other} into “${esc(S.cloud.root_folder)}”</button>` : ''}</div>` : '';
-    $('driveFiles').innerHTML = f.length ? note + `<table class="t"><thead><tr><th>File</th><th>Folder</th><th>Uploaded</th><th>Size</th><th class="right"></th></tr></thead><tbody>${f.map(x => `
-      <tr><td class="mono">${esc(x.name)}</td><td>${x.in_current_folder === false ? `<span class="muted" title="Not in the current folder">${esc(x.folder)}</span>` : esc(x.folder)}</td><td>${esc(fmt(x.created_at))}</td><td>${bytes(x.size)}</td>
+    $('driveFiles').innerHTML = f.length ? `<table class="t"><thead><tr><th>File</th><th>Folder</th><th>Uploaded</th><th>Size</th><th class="right"></th></tr></thead><tbody>${f.map(x => `
+      <tr><td class="mono">${esc(x.name)}</td><td>${esc(x.folder)}</td><td>${esc(fmt(x.created_at))}</td><td>${bytes(x.size)}</td>
       <td><div class="row-actions">${x.link ? `<a class="btn btn-sm btn-icon" title="Open in Drive" href="${esc(x.link)}" target="_blank" rel="noopener">${ico('ext')}</a>` : ''}
       ${can('backups.download') ? `<button class="btn btn-sm btn-icon" title="Download from Drive" onclick="downloadAuth('/api/cloud/gdrive/files/${encodeURIComponent(x.id)}/download','${jsq(x.name)}')">${ico('down')}</button>` : ''}</div></td></tr>`).join('')}</tbody></table>`
-      : '<div class="empty"><b>No files yet</b>Upload pending backups or turn on automatic upload.</div>';
+      : `<div class="empty"><b>No files in “${esc(S.cloud.root_folder)}” yet</b>Upload pending backups or turn on automatic upload. Only this folder is shown.</div>`;
   } catch (e) { $('driveFiles').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
-}
-async function tidyDrive(btn) {
-  if (!confirm(`Move all older NCM backups into “${S.cloud.root_folder}” in Google Drive? This reorganises files NCM created; nothing is deleted.`)) return;
-  await busy(btn, async () => {
-    try { const r = await apiJSON('/api/cloud/gdrive/tidy', { method: 'POST' });
-      toast(r.moved ? `Moved ${r.moved} file${r.moved === 1 ? '' : 's'}${r.failed ? `, ${r.failed} failed` : ''}` : 'Nothing to move');
-      loadDriveFiles(); }
-    catch (e) { toast(e.message, 'err'); }
-  });
 }
 async function connectDrive(btn) {
   await busy(btn, async () => { try { const d = await apiJSON('/api/cloud/gdrive/auth-url'); location.href = d.url; } catch (e) { toast(e.message, 'err'); } });
@@ -2158,7 +2147,7 @@ async function loadOneDriveFiles() {
       <tr><td class="mono">${esc(x.name)}<div class="sub">Backup #${x.backup_id}</div></td><td>${esc(x.hostname)}</td><td>${esc(fmt(x.uploaded_at))}</td><td>${bytes(x.size)}</td>
       <td><div class="row-actions"><button class="btn btn-sm btn-icon" title="Open in OneDrive" onclick="openOneDriveItem('${jsq(x.id)}', this)">${ico('ext')}</button>
       ${can('backups.download') ? `<button class="btn btn-sm btn-icon" title="Download from OneDrive" onclick="downloadAuth('/api/cloud/onedrive/files/${encodeURIComponent(x.id)}/download','${jsq(x.name)}')">${ico('down')}</button>` : ''}</div></td></tr>`).join('')}</tbody></table>`
-      : '<div class="empty"><b>No files yet</b>Upload pending backups or turn on automatic upload.</div>';
+      : `<div class="empty"><b>No files in “${esc(S.cloud.root_folder)}” yet</b>Upload pending backups or turn on automatic upload. Only this folder is shown.</div>`;
   } catch (e) { $('odFiles').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
 }
 async function openOneDriveItem(id, btn) {

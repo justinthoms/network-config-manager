@@ -1,7 +1,8 @@
 # Copyright (c) 2026 Justin Thomas. Licensed under the MIT License (see LICENSE).
 # Network Config Manager™ and NCM™ are trademarks of Justin Thomas.
 
-"""The Google Drive file list shows each file's real folder, and flags files not in the current folder."""
+"""The Google Drive list shows only the backups under the folder configured here,
+not files another NCM install may hold in the same Google account."""
 from app.services import gdrive
 from app.services import settings_store as store
 
@@ -15,94 +16,72 @@ class _Resp:
         return self._data
 
 
-# A tiny fake Drive: two root folders, each with one per-device sub-folder holding one file.
+# A shared Google account with TWO NCM installs:
+#   NCM-TSR-DIS  (this install)  -> device folder "sw1" -> file g2
+#   NCM-WEONE    (other install) -> device folder "KODAKARA" -> file g1
 FOLDERS = {
-    "root_old": {"name": "NCM-Backups", "parents": []},
-    "sub_kodakara": {"name": "KODAKARA", "parents": ["root_old"]},
-    "sub_bhcore": {"name": "BH-CORE", "parents": ["root_old"]},
-    "root_new": {"name": "NCM-TSR-DIS", "parents": []},
-    "sub_sw1": {"name": "sw1", "parents": ["root_new"]},
+    "root_tsr": {"name": "NCM-TSR-DIS", "children": ["sub_sw1"]},
+    "sub_sw1": {"name": "sw1", "parent": "root_tsr"},
+    "root_weone": {"name": "NCM-WEONE", "children": ["sub_kodakara"]},
+    "sub_kodakara": {"name": "KODAKARA", "parent": "root_weone"},
 }
-FILES = [
-    {"id": "f1", "name": "KODAKARA_20261124.conf", "size": "8900", "createdTime": "2026-11-24T04:35:00Z",
-     "webViewLink": "https://drive/f1", "parents": ["sub_kodakara"]},
-    {"id": "f2", "name": "sw1_20261124.conf", "size": "27000", "createdTime": "2026-11-24T05:00:00Z",
-     "webViewLink": "https://drive/f2", "parents": ["sub_sw1"]},
-]
+FILES = {
+    "sub_sw1": [{"id": "g2", "name": "sw1_20261124.conf", "size": "27000",
+                 "createdTime": "2026-11-24T05:00:00Z", "webViewLink": "https://drive/g2", "parents": ["sub_sw1"]}],
+    "sub_kodakara": [{"id": "g1", "name": "KODAKARA_20261124.conf", "size": "8900",
+                      "createdTime": "2026-11-24T04:35:00Z", "webViewLink": "https://drive/g1", "parents": ["sub_kodakara"]}],
+    "root_tsr": [], "root_weone": [],
+}
 
 
 def _fake_request(db, method, url, **kw):
-    if url.endswith("/files"):                       # the list query
-        return _Resp({"files": FILES})
-    fid = url.rsplit("/", 1)[-1]                      # a files/<id> lookup
-    meta = FOLDERS.get(fid)
-    return _Resp({"id": fid, "name": meta["name"], "parents": meta["parents"]} if meta else {})
+    q = (kw.get("params") or {}).get("q", "")
+    is_folder = "mimeType='application/vnd.google-apps.folder'" in q
+    # folder-by-name lookup (used by _find_folder) — q has name='X' and 'root' in parents
+    if is_folder and "name='" in q:
+        name = q.split("name='", 1)[1].split("'", 1)[0]
+        hit = [fid for fid, meta in FOLDERS.items() if meta["name"] == name and "parent" not in meta]
+        return _Resp({"files": [{"id": hit[0]}] if hit else []})
+    # sub-folders of a root — q has '<root>' in parents, no name=
+    if is_folder and "in parents" in q:
+        import re
+        root = re.search(r"'([^']+)' in parents", q).group(1)
+        return _Resp({"files": [{"id": c, "name": FOLDERS[c]["name"]} for c in FOLDERS[root]["children"]]})
+    # files under the given parents
+    if "mimeType!=" in q:
+        import re
+        parents = re.findall(r"'([^']+)' in parents", q)
+        out = []
+        for pid in parents:
+            out += FILES.get(pid, [])
+        return _Resp({"files": out})
+    return _Resp({"files": []})
 
 
-def test_list_resolves_folder_path_and_current_flag(db, monkeypatch):
+def test_list_shows_only_the_configured_folder(db, monkeypatch):
     store.set(db, gdrive.K_ROOT_NAME, "NCM-TSR-DIS")
     monkeypatch.setattr(gdrive, "_request", _fake_request)
     files = gdrive.list_files(db)
-    by_id = {f["id"]: f for f in files}
-    # real folder path is shown, never "—"
-    assert by_id["f1"]["folder"] == "NCM-Backups/KODAKARA"
-    assert by_id["f2"]["folder"] == "NCM-TSR-DIS/sw1"
-    # the old-folder file is flagged as not in the current folder; the new one is
-    assert by_id["f1"]["in_current_folder"] is False
-    assert by_id["f2"]["in_current_folder"] is True
+    ids = {f["id"] for f in files}
+    assert ids == {"g2"}                                    # only this install's file
+    assert "g1" not in ids                                  # the other install's file is NOT shown
+    assert files[0]["folder"] == "NCM-TSR-DIS/sw1"
 
 
-def test_unreadable_parent_falls_back_to_dash(db, monkeypatch):
-    store.set(db, gdrive.K_ROOT_NAME, "NCM-TSR-DIS")
-
-    def req(db, method, url, **kw):
-        if url.endswith("/files"):
-            return _Resp({"files": [{"id": "x", "name": "a.conf", "parents": ["gone"]}]})
-        r = _Resp({})
-        r.status_code = 404
-        return r
-    monkeypatch.setattr(gdrive, "_request", req)
+def test_other_install_sees_only_its_own(db, monkeypatch):
+    store.set(db, gdrive.K_ROOT_NAME, "NCM-WEONE")
+    monkeypatch.setattr(gdrive, "_request", _fake_request)
     files = gdrive.list_files(db)
-    assert files[0]["folder"] == "—" and files[0]["in_current_folder"] is False
+    assert {f["id"] for f in files} == {"g1"}
+    assert files[0]["folder"] == "NCM-WEONE/KODAKARA"
 
 
-# ───────────── move into current folder ─────────────
+def test_missing_folder_lists_nothing(db, monkeypatch):
+    store.set(db, gdrive.K_ROOT_NAME, "NCM-DOES-NOT-EXIST")
+    monkeypatch.setattr(gdrive, "_request", _fake_request)
+    assert gdrive.list_files(db) == []
 
-def test_move_all_to_current_folder(db, monkeypatch):
-    store.set(db, gdrive.K_ROOT_NAME, "NCM-TSR-DIS")
-    store.set(db, gdrive.K_FOLDERS, None)
-    created = {"root_new": "NEW-ROOT"}         # pretend the new root already resolves
-    moves = []
 
-    def req(db, method, url, **kw):
-        params = kw.get("params", {})
-        if method == "GET" and url.endswith("/files"):
-            # two files in the old NCM-Backups/<host> folders
-            return _Resp({"files": [
-                {"id": "f1", "name": "KODAKARA_1.conf", "parents": ["sub_kodakara"]},
-                {"id": "f2", "name": "BH-CORE_1.conf", "parents": ["sub_bhcore"]},
-            ]})
-        if method == "GET":                     # folder meta lookups
-            fid = url.rsplit("/", 1)[-1]
-            return _Resp({"id": fid, "name": FOLDERS[fid]["name"], "parents": FOLDERS[fid]["parents"]})
-        if method == "POST":                    # _find_or_create_folder: pretend none exist, create
-            name = (kw.get("json") or {}).get("name", "x")
-            return _Resp({"id": "new_" + name})
-        if method == "PATCH":                   # the move
-            moves.append((url.rsplit("/", 1)[-1], params.get("addParents"), params.get("removeParents")))
-            return _Resp({"id": url.rsplit("/", 1)[-1]})
-        return _Resp({})
-
-    # folder lookup should find nothing first (so it creates) — make GET for folders-by-query return empty
-    def req2(db, method, url, **kw):
-        params = kw.get("params", {})
-        if method == "GET" and url.endswith("/files") and "q" in params and "mimeType='application/vnd.google-apps.folder'" in params["q"]:
-            return _Resp({"files": []})         # _find_or_create_folder search → create
-        return req(db, method, url, **kw)
-
-    monkeypatch.setattr(gdrive, "_request", req2)
-    result = gdrive.move_all_to_current(db)
-    assert result["moved"] == 2 and result["failed"] == 0
-    # both files were moved off their old parent
-    assert {m[0] for m in moves} == {"f1", "f2"}
-    assert all(m[2] in ("sub_kodakara", "sub_bhcore") for m in moves)   # removed from old parent
+def test_no_cross_install_move_function():
+    # the unsafe "move everything into my folder" helper must be gone
+    assert not hasattr(gdrive, "move_all_to_current")
