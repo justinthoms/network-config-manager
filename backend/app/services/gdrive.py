@@ -309,99 +309,54 @@ def upload_backup(db, backup, hostname: str) -> dict:
     return result
 
 
-def move_all_to_current(db, limit: int = 1000) -> dict:
-    """Move every NCM backup that is in an older folder into the current
-    <root>/<device> structure. Files already in the current folder are left
-    alone. Returns {moved, skipped, failed}."""
-    root_now = root_folder_name(db)
-    resp = _request(db, "GET", f"{API}/files", params={
-        "q": f"mimeType!='{FOLDER_MIME}' and trashed=false",
-        "pageSize": max(1, min(limit, 1000)),
-        "fields": "files(id,name,parents)",
-    })
-    _raise_for(resp, "List files")
-    memo: dict = {}
-    moved = skipped = failed = 0
-    for f in resp.json().get("files", []):
-        parent = (f.get("parents") or [None])[0]
-        path = _folder_path(db, parent, memo)
-        if path and path.split("/", 1)[0] == root_now:
-            skipped += 1
-            continue
-        # device name = the file's current sub-folder, else the hostname prefix of the file name
-        host = path.split("/", 1)[1] if "/" in path else (f["name"].split("_")[0] or "device")
-        try:
-            target = _folder_for(db, host)
-            if target == parent:
-                skipped += 1
-                continue
-            params = {"fields": "id", "addParents": target}
-            if parent:
-                params["removeParents"] = parent
-            up = _request(db, "PATCH", f"{API}/files/{f['id']}", params=params)
-            _raise_for(up, "Move file")
-            moved += 1
-        except DriveError:
-            failed += 1
-    store.set(db, K_LAST_ERROR, None, commit=False)
-    db.commit()
-    return {"moved": moved, "skipped": skipped, "failed": failed}
+def _find_folder(db, name: str, parent: str | None = None) -> str | None:
+    """The id of an existing folder with this name, or None. Never creates."""
+    q = f"mimeType='{FOLDER_MIME}' and name='{_q(name)}' and trashed=false"
+    q += f" and '{parent}' in parents" if parent else " and 'root' in parents"
+    resp = _request(db, "GET", f"{API}/files", params={"q": q, "fields": "files(id)", "pageSize": 5})
+    _raise_for(resp, "Folder lookup")
+    files = resp.json().get("files", [])
+    return files[0]["id"] if files else None
 
 
-def _folder_meta(db, fid: str, memo: dict) -> tuple[str | None, str | None]:
-    """A folder's (name, first-parent-id), fetched once and memoised."""
-    if fid in memo:
-        return memo[fid]
-    try:
-        resp = _request(db, "GET", f"{API}/files/{fid}", params={"fields": "id,name,parents"})
-        if resp.status_code == 200:
-            j = resp.json()
-            memo[fid] = (j.get("name"), (j.get("parents") or [None])[0])
-        else:
-            memo[fid] = (None, None)
-    except DriveError:
-        memo[fid] = (None, None)
-    return memo[fid]
-
-
-def _folder_path(db, parent_id: str | None, memo: dict) -> str:
-    """'<root>/<hostname>' for a file's parent folder, resolved live from Drive.
-
-    With the drive.file scope NCM sees only its own folders, so a file's parent
-    (the per-device folder) and its parent (the root folder) are both readable.
-    """
-    if not parent_id:
-        return ""
-    name, grandparent = _folder_meta(db, parent_id, memo)
-    if not name:
-        return ""
-    if grandparent:
-        root_name, _ = _folder_meta(db, grandparent, memo)
-        if root_name:
-            return f"{root_name}/{name}"
-    return name
+# Cap on per-device sub-folders folded into one list query, to keep the Drive
+# query string well within limits. NCM lists one level deep (root/<device>/file).
+_SUBFOLDER_CAP = 150
 
 
 def list_files(db, limit: int = 100) -> list[dict]:
-    root_now = root_folder_name(db)
+    """Backups under the Drive folder configured on the Cloud page, and nothing
+    else. NCM's OAuth scope (drive.file) can see every file the app created in
+    the account, which may include other NCM installs that share the same Google
+    account — so the list is scoped to this install's own folder only. Returns an
+    empty list if that folder does not exist in Drive yet."""
+    root_name = root_folder_name(db)
+    root_id = _find_folder(db, root_name, None)
+    if not root_id:
+        return []
+    subs = _request(db, "GET", f"{API}/files", params={
+        "q": f"mimeType='{FOLDER_MIME}' and '{root_id}' in parents and trashed=false",
+        "fields": "files(id,name)", "pageSize": 1000,
+    })
+    _raise_for(subs, "List folders")
+    sub_map = {s["id"]: s["name"] for s in subs.json().get("files", [])}
+    parent_ids = [root_id] + list(sub_map)[:_SUBFOLDER_CAP]
+    clause = " or ".join(f"'{pid}' in parents" for pid in parent_ids)
     resp = _request(db, "GET", f"{API}/files", params={
-        "q": f"mimeType!='{FOLDER_MIME}' and trashed=false",
+        "q": f"mimeType!='{FOLDER_MIME}' and trashed=false and ({clause})",
         "orderBy": "createdTime desc",
         "pageSize": max(1, min(limit, 500)),
         "fields": "files(id,name,size,createdTime,webViewLink,parents)",
     })
     _raise_for(resp, "List files")
-    memo: dict = {}
     out = []
     for f in resp.json().get("files", []):
         parent = (f.get("parents") or [None])[0]
-        path = _folder_path(db, parent, memo)
+        folder = f"{root_name}/{sub_map[parent]}" if parent in sub_map else root_name
         out.append({
             "id": f["id"], "name": f["name"], "size": int(f.get("size") or 0),
             "created_at": f.get("createdTime"), "link": f.get("webViewLink"),
-            "folder": path or "—",
-            # True when the file sits under the folder currently set on the Cloud page
-            "in_current_folder": bool(path) and path.split("/", 1)[0] == root_now,
+            "folder": folder,
         })
     return out
 

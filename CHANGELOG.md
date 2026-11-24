@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.3 (November 2026)
+
+**Fixed**
+- **Google Drive: an NCM install no longer shows another install's backups.** With the `drive.file` scope NCM can see every file its OAuth app created in the account, so two NCM servers sharing one Google account each saw the other's backups in the file list. The list is now scoped to the Drive folder configured on that server, so each install shows only its own backups. The 2.3.2 "move into this folder" button is removed, because with a shared account it could have moved another install's files.
+
+**Note:** if several NCM servers share one Google account, give each a different **Drive folder name** on the Cloud page so their backups stay separate.
+
 ## 2.3.2 (November 2026)
 
 **Added**

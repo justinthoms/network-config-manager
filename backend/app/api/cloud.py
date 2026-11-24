@@ -149,18 +149,6 @@ def gdrive_sync(limit: int = 50, db: Session = Depends(get_db),
     return {"uploaded": uploaded, "failed": failed, "remaining": remaining, "errors": errors[:10]}
 
 
-@router.post("/gdrive/tidy")
-def gdrive_tidy(db: Session = Depends(get_db), user=Depends(require_permission("cloud.manage"))):
-    """Move every NCM backup that is in an older Drive folder into the current folder."""
-    if not gdrive.is_connected(db):
-        raise HTTPException(400, "Google Drive is not connected")
-    result = _drive_call(db, gdrive.move_all_to_current, db)
-    record_audit(db, user, "GDRIVE_TIDY", "cloud", "gdrive",
-                 status="SUCCESS" if not result.get("failed") else "FAILED",
-                 details=f"moved={result['moved']};skipped={result['skipped']};failed={result['failed']}")
-    return result
-
-
 @router.get("/gdrive/files")
 def gdrive_files(limit: int = 100, db: Session = Depends(get_db),
                  user=Depends(require_permission("cloud.view"))):
