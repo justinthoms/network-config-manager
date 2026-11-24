@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.1 (November 2026)
+
+**Fixed**
+- Google Drive file list showed "—" for the folder and could look empty or confusing after the Drive folder name was changed. The list now resolves each file's real folder from Drive (e.g. `NCM-Backups/KODAKARA`) and marks files that are in an older folder, not the one currently configured. The Cloud page also explains that renaming the Drive folder does not move files already uploaded.
+
 ## 2.3.0 (November 2026)
 
 **Added**

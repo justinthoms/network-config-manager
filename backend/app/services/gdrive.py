@@ -309,9 +309,42 @@ def upload_backup(db, backup, hostname: str) -> dict:
     return result
 
 
+def _folder_meta(db, fid: str, memo: dict) -> tuple[str | None, str | None]:
+    """A folder's (name, first-parent-id), fetched once and memoised."""
+    if fid in memo:
+        return memo[fid]
+    try:
+        resp = _request(db, "GET", f"{API}/files/{fid}", params={"fields": "id,name,parents"})
+        if resp.status_code == 200:
+            j = resp.json()
+            memo[fid] = (j.get("name"), (j.get("parents") or [None])[0])
+        else:
+            memo[fid] = (None, None)
+    except DriveError:
+        memo[fid] = (None, None)
+    return memo[fid]
+
+
+def _folder_path(db, parent_id: str | None, memo: dict) -> str:
+    """'<root>/<hostname>' for a file's parent folder, resolved live from Drive.
+
+    With the drive.file scope NCM sees only its own folders, so a file's parent
+    (the per-device folder) and its parent (the root folder) are both readable.
+    """
+    if not parent_id:
+        return ""
+    name, grandparent = _folder_meta(db, parent_id, memo)
+    if not name:
+        return ""
+    if grandparent:
+        root_name, _ = _folder_meta(db, grandparent, memo)
+        if root_name:
+            return f"{root_name}/{name}"
+    return name
+
+
 def list_files(db, limit: int = 100) -> list[dict]:
-    cache = store.get_json(db, K_FOLDERS, {}) or {}
-    names = {v: k.rsplit("/", 1)[-1] for k, v in cache.items()}
+    root_now = root_folder_name(db)
     resp = _request(db, "GET", f"{API}/files", params={
         "q": f"mimeType!='{FOLDER_MIME}' and trashed=false",
         "orderBy": "createdTime desc",
@@ -319,13 +352,17 @@ def list_files(db, limit: int = 100) -> list[dict]:
         "fields": "files(id,name,size,createdTime,webViewLink,parents)",
     })
     _raise_for(resp, "List files")
+    memo: dict = {}
     out = []
     for f in resp.json().get("files", []):
         parent = (f.get("parents") or [None])[0]
+        path = _folder_path(db, parent, memo)
         out.append({
             "id": f["id"], "name": f["name"], "size": int(f.get("size") or 0),
             "created_at": f.get("createdTime"), "link": f.get("webViewLink"),
-            "folder": names.get(parent, "—"),
+            "folder": path or "—",
+            # True when the file sits under the folder currently set on the Cloud page
+            "in_current_folder": bool(path) and path.split("/", 1)[0] == root_now,
         })
     return out
 
