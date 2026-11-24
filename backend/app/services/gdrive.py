@@ -309,6 +309,45 @@ def upload_backup(db, backup, hostname: str) -> dict:
     return result
 
 
+def move_all_to_current(db, limit: int = 1000) -> dict:
+    """Move every NCM backup that is in an older folder into the current
+    <root>/<device> structure. Files already in the current folder are left
+    alone. Returns {moved, skipped, failed}."""
+    root_now = root_folder_name(db)
+    resp = _request(db, "GET", f"{API}/files", params={
+        "q": f"mimeType!='{FOLDER_MIME}' and trashed=false",
+        "pageSize": max(1, min(limit, 1000)),
+        "fields": "files(id,name,parents)",
+    })
+    _raise_for(resp, "List files")
+    memo: dict = {}
+    moved = skipped = failed = 0
+    for f in resp.json().get("files", []):
+        parent = (f.get("parents") or [None])[0]
+        path = _folder_path(db, parent, memo)
+        if path and path.split("/", 1)[0] == root_now:
+            skipped += 1
+            continue
+        # device name = the file's current sub-folder, else the hostname prefix of the file name
+        host = path.split("/", 1)[1] if "/" in path else (f["name"].split("_")[0] or "device")
+        try:
+            target = _folder_for(db, host)
+            if target == parent:
+                skipped += 1
+                continue
+            params = {"fields": "id", "addParents": target}
+            if parent:
+                params["removeParents"] = parent
+            up = _request(db, "PATCH", f"{API}/files/{f['id']}", params=params)
+            _raise_for(up, "Move file")
+            moved += 1
+        except DriveError:
+            failed += 1
+    store.set(db, K_LAST_ERROR, None, commit=False)
+    db.commit()
+    return {"moved": moved, "skipped": skipped, "failed": failed}
+
+
 def _folder_meta(db, fid: str, memo: dict) -> tuple[str | None, str | None]:
     """A folder's (name, first-parent-id), fetched once and memoised."""
     if fid in memo:

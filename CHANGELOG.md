@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.2 (November 2026)
+
+**Added**
+- Google Drive: a **"Move … into this folder"** button on the Cloud page moves every NCM backup that is in an older Drive folder into the folder you have configured now, so renaming the Drive folder a few times no longer leaves your backups scattered. It reorganises only files NCM created and deletes nothing.
+
 ## 2.3.1 (November 2026)
 
 **Fixed**
