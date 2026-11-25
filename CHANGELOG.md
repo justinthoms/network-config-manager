@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.1 (November 2026)
+
+**Fixed**
+- AI provider model picker: when a provider returns many models (e.g. FreeLLMAPI with hundreds), the dropdown showed only one. It is now a searchable list that shows every loaded model with a count, filters as you type, and shows free / tools tags.
+
 ## 2.4.0 (November 2026)
 
 **Added**
