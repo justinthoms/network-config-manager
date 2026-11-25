@@ -19,7 +19,7 @@ Built for NOC and network operations teams who want a simple, private alternativ
 - 🔄 **Change tracking** — per-device timeline and side-by-side diff, with timestamp/header noise hidden and cross-device compare.
 - 🔎 **Config viewer & search** — find text across every device's latest config; jump to the line and section; secrets hidden on screen.
 - 🩺 **Device health checks** — CPU, memory, power, temperature, interfaces and logs, graded OK / Warning / Critical.
-- 🤖 **AI review (optional)** — bring your own provider (Gemini, OpenAI, Anthropic, OpenRouter, Groq, Mistral, or local Ollama). Scores configs, rates every change and answers questions about your network. Secrets are always masked first.
+- 🤖 **AI review (optional)** — bring your own provider (Gemini, OpenAI, Anthropic, OpenRouter, Groq, Mistral, FreeLLMAPI, or local Ollama). Scores configs, rates every change and answers questions about your network. Secrets are always masked first.
 - ☁️ **Off-site copies** — automatic upload to Google Drive and OneDrive.
 - 🔐 **Secure by default** — role-based access, encrypted credentials, strong passwords, sign-in lockout, audit log, security headers and a built-in self-check.
 - ⬆️ **In-app upgrades** — NCM tells you when a new version ships and upgrades itself, with one-click rollback.
