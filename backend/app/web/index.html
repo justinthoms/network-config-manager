@@ -238,6 +238,11 @@ html[data-theme="dark"] .chip.on{background:var(--signal);border-color:var(--sig
 .vendor-card span{font-size:.82rem;color:var(--muted)}
 .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
 .msg{font-size:.87rem;margin-top:10px;min-height:1.2em}
+.combo-pop{position:absolute;z-index:90;top:calc(100% + 4px);left:0;right:0;max-height:300px;overflow:auto;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-sm);box-shadow:var(--shadow-pop)}
+.combo-pop .opt{padding:7px 11px;cursor:pointer;font-family:var(--mono);font-size:.82rem;display:flex;gap:8px;align-items:center}
+.combo-pop .opt:hover{background:var(--signal-soft)}
+.combo-pop .opt .tags{margin-left:auto;font-family:var(--sans);font-size:.72rem;color:var(--muted);white-space:nowrap}
+.combo-pop .hint{padding:8px 11px;color:var(--muted);font-size:.8rem}
 .msg.error{color:var(--fault)}.msg.success{color:var(--link)}
 
 /* ── diff ── */
@@ -1041,8 +1046,10 @@ pre.code .mask{background:var(--fault-soft);color:var(--fault);border-radius:4px
     <div style="margin-top:14px">
       <label class="f">Model</label>
       <div class="model-row" style="margin-top:6px">
-        <input class="input mono" id="pv_model" list="pv_models" placeholder="Load the list or type a model id" style="flex:1" oninput="modelInfo()">
-        <datalist id="pv_models"></datalist>
+        <div class="combo" style="flex:1;position:relative">
+          <input class="input mono" id="pv_model" placeholder="Load the list or type a model id" style="width:100%" autocomplete="off" oninput="onModelInput()" onfocus="showModelList()" onblur="hideModelList()">
+          <div id="pv_models" class="combo-pop hidden"></div>
+        </div>
         <button class="btn" onclick="loadProbeModels(this)">Load models</button>
         <button class="btn" onclick="testProbe(this)">Test</button>
       </div>
@@ -2909,16 +2916,32 @@ async function loadProbeModels(btn) {
     try { S.prov.models = await apiJSON('/api/ai/probe/models', { method:'POST', body: JSON.stringify(probeBody()) });
       const anyFree = S.prov.models.some(m => m.free);
       $('pv_free_wrap').classList.toggle('hidden', !anyFree); $('pv_free').checked = anyFree && S.prov.kind === 'openrouter';
-      fillModelList(); toast(`${S.prov.models.length} models found`);
+      fillModelList(); showModelList(); toast(`${S.prov.models.length} models found`);
       if (!$('pv_model').value && S.prov.models.length) { const best = S.prov.models.find(m => m.tools !== false) || S.prov.models[0]; $('pv_model').value = best.id; }
       modelInfo();
     } catch (e) { msg('provResult', e.message, 'error'); }
   });
 }
-function fillModelList() {
-  const free = $('pv_free').checked;
-  $('pv_models').innerHTML = S.prov.models.filter(m => !free || m.free).map(m => `<option value="${esc(m.id)}">${esc(m.label !== m.id ? m.label : '')}${m.free ? ' · free' : ''}${m.tools ? ' · tools' : m.tools === false ? ' · no tools' : ''}</option>`).join('');
+const MODEL_SHOW_CAP = 200;
+function fillModelList() { renderModelOptions(); }
+function renderModelOptions() {
+  const pop = $('pv_models'); if (!pop) return;
+  const all = S.prov.models || [];
+  if (!all.length) { pop.innerHTML = '<div class="hint">Click “Load models”, or just type a model id (e.g. auto).</div>'; return; }
+  const q = $('pv_model').value.trim().toLowerCase();
+  const free = $('pv_free') && $('pv_free').checked;
+  let list = all.filter(m => !free || m.free);
+  if (q) list = list.filter(m => (m.id + ' ' + (m.label || '')).toLowerCase().includes(q));
+  const shown = list.slice(0, MODEL_SHOW_CAP);
+  pop.innerHTML = `<div class="hint">${list.length} of ${all.length} model${all.length === 1 ? '' : 's'}${q ? ' match' : ''} — click one, or type</div>`
+    + shown.map(m => `<div class="opt" onmousedown="pickModel('${jsq(m.id)}')">${esc(m.id)}<span class="tags">${m.free ? 'free · ' : ''}${m.tools === true ? 'tools' : m.tools === false ? 'no tools' : ''}</span></div>`).join('')
+    + (list.length > shown.length ? `<div class="hint">+${list.length - shown.length} more — type to filter</div>` : '')
+    + (!list.length ? '<div class="hint">No match. Type the id to use it anyway.</div>' : '');
 }
+function showModelList() { renderModelOptions(); $('pv_models').classList.remove('hidden'); }
+function hideModelList() { setTimeout(() => $('pv_models') && $('pv_models').classList.add('hidden'), 150); }
+function onModelInput() { modelInfo(); showModelList(); }
+function pickModel(id) { $('pv_model').value = id; $('pv_models').classList.add('hidden'); modelInfo(); }
 function modelInfo() {
   const m = (S.prov?.models || []).find(x => x.id === $('pv_model').value.trim());
   if (!m) return;
