@@ -428,7 +428,7 @@ details.rawout pre{font-family:var(--mono);font-size:.78rem;line-height:1.5;whit
 /* ── providers & profile ── */
 .kb{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:.72rem;flex:none;letter-spacing:.02em}
 .kb.gemini{background:#1a73e8}.kb.openrouter{background:#5b5bd6}.kb.openai{background:#0f8a6c}.kb.groq{background:#e2562b}
-.kb.mistral{background:#f08c00}.kb.anthropic{background:#b05a3c}.kb.ollama{background:#111827}.kb.custom{background:#667085}
+.kb.mistral{background:#f08c00}.kb.anthropic{background:#b05a3c}.kb.ollama{background:#111827}.kb.freellmapi{background:#0ea5a0}.kb.custom{background:#667085}
 html[data-theme="dark"] .kb.ollama{background:#3b4252}
 .kind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
 @media (max-width:640px){.kind-grid{grid-template-columns:repeat(2,1fr)}}
@@ -2826,7 +2826,7 @@ const scoreBadge = (sc, onclick) => `<button class="ai-badge ${sc >= 80 ? 's-goo
 document.querySelectorAll('#aiKind button').forEach(b => b.onclick = () => {
   document.querySelectorAll('#aiKind button').forEach(x => x.classList.toggle('on', x === b)); S.aiKind = b.dataset.v; loadAIReviews();
 });
-const KIND_TAG = { gemini:'G', openrouter:'OR', openai:'OA', groq:'GQ', mistral:'MI', anthropic:'AN', ollama:'OL', custom:'API' };
+const KIND_TAG = { gemini:'G', openrouter:'OR', openai:'OA', groq:'GQ', mistral:'MI', anthropic:'AN', ollama:'OL', freellmapi:'FL', custom:'API' };
 const kindBadge = k => `<span class="kb ${esc(k)}">${KIND_TAG[k] || '?'}</span>`;
 async function loadPresets() { if (!S.presets) S.presets = await apiJSON('/api/ai/presets'); return S.presets; }
 async function loadAI() {
@@ -2893,11 +2893,12 @@ function pickKind(k, keep) {
   const pr = S.presets[k]; S.prov.kind = k; S.prov.models = [];
   document.querySelectorAll('.kind-card').forEach(c => c.classList.toggle('selected', c.dataset.k === k));
   if (!keep) { $('pv_name').value = pr.label.replace(' (OpenAI compatible)', '').replace(' (local)', ''); $('pv_url').value = pr.base_url; $('pv_model').value = ''; $('pv_models').innerHTML = ''; }
-  $('pv_url_wrap').classList.toggle('hidden', !['ollama', 'custom'].includes(k) && !keep);
+  $('pv_url_wrap').classList.toggle('hidden', !['ollama', 'custom', 'freellmapi'].includes(k) && !keep);
   $('pv_key_wrap').querySelector('span').firstChild.textContent = pr.needs_key ? 'API key ' : 'API key (optional) ';
   const link = $('pv_keylink'); link.href = pr.key_url || '#'; link.classList.toggle('hidden', !pr.key_url);
-  link.textContent = k === 'ollama' ? 'Install Ollama' : 'Get a key';
-  $('pv_info').textContent = k === 'ollama' ? 'Ollama must be reachable from the NCM server. Use http://<server-ip>:11434/v1 if it runs on another machine.' : '';
+  link.textContent = k === 'ollama' ? 'Install Ollama' : k === 'freellmapi' ? 'About FreeLLMAPI' : 'Get a key';
+  $('pv_info').textContent = k === 'ollama' ? 'Ollama must be reachable from the NCM server. Use http://<server-ip>:11434/v1 if it runs on another machine.'
+    : k === 'freellmapi' ? 'Your self-hosted FreeLLMAPI must be reachable from the NCM server. Use its address, e.g. http://<server-ip>:3001/v1, and the unified key (freellmapi-…) from its dashboard. Try the model “auto”.' : '';
 }
 function probeBody() {
   return { kind: S.prov.kind, base_url: $('pv_url').value.trim() || null, api_key: $('pv_key').value.trim() || null,

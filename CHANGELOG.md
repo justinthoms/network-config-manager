@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.0 (November 2026)
+
+**Added**
+- **FreeLLMAPI** is now a one-click choice in **AI review → Add provider**, alongside Gemini, OpenAI and the others. It is OpenAI-compatible, so NCM just needs the address of your self-hosted FreeLLMAPI (e.g. `http://<server-ip>:3001/v1`) and its unified key — no extra setup. (FreeLLMAPI itself is a separate project you run; NCM only talks to it over the network.)
+
 ## 2.3.3 (November 2026)
 
 **Fixed**

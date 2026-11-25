@@ -41,10 +41,12 @@ PRESETS = {
                    "needs_key": True, "key_url": "https://console.anthropic.com/settings/keys"},
     "ollama":     {"label": "Ollama (local)", "base_url": "http://localhost:11434/v1",
                    "needs_key": False, "key_url": "https://ollama.com/download"},
+    "freellmapi": {"label": "FreeLLMAPI", "base_url": "http://localhost:3001/v1",
+                   "needs_key": True, "key_url": "https://github.com/tashfeenahmed/freellmapi"},
     "custom":     {"label": "Custom (OpenAI compatible)", "base_url": "",
                    "needs_key": False, "key_url": ""},
 }
-OPENAI_LIKE = {"openai", "openrouter", "groq", "mistral", "ollama", "custom"}
+OPENAI_LIKE = {"openai", "openrouter", "groq", "mistral", "ollama", "custom", "freellmapi"}
 
 
 class AIError(RuntimeError):
